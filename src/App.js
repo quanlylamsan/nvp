@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import UserListPage from './pages/UserListPage';
 import CustomerListPage from './pages/CustomerListPage';
-import KhaiBaoCoSo from './pages/KhaiBaoCoSo';
+import KhaiBaoCoSo from './pages/KhaiBaoCoSoPage';
 import LogoutPage from './pages/LogoutPage';
 import Sidebar from './components/Sidebar';
 
