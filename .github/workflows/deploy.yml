@@ -1,0 +1,61 @@
+# Tên của quy trình tự động hóa
+name: Deploy Frontend to GitHub Pages
+
+# Kích hoạt quy trình mỗi khi có code mới được đẩy lên nhánh "main"
+on:
+  push:
+    branches: ["main"]
+  # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
+
+# Cấp quyền cho quy trình để ghi vào GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Các công việc cần thực hiện
+jobs:
+  build-and-deploy:
+    # Chỉ định rằng job này sử dụng environment tên là "production"
+    # Tên này phải TRÙNG KHỚP với tên environment bạn đã tạo
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Lấy mã nguồn từ kho chứa về
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Cài đặt Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3. Cài đặt các thư viện
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Build dự án
+      # QUAN TRỌNG: Nó sẽ lấy secret bạn đã tạo và truyền vào quá trình build
+      - name: Build project
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      # 5. Cấu hình GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 6. Tải lên các file đã build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Thư mục chứa kết quả build, có thể là 'build' hoặc 'dist'
+
+      # 7. Deploy lên GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
