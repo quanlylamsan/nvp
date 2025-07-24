@@ -38,24 +38,29 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 4. Build dự án
-      # QUAN TRỌNG: Nó sẽ lấy secret bạn đã tạo và truyền vào quá trình build
+      # 4. SỬA LỖI: Cấp quyền thực thi cho react-scripts
+      - name: Add execute permission
+        run: chmod +x ./node_modules/.bin/react-scripts
+
+      # 5. Build dự án
       - name: Build project
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          # Tên secret này phải khớp với tên bạn đã tạo trong Environment
+          VITE_API_URL: ${{ secrets.VITE_API_URL }} 
 
-      # 5. Cấu hình GitHub Pages
+      # 6. Cấu hình GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 6. Tải lên các file đã build
+      # 7. Tải lên các file đã build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Thư mục chứa kết quả build, có thể là 'build' hoặc 'dist'
+          # Với React (react-scripts), thư mục build thường là 'build'
+          path: './build' 
 
-      # 7. Deploy lên GitHub Pages
+      # 8. Deploy lên GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
