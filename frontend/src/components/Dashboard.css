@@ -1,0 +1,393 @@
+/* Variables for consistent theming */
+:root {
+  --primary-color: #4CAF50; /* Green */
+  --primary-dark: #388E3C;
+  --secondary-color: #1a202c; /* Dark for sidebar */
+  --text-light: #f0f2f5;
+  --text-dark: #333;
+  --background-light: #f7f9fc;
+  --background-card: #ffffff;
+  --border-color: #e2e8f0;
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --border-radius: 8px;
+
+  --main-header-banner-height: 115px; /* Ước tính chiều cao header, điều chỉnh nếu cần */
+}
+
+/* Đảm bảo HTML và Body chiếm toàn bộ chiều cao màn hình */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Ngăn scrollbar kép trên body */
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+}
+
+/* app-container: Layout tổng thể (Sidebar + Main Content Area) */
+.app-container {
+  display: flex; /* Sidebar và Main Content Area nằm ngang */
+  min-height: 100vh; /* Chiếm toàn bộ chiều cao viewport */
+  background-color: var(--background-light);
+  box-sizing: border-box;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 280px;
+  min-width: 250px;
+  background-color: var(--secondary-color);
+  color: var(--text-light);
+  padding: 25px 0;
+  box-shadow: 4px 0 15px var(--shadow-medium);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Kéo dài sidebar toàn bộ chiều cao */
+  overflow-y: auto; /* Cho phép cuộn sidebar nếu nội dung quá dài */
+  border-top-right-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  flex-shrink: 0; /* Ngăn sidebar bị co lại */
+}
+
+.sidebar h3 {
+  display: none; /* Đảm bảo nó ẩn nếu bạn không muốn nó hiển thị */
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Khoảng cách giữa các mục chính (bao gồm cả Link và các summary div) */
+.sidebar ul li {
+  margin-bottom: 20px; /* Tăng khoảng cách giữa các mục chính */
+}
+
+.sidebar ul li a,
+.sidebar .summary { /* Áp dụng styles cho cả Link và div.summary */
+  color: var(--text-light);
+  text-decoration: none;
+  padding: 12px 30px;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 1.05em;
+  white-space: nowrap;
+  font-weight: bold; /* Đảm bảo in đậm chữ */
+  cursor: pointer; /* Biến con trỏ thành bàn tay khi hover qua summary */
+  position: relative; /* Quan trọng để định vị mũi tên */
+}
+
+.sidebar ul li a:hover,
+.sidebar .summary:hover {
+  background-color: var(--primary-dark);
+  color: white;
+}
+
+.sidebar ul li a.active,
+.sidebar .summary.active { /* Thêm active cho summary nếu bạn có class này */
+  background-color: var(--primary-color);
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 2px 5px var(--shadow-light);
+}
+
+.sidebar ul li a svg,
+.sidebar .summary svg {
+  margin-right: 15px;
+  font-size: 1.2em;
+}
+
+/* ---------------------------------------------------- */
+/* Dấu mũi tên cho các mục mở rộng (summary div) */
+.sidebar .summary::after {
+  content: '\25B6'; /* Ký tự unicode cho mũi tên phải (►) */
+  margin-left: auto; /* Đẩy mũi tên sang phải cùng dòng với văn bản */
+  margin-right: 10px; /* Khoảng cách từ mép phải của padding */
+  transition: transform 0.3s ease;
+  color: var(--text-light);
+  font-size: 0.9em; /* Kích thước mũi tên */
+  line-height: 1; /* Căn giữa theo chiều dọc */
+}
+
+.sidebar .summary.open::after { /* Khi summary có class 'open' */
+  content: '\25BC'; /* Ký tự unicode cho mũi tên xuống (▼) */
+}
+
+/* Định dạng cho các menu con (submenu) */
+.sidebar .submenu {
+  margin-top: 5px; /* Khoảng cách trên cùng của nhóm con */
+  margin-bottom: 5px; /* Khoảng cách dưới cùng của nhóm con */
+  padding-left: 40px; /* Thụt lề sâu hơn cho các mục con */
+  list-style: none; /* Loại bỏ dấu chấm mặc định */
+}
+
+.sidebar .submenu li {
+  margin-bottom: 8px; /* Khoảng cách giữa các mục con */
+}
+
+.sidebar .submenu li a {
+  padding: 8px 10px; /* Giảm padding để phù hợp với mục con */
+  padding-left: 10px; /* Padding-left bổ sung sau khi ul đã có padding-left */
+  font-size: 0.95em; /* Kích thước font nhỏ hơn một chút cho mục con */
+  font-weight: normal; /* Mục con không in đậm */
+}
+
+.sidebar .submenu li a svg {
+    margin-right: 10px; /* Khoảng cách nhỏ hơn cho icon mục con */
+    font-size: 1em; /* Kích thước icon mục con */
+}
+
+/* Loại bỏ các quy tắc cũ của details/summary để tránh xung đột */
+/* Đảm bảo các quy tắc này đủ mạnh để ẩn các yếu tố details/summary cũ nếu chúng vẫn tồn tại */
+.sidebar details,
+.sidebar details summary,
+.sidebar details summary::-webkit-details-marker,
+.sidebar details summary::marker,
+.sidebar details summary::after,
+.sidebar details[open] summary::after,
+.sidebar details ul,
+.sidebar details ul li,
+.sidebar details ul li a,
+.sidebar details ul li a svg {
+    display: none !important;
+}
+/* ---------------------------------------------------- */
+
+
+/* main-layout-content: Phần nội dung còn lại (Header + Routes) */
+.main-layout-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Header/Banner */
+.main-header-banner {
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 15px 30px;
+  box-shadow: 0 4px 8px var(--shadow-light);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.header-logo {
+  height: 70px;
+  width: auto;
+  margin-right: 25px;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px var(--shadow-light);
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 1.8em;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.4;
+}
+
+.header-text h2 {
+  margin: 5px 0 0 0;
+  font-size: 1.2em;
+  font-weight: 400;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+/* STYLE CHO BẢN QUYỀN TRONG HEADER */
+.header-text .header-copyright {
+  margin: 8px 0 0 0;
+  font-size: 0.85em;
+  font-weight: normal;
+  opacity: 0.8;
+  color: #B8860B;
+}
+
+
+/* route-content-wrapper: Phần nội dung chính có thể cuộn */
+.route-content-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0 20px;
+  padding-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* Các trang con bên trong route-content-wrapper (Dashboard, FormPage, Manager) */
+.dashboard-body,
+.form-page-container,
+.manager-container {
+  padding: 20px 30px;
+  background-color: var(--background-card);
+  margin-bottom: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-light);
+  box-sizing: border-box;
+}
+
+/* THÔNG TIN BẢN QUYỀN CỐ ĐỊNH GÓC DƯỚI BÊN TRÁI */
+.app-copyright {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  font-size: 0.8em;
+  line-height: 1.5;
+  color: #B8860B;
+  opacity: 0.6;
+  z-index: 1000;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    border-radius: 0;
+    box-shadow: 0 4px 8px var(--shadow-light);
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .sidebar ul {
+    display: flex;
+    flex-direction: row;
+    padding: 0 10px;
+  }
+
+  .sidebar ul li {
+    margin: 0 5px;
+  }
+
+  .sidebar ul li a,
+  .sidebar .summary {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    flex-direction: column;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .sidebar ul li a svg,
+  .sidebar .summary svg {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+
+  /* Mũi tên trên mobile cho summary div */
+  .sidebar .summary::after {
+    content: '\25B6'; /* Mũi tên phải trên mobile */
+    position: static; /* Đặt lại vị trí thành static */
+    margin-left: 5px; /* Điều chỉnh khoảng cách trên mobile */
+    font-size: 0.7em;
+  }
+  .sidebar .summary.open::after {
+    content: '\25BC'; /* Mũi tên xuống khi mở trên mobile */
+  }
+
+  /* Menu con trên mobile */
+  .sidebar .submenu {
+    position: absolute;
+    background-color: var(--secondary-color);
+    left: 0;
+    top: 100%;
+    width: 150px;
+    z-index: 10;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px var(--shadow-medium);
+    padding: 10px 0;
+    flex-direction: column;
+    white-space: normal;
+  }
+
+  .sidebar .submenu li a {
+    padding-left: 50px;
+    font-size: 1.05em;
+    text-align: left;
+    flex-direction: row;
+  }
+
+  .main-header-banner {
+    padding: 10px 15px;
+    border-radius: 0;
+    margin-bottom: 15px;
+    width: 100vw;
+    left: 0;
+    top: 0;
+    position: sticky;
+  }
+
+  .header-logo {
+    height: 60px;
+    margin-right: 15px;
+  }
+
+  .header-text h1 {
+    font-size: 1.4em;
+  }
+
+  .header-text h2 {
+    font-size: 1em;
+  }
+
+  /* Style bản quyền trong header trên mobile */
+  .header-text .header-copyright {
+    font-size: 0.75em;
+  }
+
+
+  .route-content-wrapper {
+    padding: 0 15px;
+    padding-bottom: 15px;
+  }
+
+  .dashboard-body,
+  .form-page-container,
+  .manager-container {
+    margin: 0;
+    padding: 15px;
+  }
+
+  /* Bản quyền góc dưới bên trái trên mobile */
+  .app-copyright {
+    left: 5px;
+    bottom: 5px;
+    font-size: 0.7em;
+  }
+}
