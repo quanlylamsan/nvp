@@ -47,7 +47,7 @@ function App() {
   console.log('App.js - Is Logged In:', isLoggedIn, 'Role:', role);
 
   return (
-    <Router>
+    <Router basename="/nvp"> {/* THÊM LẠI DÒNG NÀY */}
       <div className="dashboard-container">
          {isLoggedIn && <Sidebar userRole={role} />}
 
