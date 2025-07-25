@@ -1,0 +1,89 @@
+/* FarmListPage.css */
+.farm-list-container {
+  padding: 20px;
+  font-family: 'Inter', sans-serif; /* Sử dụng font Inter */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap; /* Cho phép xuống dòng trên màn hình nhỏ */
+}
+
+.search-input, .type-filter-select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  flex: 1; /* Cho phép các input co giãn */
+  min-width: 180px; /* Đảm bảo kích thước tối thiểu */
+}
+
+.farm-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden; /* Đảm bảo bo tròn góc cho bảng */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.farm-table th, .farm-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.farm-table th {
+  background-color: #e9ecef;
+  color: #333;
+  font-weight: bold;
+}
+
+.farm-table tbody tr:nth-child(even) {
+  background-color: #f6f6f6;
+}
+
+.farm-table tbody tr:hover {
+  background-color: #e2f0ff;
+  cursor: pointer;
+}
+
+.no-data-message, .error-message {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.error-message {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.table-responsive {
+  overflow-x: auto; /* Cho phép cuộn ngang trên màn hình nhỏ */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+  }
+  .search-input, .type-filter-select {
+    min-width: unset; /* Bỏ min-width trên mobile */
+    width: 100%;
+  }
+}

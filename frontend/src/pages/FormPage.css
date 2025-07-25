@@ -1,0 +1,195 @@
+/* FormPage.css */
+.form-page-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-page-container h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 1px; /* Giảm khoảng cách dưới h2 */
+  font-size: 1.8em;
+}
+
+.farm-form label {
+  display: block;
+  margin-bottom: 1px; /* Giảm khoảng cách dưới label */
+  font-weight: bold;
+  color: #555;
+}
+
+.farm-form input[type="text"],
+.farm-form input[type="date"],
+.farm-form input[type="number"],
+.farm-form select { /* Thêm select vào đây */
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-top: 1px; /* Giảm khoảng cách trên input */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.farm-form h3 {
+  margin-top: 1px; /* Giảm khoảng cách trên h3 */
+  margin-bottom: 1px; /* Giảm khoảng cách dưới h3 */
+  color: #444;
+  font-size: 1.4em;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1px; /* Giảm padding-bottom */
+}
+
+/* Các style cho form-grid, form-group, input, button đã được định nghĩa trong FormPage.css */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px; /* Giảm khoảng cách giữa các cột */
+  margin-bottom: 1px; /* Giảm khoảng cách dưới grid */
+}
+
+.form-group {
+  margin-bottom: 0px; /* Giảm khoảng cách giữa các nhóm form */
+}
+
+.form-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px; /* Giảm padding */
+  margin-bottom: 1px; /* Giảm margin-bottom */
+  background-color: #fdfdfd;
+}
+
+.form-section h5 {
+  margin-top: 1px; /* Giảm khoảng cách trên h5 */
+  margin-bottom: 1px; /* Giảm khoảng cách dưới h5 */
+  color: #555;
+  font-size: 1.1em;
+}
+
+.form-section-row {
+  display: flex;
+  gap: 1px; /* Giảm khoảng cách giữa các input trong hàng */
+  margin-bottom: 1px; /* Giảm khoảng cách giữa các dòng input */
+  align-items: center;
+}
+
+.form-section-row .form-group {
+    margin-bottom: 0; /* Loại bỏ margin-bottom thừa trong hàng */
+}
+
+.form-section-wrapper {
+  flex: 1; /* Đảm bảo các phần Tăng đàn/Giảm đàn chia đều không gian */
+  min-width: 280px; /* Ngăn không cho chúng quá nhỏ trên màn hình hẹp */
+  padding: 1px; /* Giảm padding để giảm khoảng cách */
+  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước tổng thể */
+}
+
+/* Điều chỉnh cho input trong form-group để chúng không bị quá nhỏ */
+.form-group input[type="number"],
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group select { /* Thêm select vào đây */
+  width: 100%; /* Đảm bảo input chiếm hết chiều rộng có thể */
+  box-sizing: border-box; /* Bao gồm padding và border vào width */
+  padding: 5px 8px; /* Giảm padding cho input */
+}
+
+/* Các nút */
+.submit-button, .cancel-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s;
+  margin-top: 1px; /* Giảm margin-top */
+  margin-right: 1px;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+.cancel-button {
+  background-color: #6c757d;
+}
+
+.cancel-button:hover {
+  background-color: #5a6268;
+}
+
+.success-message {
+  color: green;
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-bottom: 1px;
+}
+
+/* Specific styles for FarmDetail table */
+.activity-list-container {
+  margin-top: 1px;
+  overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+}
+
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1px; /* Giảm khoảng cách trên bảng */
+  font-size: 0.9em;
+}
+
+.activity-table th,
+.activity-table td {
+  border: 1px solid #ddd;
+  padding: 6px; /* Giảm padding cho ô bảng */
+  text-align: center;
+  vertical-align: middle;
+}
+
+.activity-table thead th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.activity-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.activity-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.activity-table .delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: background-color 0.2s;
+}
+
+.activity-table .delete-button:hover {
+  background-color: #c82333;
+}
+
+.detail-group {
+    margin-bottom: 1px; /* Giảm khoảng cách cho các nhóm chi tiết */
+}
+
+.detail-group strong {
+    display: block;
+    margin-bottom: 1px; /* Giảm khoảng cách giữa strong và p */
+}
