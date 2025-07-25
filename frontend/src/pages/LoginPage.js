@@ -4,6 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './LoginPage.css'; // Import CSS cho trang đăng nhập
 
+// Lấy URL API từ biến môi trường.
+// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ mà không có tệp .env hoặc khi .env chưa được tải),
+// nó sẽ mặc định dùng localhost:10000.
+// Điều này đảm bảo ứng dụng hoạt động đúng cả khi phát triển và khi triển khai.
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; 
+
 function LoginPage({ setAuthStatus }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +34,9 @@ function LoginPage({ setAuthStatus }) {
     console.log('handleLogin function called.');
 
     try {
-      const response = await axios.post('http://localhost:10000/api/auth/login', {
+      // Sử dụng API_BASE_URL cho tất cả các cuộc gọi API.
+      // Cuộc gọi này sẽ đến https://nvp-f0i2.onrender.com/api/auth/login khi triển khai.
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });
@@ -54,6 +62,8 @@ function LoginPage({ setAuthStatus }) {
 
     } catch (err) {
       console.error('Lỗi đăng nhập:', err);
+      // Kiểm tra nếu có phản hồi từ server để lấy thông báo lỗi cụ thể
+      // Nếu không có phản hồi (ví dụ: lỗi mạng), hiển thị thông báo chung.
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
     }
   };
@@ -82,7 +92,7 @@ function LoginPage({ setAuthStatus }) {
               id="password"
               className="login-input"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)} // Đã sửa: Sử dụng e.target.value cho input mật khẩu
               required
             />
           </div>
