@@ -1,0 +1,490 @@
+/* src/Dashboard.css */
+body {
+  margin: 0; /* Remove default body margin */
+  font-family: 'Inter', sans-serif; /* Use Inter font */
+  background-color: #f4f7f6; /* Light background color for the entire app */
+  color: #333; /* Default text color */
+}
+
+/* Add box-sizing for all elements for more accurate size calculation */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex; /* Use flexbox to align sidebar and main content */
+  min-height: 100vh; /* Ensure app takes full screen height */
+}
+
+.main-layout-content {
+  flex: 1; /* Allow main content to take remaining space */
+  display: flex;
+  flex-direction: column; /* Arrange header and route content vertically */
+  /* Default (when not logged in), banner will take full width, no margin-left */
+  margin-left: 0;
+  width: 100%;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out; /* Transition effect for margin and width */
+}
+
+/* When logged in, main-layout-content will have margin-left for sidebar */
+.main-layout-content.logged-in {
+  margin-left: 70px; /* Initial spacing for collapsed sidebar */
+  width: calc(100% - 70px); /* Initial width for main content */
+}
+
+.sidebar {
+  width: 70px; /* Initial width of sidebar (icon-only) */
+  background-color: #2c3e50; /* Dark blue background */
+  color: #ecf0f1; /* Light text color */
+  padding: 20px 0px; /* Keep vertical padding, remove horizontal padding here */
+  position: fixed; /* Keep sidebar fixed on screen */
+  height: 100%; /* Take full height */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Light shadow */
+  display: flex;
+  flex-direction: column; /* Arrange items in sidebar vertically */
+  overflow: hidden; /* Hide overflowing content (important for hiding text) */
+  transition: width 0.3s ease-in-out, padding 0.3s ease-in-out; /* Transition effect for width and padding */
+  white-space: nowrap; /* Prevent text from wrapping when sidebar is small */
+  z-index: 1000; /* Ensure sidebar is always on top */
+}
+
+.sidebar:hover {
+  width: 250px; /* Width when hovered (expanded) */
+  padding: 20px; /* Full padding when expanded */
+}
+
+/* When sidebar is hovered AND main-layout-content has logged-in class, adjust margin-left */
+.sidebar:hover + .main-layout-content.logged-in {
+  margin-left: 250px; /* Adjust margin-left of main content when sidebar expands */
+  width: calc(100% - 250px); /* Adjust width of main content when sidebar expands */
+}
+
+.sidebar-header {
+  text-align: center; /* Center sidebar header content */
+  margin-bottom: 30px; /* Spacing below header */
+  padding-bottom: 20px; /* Padding below header */
+  border-bottom: 1px solid #34495e; /* Border below header */
+  opacity: 0; /* Hide header when sidebar is collapsed */
+  transition: opacity 0.3s ease-in-out; /* Transition effect for opacity */
+}
+
+.sidebar:hover .sidebar-header {
+  opacity: 1; /* Show header when sidebar expands */
+}
+
+.user-avatar {
+  width: 50px; /* Avatar size when sidebar is collapsed */
+  height: 50px; /* Avatar size when sidebar is collapsed */
+  border-radius: 50%; /* Fully rounded avatar */
+  object-fit: cover; /* Ensure image fits frame */
+  margin-bottom: 10px; /* Spacing below avatar */
+  border: 3px solid #3498db; /* Blue border for avatar */
+  transition: width 0.3s ease-in-out, height 0.3s ease-in-out; /* Transition effect for avatar size */
+}
+
+.sidebar:hover .user-avatar {
+  width: 80px; /* Avatar size when sidebar expands */
+  height: 80px; /* Avatar size when sidebar expands */
+}
+
+.user-role {
+  font-size: 0.9em; /* Font size for role when sidebar is collapsed */
+  font-weight: bold; /* Bold text */
+  color: #3498db; /* Blue color for role */
+  opacity: 0; /* Hide role when sidebar is collapsed */
+  transition: opacity 0.3s ease-in-out; /* Transition effect for opacity */
+}
+
+.sidebar:hover .user-role {
+  font-size: 1.1em; /* Font size for role when sidebar expands */
+  opacity: 1; /* Show role when sidebar expands */
+}
+
+.sidebar-nav ul {
+  list-style: none; /* Remove list bullet points */
+  padding: 0; /* Remove default ul padding */
+  margin: 0; /* Remove default ul margin */
+}
+
+.sidebar-nav li {
+  margin-bottom: 10px; /* Spacing between menu items */
+}
+
+.sidebar-nav a {
+  display: flex; /* Use flexbox to align icon and text */
+  align-items: center; /* Vertically align */
+  justify-content: flex-start; /* Left align content */
+  color: #ecf0f1; /* Link text color */
+  text-decoration: none; /* Remove link underline */
+  padding: 10px 15px; /* Adjusted padding so icon is not too close to left edge and has some space */
+  border-radius: 5px; /* Rounded link corners */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transition effect on hover */
+}
+
+/* Icon wrapper (needs 'menu-icon' class added to icon wrapper in Sidebar.js) */
+.sidebar-nav a .menu-icon {
+  width: 40px; /* Fixed width for icon area */
+  height: 40px; /* Fixed height for icon area */
+  display: flex; /* Use flexbox to center icon */
+  justify-content: center; /* Still center icon within its space */
+  align-items: center; /* Vertically center icon */
+  font-size: 1.8em; /* Adjusted icon font size */
+  flex-shrink: 0; /* Prevent icon from shrinking */
+  margin-right: 0; /* No right margin when collapsed */
+  transition: margin-right 0.3s ease, font-size 0.3s ease; /* Transition effect for margin and font-size */
+}
+
+/* Text (needs 'menu-text' class added to text wrapper in Sidebar.js) */
+.sidebar-nav a .menu-text {
+  opacity: 0; /* Hide text when sidebar is collapsed */
+  width: 0; /* Collapse text width */
+  overflow: hidden; /* Hide overflowing text */
+  transition: opacity 0.3s ease, width 0.3s ease; /* Transition effect for opacity and width */
+}
+
+/* When sidebar is hovered, show text and add margin for icon */
+.sidebar:hover .sidebar-nav a .menu-icon {
+  margin-right: 10px; /* Add space between icon and text when expanded */
+  font-size: 1.5em; /* Reduce icon size when sidebar expands */
+}
+
+.sidebar:hover .sidebar-nav a .menu-text {
+  opacity: 1; /* Show text */
+  width: auto; /* Expand text width */
+}
+
+/* --- Update styles for background banner image --- */
+.main-header-banner {
+  width: 100%; /* Ensure banner takes full width of parent */
+  min-height: 150px; /* Minimum height for banner image */
+  background-image: var(--banner-image-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px; /* Initial padding */
+}
+
+/* New container for logo and text to center them together */
+.header-content-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* flex-grow: 1;  Remove flex-grow so it doesn't take all space */
+}
+
+/* When logged in, banner will left-align content */
+.main-layout-content.logged-in .main-header-banner {
+  justify-content: flex-start; /* Left align when logged in */
+}
+
+/* When NOT logged in, banner will center all content */
+.main-layout-content:not(.logged-in) .main-header-banner {
+  justify-content: center; /* Center all content when not logged in */
+}
+
+/* Ensure text elements display on background image */
+.header-logo {
+  width: 100px; /* Increased logo size */
+  height: 100px; /* Increased logo size */
+  border-radius: 50%; /* Changed to circular shape */
+  flex-shrink: 0;
+  object-fit: contain; /* Ensure logo is not cropped or distorted */
+  background-color: rgba(255, 255, 255, 0.8); /* Add light white background for logo */
+  padding: 5px; /* Add padding for logo */
+}
+
+/* When NOT logged in, remove right margin of logo and set auto margin to center within wrapper */
+.main-layout-content:not(.logged-in) .main-header-banner .header-logo {
+  margin-right: 20px; /* Keep right margin to separate logo and text */
+}
+
+/* When logged in, add right margin back to logo */
+.main-layout-content.logged-in .main-header-banner .header-logo {
+  margin-right: 20px; /* Add right margin when logged in */
+}
+
+
+.header-text {
+  flex-grow: 1; /* Allow header-text to take remaining space */
+  padding-left: 0; /* Remove default padding-left */
+}
+
+/* When not logged in, text will be centered */
+.main-layout-content:not(.logged-in) .main-header-banner .header-text {
+  text-align: left; /* Keep text-align left so it's to the right of the logo in the wrapper */
+}
+
+/* When logged in, text will be left-aligned */
+.main-layout-content.logged-in .main-header-banner .header-text {
+  text-align: left; /* Left align when logged in */
+  padding-left: 10px; /* Add padding-left to push text away from logo */
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 1.8em;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.header-text h2 {
+  margin: 5px 0 0;
+  font-size: 1.2em;
+  color: #eee;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.header-copyright {
+  font-size: 0.8em;
+  color: #ccc;
+  margin-top: 0px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+
+.route-content-wrapper {
+  padding: 20px;
+  flex-grow: 1;
+  background-color: #fff;
+  border-radius: 8px;
+  margin: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-content {
+  padding: 20px;
+}
+
+.dashboard-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 0px;
+}
+
+.widget {
+  background-color: #e0f2f7;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.widget:hover {
+  transform: translateY(-5px);
+}
+
+.widget h3 {
+  color: #2c3e50;
+  margin-top: 0;
+  font-size: 1.4em;
+}
+
+.widget p {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #3498db;
+  margin: 10px 0 0;
+}
+
+/* Table styles for FarmListPage */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table thead tr {
+  background-color: #3498db;
+  color: white;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tbody tr:hover {
+  background-color: #e9f5f9;
+}
+
+table td button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  margin-right: 5px;
+  transition: background-color 0.2s ease;
+}
+
+table td button:hover {
+  background-color: #27ae60;
+}
+
+table td button:last-child {
+  margin-right: 0;
+}
+
+.app-copyright {
+  text-align: center;
+  padding: 10px;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  font-size: 0.8em;
+  margin-top: auto;
+}
+
+/* New styles for Login Form */
+..login-card {
+    background-color: #ffffff;
+    padding: 1px 10px 10px 10px; /* Giảm padding trên cùng để kéo nội dung sát lên viền trên */
+    border-radius: 8px;
+    box-shadow:500px; /* Giảm chiều rộng tối đa để cân đối hơn */
+    margin: 0 auto; /* Đặt margin về 0 trên/dưới để kéo sát banner, tự động căn giữa ngang */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* Giảm khoảng cách giữa các phần tử */
+}
+
+.login-card h2 {
+    color: #2c3e50;
+    margin-top: 0;
+    font-size: 1.6em; /* Reduced title font size */
+}
+
+.login-card input[type="text"],
+.login-card input[type="password"] {
+    width: 100%;
+    padding: 5px; /* Reduced input padding for smaller height */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9em; /* Reduced input font size */
+}
+
+.login-card button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 5px; /* Reduced button padding for smaller height and width */
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em; /* Reduced button font size */
+    transition: background-color 0.2s ease;
+}
+
+.login-card button:hover {
+    background-color: #2980b9;
+}
+
+/* Adjustments for "Forgot password?" and "Register" links */
+.login-card .forgot-register-links {
+    display: flex;
+    justify-content: center; /* Center links */
+    gap: 10px; /* Space between links */
+    font-size: 0.85em; /* Smaller font size */
+    margin-top: 0px; /* Spacing from login button */
+}
+
+.login-card .forgot-register-links a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.login-card .forgot-register-links a:hover {
+    text-decoration: underline;
+}
+
+/* New styles for the version and copyright information at the bottom of the login card */
+.login-card .version-info {
+    font-size: 0.75em; /* Reduced font size */
+    color: #777; /* Lighter text color */
+    margin-top: 0px; /* Reduced spacing from elements above */
+    line-height: 1.3; /* Adjust line height */
+}
+
+
+/* Adjustments for the main content area when not logged in to position the login card */
+.main-layout-content:not(.logged-in) {
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: flex-start; /* Align items to the top */
+    padding-top: 0; /* Remove padding-top to pull login card closer */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+    padding: 15px;
+  }
+
+  .main-layout-content {
+    margin-left: 0;
+    margin-top: 0;
+  }
+
+  .main-header-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .header-logo {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .header-text h1 {
+    font-size: 1.4em;
+  }
+
+  .header-text h2 {
+    font-size: 1em;
+  }
+
+  .route-content-wrapper {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .dashboard-widgets {
+    grid-template-columns: 1fr;
+  }
+
+  table th,
+  table td {
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+
+  table td button {
+    padding: 6px 8px;
+    font-size: 0.8em;
+  }
+}
