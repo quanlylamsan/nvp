@@ -45,10 +45,9 @@ jobs:
       # 5. Build dự án
       - name: Build project
         run: npm run build
-        working-directory: ./ # Nếu package.json ở gốc, không cần working-directory: frontend
+        working-directory: frontend # Đảm bảo dòng này có
         env:
-          REACT_APP_API_URL: https://nvp-f0i2.onrender.com # Thêm dòng này
-          # VITE_API_URL: ${{ secrets.VITE_API_URL }} # Nếu bạn có secret này, hãy giữ lại
+          REACT_APP_API_URL: https://nvp-f0i2.onrender.com # Đảm bảo URL này đúng
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages
