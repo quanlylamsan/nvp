@@ -60,7 +60,9 @@ jobs:
         with:
           path: './frontend/build' # Đảm bảo đường dẫn này đúng là nơi build tạo ra files
 
-      # 8. Deploy lên GitHub Pages
+       # 8. Deploy lên GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+        target_branch: main # Thêm dòng này để đẩy lên nhánh main
