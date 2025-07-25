@@ -13,7 +13,7 @@ function App() {
   const role = localStorage.getItem('role');
 
   return (
-    <Router basename="/wildlife-frontend"> {/* Thêm basename này */}
+    <Router basename="/qlls"> {/* Thêm basename này */}
       <div style={{ display: 'flex' }}>
         {token && <Sidebar />} {/* ✅ Hiển thị sidebar nếu đã đăng nhập */}
 

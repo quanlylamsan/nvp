@@ -17,8 +17,6 @@ permissions:
 # Các công việc cần thực hiện
 jobs:
   build-and-deploy:
-    # Chỉ định rằng job này sử dụng environment tên là "production"
-    # Tên này phải TRÙNG KHỚP với tên environment bạn đã tạo
     environment:
       name: production
       url: ${{ steps.deployment.outputs.page_url }}
@@ -37,31 +35,30 @@ jobs:
       # 3. Cài đặt các thư viện (trong thư mục frontend)
       - name: Install dependencies
         run: npm install
-        working-directory: frontend # Chỉ định thư mục làm việc cho lệnh này
+        working-directory: frontend
 
       # 4. SỬA LỖI: Cấp quyền thực thi cho react-scripts (trong thư mục frontend)
       - name: Add execute permission
         run: chmod +x ./node_modules/.bin/react-scripts
-        working-directory: frontend # Chỉ định thư mục làm việc cho lệnh này
+        working-directory: frontend
 
       # 5. Build dự án (trong thư mục frontend)
       - name: Build project
         run: npm run build
-        working-directory: frontend # Chỉ định thư mục làm việc cho lệnh này
+        working-directory: frontend
         env:
-          # Tên secret này phải khớp với tên bạn đã tạo trong Environment
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # 7. Tải lên các file đã build (từ thư mục build bên trong frontend)
+      # 7. Tải lên các file đã build
+      # THAY ĐỔI Ở ĐÂY: Sử dụng Actions để di chuyển output
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Với React (react-scripts), thư mục build thường là 'build'
-          path: './frontend/build' # Thay đổi đường dẫn đến thư mục build
+          path: './frontend/build' # Đảm bảo đường dẫn này đúng là nơi build tạo ra files
 
       # 8. Deploy lên GitHub Pages
       - name: Deploy to GitHub Pages
