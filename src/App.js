@@ -13,7 +13,7 @@ function App() {
   const role = localStorage.getItem('role');
 
   return (
-    <Router>
+    <Router basename="/wildlife-frontend"> {/* Thêm basename này */}
       <div style={{ display: 'flex' }}>
         {token && <Sidebar />} {/* ✅ Hiển thị sidebar nếu đã đăng nhập */}
 
@@ -21,7 +21,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/" />} />
-            <Route path="/khai-bao" element={token ? <KhaiBaoCoSo /> : <Navigate to="/" />} />
+            <Route path="/khai-bao" element={token ? <KhaiBaoCoSoPage /> : <Navigate to="/" />} /> {/* Sửa lỗi chính tả: KhaiBaoCoSoPage */}
             <Route path="/admin/users" element={token && role === 'admin' ? <UserListPage /> : <Navigate to="/" />} />
             <Route path="/admin/customers" element={token && role === 'admin' ? <CustomerListPage /> : <Navigate to="/" />} />
             <Route path="/logout" element={<LogoutPage />} />
