@@ -42,12 +42,13 @@ jobs:
         run: chmod +x ./node_modules/.bin/react-scripts
         working-directory: frontend
 
-      # 5. Build dự án (trong thư mục frontend)
+      # 5. Build dự án
       - name: Build project
         run: npm run build
-        working-directory: frontend
+        working-directory: ./ # Nếu package.json ở gốc, không cần working-directory: frontend
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          REACT_APP_API_URL: https://nvp-f0i2.onrender.com # Thêm dòng này
+          # VITE_API_URL: ${{ secrets.VITE_API_URL }} # Nếu bạn có secret này, hãy giữ lại
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages
