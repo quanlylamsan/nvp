@@ -12,7 +12,7 @@ import './RegisterManageSub2Page.css';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
 // ✅ Đổi tên hàm component để khớp với import BreedingFarmListPage
-function BreedingFarmListPage() { 
+function RegisterManageSub2Page() { 
   const [farms, setFarms] = useState([]);
   const [filter, setFilter] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
