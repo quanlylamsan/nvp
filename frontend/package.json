@@ -12,7 +12,7 @@
     "react-scripts": "5.0.1",
     "xlsx": "^0.18.5"
   },
-  "scripts": { // <-- Đây là khóa "scripts" duy nhất
+  "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
