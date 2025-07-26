@@ -322,4 +322,4 @@ function RegisterManageSub2Page() {
   );
 }
 
-export default BreedingFarmListPage;
+export default RegisterManageSub2Page;
