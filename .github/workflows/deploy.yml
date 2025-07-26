@@ -45,9 +45,10 @@ jobs:
       # 5. Build dự án
       - name: Build project
         run: npm run build
-        working-directory: frontend # Đảm bảo dòng này có
+        working-directory: frontend # Hoặc ./
         env:
-          REACT_APP_API_URL: https://kiemtra-zg3v.onrender.com # ✅ Đã sửa cú pháp thành dấu hai chấm
+          REACT_APP_API_URL: https://kiemtra-zg3v.onrender.com
+          PUBLIC_URL: https://quanlylamsan.github.io/nvp # <-- Đảm bảo dòng này có
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages
