@@ -6,21 +6,14 @@ import speciesOptions from '../data/speciesData';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
+// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
+
 function KhaiBaoCoSo() {
   const navigate = useNavigate();
 
   const initialFormState = {
-    tenCoSo: '', tinhThanhPho: '', xaPhuong: '', diaChiCoSo: '', vido: '', kinhdo: '',
-    ngayThanhLap: '', giayPhepKinhDoanh: '',
-    tenNguoiDaiDien: '', namSinh: '', soCCCD: '', ngayCapCCCD: '', noiCapCCCD: '',
-    soDienThoaiNguoiDaiDien: '', diaChiNguoiDaiDien: '', emailNguoiDaiDien: '',
-    mucDichNuoi: '', hinhThucNuoi: '', maSoCoSoGayNuoi: '', tongDan: '',
-    loaiHinhKinhDoanhGo: '', nganhNgheKinhDoanhGo: '', khoiLuong: '',
-    loaiHinhCheBienGo: '', nguonGocGo: '',
-    loaiCoSoDangKy: '',
-    tenLamSan: '', tenKhoaHoc: '',
-    issueDate: '', expiryDate: '',
-    trangThai: 'Đang hoạt động',
+    // ... (giữ nguyên initialFormState)
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -48,15 +41,23 @@ function KhaiBaoCoSo() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        if (jwtDecode(token).role === 'admin') setIsAdmin(true);
+        const decodedToken = jwtDecode(token); // Giải mã token
+        if (decodedToken.role === 'admin') { // Kiểm tra vai trò từ token đã giải mã
+          setIsAdmin(true);
+        } else {
+          // Nếu không phải admin, có thể chuyển hướng hoặc hạn chế quyền
+          // navigate('/dashboard'); // Ví dụ: chuyển hướng về dashboard nếu không phải admin
+        }
       } catch (err) {
+        console.error("Lỗi giải mã token:", err);
         localStorage.removeItem('token');
+        localStorage.removeItem('role');
         navigate('/login');
       }
     } else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [navigate]); // Thêm navigate vào dependency array
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,16 +74,21 @@ function KhaiBaoCoSo() {
     setLoading(true);
     setMessage({ type: '', text: '' });
     const token = localStorage.getItem('token');
-    if (!token) { return; }
+    if (!token) { 
+        navigate('/login'); // Chuyển hướng nếu không có token
+        return; 
+    }
 
     try {
         const submissionData = { ...formData };
         submissionData.products = [];
         
+        // ... (logic chuẩn bị submissionData giữ nguyên)
         if (submissionData.loaiCoSoDangKy === 'Đăng ký cơ sở gây nuôi' && submissionData.tenLamSan) {
+            const selectedSpecies = speciesOptions.find(s => s.tenLamSan === submissionData.tenLamSan);
             submissionData.products.push({
                 tenLamSan: submissionData.tenLamSan,
-                tenKhoaHoc: speciesOptions.find(s => s.name === submissionData.tenLamSan)?.scientificName || '',
+                tenKhoaHoc: selectedSpecies ? selectedSpecies.tenKhoaHoc : '', // Lấy tên khoa học từ speciesOptions
                 khoiLuong: submissionData.tongDan,
                 donViTinh: 'cá thể',
                 mucDichNuoi: submissionData.mucDichNuoi,
@@ -94,7 +100,7 @@ function KhaiBaoCoSo() {
                 tenLamSan: submissionData.tenLamSan,
                 tenKhoaHoc: submissionData.tenKhoaHoc,
                 khoiLuong: submissionData.khoiLuong,
-                donViTinh: 'm³',
+                donViTinh: 'm³', // Đã sửa
                 loaiHinhCheBienGo: submissionData.loaiHinhCheBienGo,
                 nguonGocGo: submissionData.nguonGocGo
             });
@@ -103,7 +109,8 @@ function KhaiBaoCoSo() {
         const fieldsToDelete = ['tenLamSan', 'tenKhoaHoc', 'khoiLuong', 'tongDan', 'loaiHinhCheBienGo', 'nguonGocGo', 'mucDichNuoi', 'hinhThucNuoi', 'maSoCoSoGayNuoi'];
         fieldsToDelete.forEach(field => delete submissionData[field]);
 
-        await axios.post('http://localhost:10000/api/farms', submissionData, {
+        // ✅ SỬ DỤNG API_BASE_URL
+        await axios.post(`${API_BASE_URL}/api/farms`, submissionData, {
             headers: { Authorization: `Bearer ${token}` }
         });
         setMessage({ type: 'success', text: 'Đăng ký cơ sở thành công!' });
@@ -115,9 +122,124 @@ function KhaiBaoCoSo() {
     }
   };
 
-  const handleFileUpload = (e) => { /* ... */ };
-  const handleBulkSubmit = async () => { /* ... */ };
-  const resetCsvUpload = () => { /* ... */ };
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCsvFile(file);
+      setIsLoading(true);
+      setMessage({ type: '', text: '' });
+      try {
+        const data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (event) => resolve(event.target.result);
+          reader.onerror = (error) => reject(error);
+          reader.readAsText(file);
+        });
+
+        const workbook = XLSX.read(data, { type: 'string' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        
+        // Chuyển đổi tên trường từ tiếng Việt sang tên tiếng Anh trong schema backend
+        const mappedData = jsonData.map(row => {
+          const mappedRow = {};
+          mappedRow.tenCoSo = row['Tên cơ sở'];
+          mappedRow.tinhThanhPho = row['Tỉnh (TP)'];
+          mappedRow.xaPhuong = row['Xã (Phường)'];
+          mappedRow.diaChiCoSo = row['Địa chỉ'];
+          mappedRow.vido = row['Vĩ độ'] || '';
+          mappedRow.kinhdo = row['Kinh độ'] || '';
+          mappedRow.ngayThanhLap = row['Ngày thành lập'] ? new Date(row['Ngày thành lập']).toISOString() : '';
+          mappedRow.giayPhepKinhDoanh = row['Số GPKD'] || '';
+
+          mappedRow.tenNguoiDaiDien = row['Tên người đại diện'];
+          mappedRow.namSinh = row['Năm sinh'] || '';
+          mappedRow.soCCCD = row['Số CCCD'];
+          mappedRow.ngayCapCCCD = row['Ngày cấp CCCD'] ? new Date(row['Ngày cấp CCCD']).toISOString() : '';
+          mappedRow.noiCapCCCD = row['Nơi cấp CCCD'] || '';
+          mappedRow.soDienThoaiNguoiDaiDien = row['SĐT người đại diện'] || '';
+          mappedRow.diaChiNguoiDaiDien = row['Địa chỉ người đại diện'] || '';
+          mappedRow.emailNguoiDaiDien = row['Email người đại diện'] || '';
+
+          mappedRow.loaiCoSoDangKy = row['Loại cơ sở đăng ký'];
+          mappedRow.trangThai = row['Trạng thái'] || 'Đang hoạt động';
+          mappedRow.ghiChu = row['Ghi chú'] || '';
+
+          // Xử lý thông tin sản phẩm và loại hình đặc thù
+          const product = {};
+          if (mappedRow.loaiCoSoDangKy === 'Đăng ký cơ sở gây nuôi') {
+            mappedRow.mucDichNuoi = row['Mục đích nuôi'] || '';
+            mappedRow.hinhThucNuoi = row['Hình thức nuôi'] || '';
+            mappedRow.maSoCoSoGayNuoi = row['Mã số CS gây nuôi'] || '';
+            mappedRow.tongDan = row['Tổng đàn'] || 0;
+            product.tenLamSan = row['Loài nuôi'];
+            product.tenKhoaHoc = speciesOptions.find(s => s.name === product.tenLamSan)?.scientificName || '';
+            product.khoiLuong = mappedRow.tongDan;
+            product.donViTinh = 'cá thể';
+            mappedRow.products = [product];
+          } else if (mappedRow.loaiCoSoDangKy === 'Đăng ký cơ sở kinh doanh, chế biến gỗ') {
+            mappedRow.loaiHinhKinhDoanhGo = row['Loại hình KD gỗ'] || '';
+            mappedRow.nganhNgheKinhDoanhGo = row['Ngành nghề KD gỗ'] || '';
+            mappedRow.khoiLuong = row['Khối lượng'] || 0;
+            mappedRow.loaiHinhCheBienGo = row['Loại hình chế biến gỗ'] || '';
+            mappedRow.nguonGocGo = row['Nguồn gốc gỗ'] || '';
+            product.tenLamSan = row['Tên lâm sản gỗ'];
+            product.tenKhoaHoc = row['Tên khoa học gỗ'] || '';
+            product.khoiLuong = mappedRow.khoiLuong;
+            product.donViTinh = 'm³';
+            mappedRow.products = [product];
+          }
+
+          return mappedRow;
+        });
+        setExcelData(mappedData);
+        setMessage({ type: 'success', text: `Đã đọc thành công ${mappedData.length} dòng dữ liệu từ file CSV.` });
+      } catch (err) {
+        console.error("Lỗi khi đọc file CSV:", err);
+        setMessage({ type: 'error', text: 'Lỗi khi đọc file CSV. Vui lòng kiểm tra định dạng.' });
+        setExcelData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleBulkSubmit = async () => {
+    if (excelData.length === 0) {
+      alert("Không có dữ liệu để tải lên.");
+      return;
+    }
+    setIsLoading(true);
+    setMessage({ type: '', text: '' });
+    const token = localStorage.getItem('token');
+    if (!token) {
+        navigate('/login');
+        setIsLoading(false);
+        return;
+    }
+
+    try {
+      // ✅ SỬ DỤNG API_BASE_URL
+      const response = await axios.post(`${API_BASE_URL}/api/farms/bulk`, excelData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMessage({ type: 'success', text: `Tải lên thành công ${response.data.successCount} cơ sở, ${response.data.failCount} thất bại.` });
+      setExcelData([]); // Xóa dữ liệu sau khi tải lên
+      setCsvFile(null); // Reset file input
+    } catch (err) {
+      console.error("Lỗi khi tải lên hàng loạt:", err.response?.data || err.message);
+      setMessage({ type: 'error', text: `Tải lên hàng loạt thất bại: ${err.response?.data?.message || err.message}` });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetCsvUpload = () => {
+    setCsvFile(null);
+    setExcelData([]);
+    setMessage({ type: '', text: '' });
+  };
 
   return (
     <div className="khai-bao-container">
