@@ -9,21 +9,16 @@ import KhaiBaoCoSo from './pages/KhaiBaoCoSo';
 import LogoutPage from './pages/LogoutPage';
 import Sidebar from './components/Sidebar';
 import FarmDetail from './pages/FarmDetail';
-// Đổi tên import để tránh xung đột và rõ ràng hơn
-import WoodFarmListPage from './pages/RegisterManageSub1Page'; // Đã đổi tên từ FarmListPage
-import BreedingFarmListPage from './pages/RegisterManageSub2Page'; // Đã đổi tên từ FarmListPage
+import WoodFarmListPage from './pages/RegisterManageSub1Page';
+import BreedingFarmListPage from './pages/RegisterManageSub2Page';
 import FarmEditPage from './pages/FarmEditPage';
-import GoogleMapsPage from './pages/Googlemaps'; // Import trang Google Maps
+import GoogleMapsPage from './pages/Googlemaps';
 import WoodDetail from './pages/WoodDetail';
-import AddProductToFarm from './pages/AddProductToFarm'; 
-import MasterProductListPage from './pages/MasterProductListPage'; // <-- IMPORT COMPONENT MỚI
+import AddProductToFarm from './pages/AddProductToFarm';
+import MasterProductListPage from './pages/MasterProductListPage';
 
-import './Dashboard.css'; // CSS chung cho dashboard layout
-
-// Import ảnh banner cho background
-import bannerImage from './assets/images/banner.jpg'; 
-
-// Import ảnh logo kiểm lâm
+import './Dashboard.css';
+import bannerImage from './assets/images/banner.jpg';
 import logoKiemLam from './assets/images/logo_kiemlam.png';
 
 function App() {
@@ -42,19 +37,17 @@ function App() {
     setRole(localStorage.getItem('role'));
   }, []);
 
-  const isLoggedIn = !!token; // Convert token to boolean
+  const isLoggedIn = !!token;
 
   console.log('App.js - Is Logged In:', isLoggedIn, 'Role:', role);
 
   return (
-    <Router basename="/nvp"> {/* THÊM LẠI DÒNG NÀY */}
+    <Router basename="/nvp">
       <div className="dashboard-container">
-         {isLoggedIn && <Sidebar userRole={role} />}
+        {isLoggedIn && <Sidebar userRole={role} />}
 
-        {/* Conditionally apply 'logged-in' class to main-layout-content */}
         <div className={`quanlylamsan ${isLoggedIn ? 'logged-in' : ''}`} style={{ '--banner-image-url': `url(${bannerImage})` }}>
           <div className="main-header-banner">
-            {/* Thêm một div bọc để căn giữa logo và text khi chưa đăng nhập */}
             <div className="header-content-wrapper">
               <img src={logoKiemLam} alt="Logo Chi cục Kiểm Lâm" className="header-logo" />
               <div className="header-text">
@@ -65,26 +58,24 @@ function App() {
             </div>
           </div>
 
-
           <div className="route-content-wrapper">
             <Routes>
+              {/* ✅ THÊM exact vào các Route cụ thể nếu cần */}
               <Route path="/" element={<LoginPage setAuthStatus={handleSetAuthStatus} />} />
-			  <Route path="/admin/woods/:farmId" element={<WoodDetail />} /> {/* Đây là WoodDetail.js mới */}
+              <Route path="/admin/woods/:farmId" element={<WoodDetail />} />
               <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
               <Route path="/khai-bao" element={isLoggedIn ? <KhaiBaoCoSo /> : <Navigate to="/" />} />
-			  <Route path="/bao-cao-tong-hop" element={<MasterProductListPage />} />
+              <Route path="/bao-cao-tong-hop" element={<MasterProductListPage />} />
               <Route path="/farm/:farmId/add-product" element={<AddProductToFarm />} />
-              {/* Route cho Quản lý cơ sở kinh doanh, chế biến gỗ */}
-              <Route 
-                path="/admin/wood-farms" 
-                element={isLoggedIn && role === 'admin' ? <WoodFarmListPage /> : <Navigate to="/" />} 
+              <Route
+                path="/admin/wood-farms"
+                element={isLoggedIn && role === 'admin' ? <WoodFarmListPage /> : <Navigate to="/" />}
               />
               {/* Route MỚI cho Google Maps */}
               <Route path="/google-maps" element={isLoggedIn ? <GoogleMapsPage /> : <Navigate to="/" />} />
-              {/* Route cho Quản lý cơ sở gây nuôi */}
-              <Route 
-                path="/admin/breeding-farms" 
-                element={isLoggedIn && role === 'admin' ? <BreedingFarmListPage /> : <Navigate to="/" />} 
+              <Route
+                path="/admin/breeding-farms"
+                element={isLoggedIn && role === 'admin' ? <BreedingFarmListPage /> : <Navigate to="/" />}
               />
 
               <Route path="/farm-details/:farmId" element={isLoggedIn ? <FarmDetail /> : <Navigate to="/" />} />
@@ -95,7 +86,6 @@ function App() {
               <Route path="/logout" element={<LogoutPage setAuthStatus={handleSetAuthStatus} />} />
             </Routes>
           </div>
-         
         </div>
       </div>
     </Router>
