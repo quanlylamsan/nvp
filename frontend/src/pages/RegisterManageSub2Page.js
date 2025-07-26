@@ -6,19 +6,14 @@ import * as XLSX from 'xlsx';
 
 import './RegisterManageSub2Page.css';
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
-// ✅ Đổi tên hàm component để khớp với import BreedingFarmListPage
-function RegisterManageSub2Page() { 
+function BreedingFarmListPage() {
   const [farms, setFarms] = useState([]);
   const [filter, setFilter] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCommune, setSelectedCommune] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState('');
-  // *** THAY ĐỔI: Đặt lại giá trị mặc định để hiển thị cả 2 loại cơ sở ban đầu ***
   const [selectedLoaiCoSoDangKy, setSelectedLoaiCoSoDangKy] = useState(''); 
   const [selectedNganhNgheKinhDoanhGo, setSelectedNganhNgheKinhDoanhGo] = useState('');
   const [selectedTrangThai, setSelectedTrangThai] = useState('');
@@ -28,21 +23,20 @@ function RegisterManageSub2Page() {
   const [uniqueSpecies, setUniqueSpecies] = useState([]);
   const [uniqueNganhNgheKinhDoanhGo, setUniqueNganhNgheKinhDoanhGo] = useState([]);
   const [uniqueTrangThai, setUniqueTrangThai] = useState([]);
-  const [uniqueLoaiCoSoDangKy, setUniqueLoaiCoSoDangKy] = useState([]); // Thêm state cho loại cơ sở
+  const [uniqueLoaiCoSoDangKy, setUniqueLoaiCoSoDangKy] = useState([]); 
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
   const initialColumnsConfig = {
     tenCoSo: { id: 'tenCoSo', label: 'Tên cơ sở', visible: true, minWidth: '180px' },
-    loaiCoSoDangKy: { id: 'loaiCoSoDangKy', label: 'Loại Cơ Sở', visible: true, minWidth: '180px' }, // Thêm cột loại cơ sở
+    loaiCoSoDangKy: { id: 'loaiCoSoDangKy', label: 'Loại Cơ Sở', visible: true, minWidth: '180px' },
     tinhThanhPho: { id: 'tinhThanhPho', label: 'Tỉnh (TP)', visible: true, minWidth: '100px' },
     xaPhuong: { id: 'xaPhuong', label: 'Xã (Phường)', visible: true, minWidth: '100px' },
     diaChiCoSo: { id: 'diaChiCoSo', label: 'Địa chỉ cơ sở', visible: true, minWidth: '220px' },
     tenNguoiDaiDien: { id: 'tenNguoiDaiDien', label: 'Người đại diện', visible: true, minWidth: '150px' },
     trangThai: { id: 'trangThai', label: 'Trạng thái', visible: true, minWidth: '100px' },
     actions: { id: 'actions', label: 'Hành động', visible: true, width: '220px', minWidth: '220px' },
-    // Các cột khác có thể ẩn đi ban đầu
     vido: { id: 'vido', label: 'Vĩ độ', visible: false, minWidth: '80px' },
     kinhdo: { id: 'kinhdo', label: 'Kinh độ', visible: false, minWidth: '80px' },
     ngayThanhLap: { id: 'ngayThanhLap', label: 'Ngày thành lập', visible: false, minWidth: '100px' },
@@ -55,9 +49,9 @@ function RegisterManageSub2Page() {
   const [itemsPerPage, setItemsPerPage] = useState(15);
 
   useEffect(() => {
-    const savedColumns = localStorage.getItem('tableColumnsVisibility_AllFarms');
-    if (savedColumns) {
-      try {
+    try {
+      const savedColumns = localStorage.getItem('tableColumnsVisibility_AllFarms');
+      if (savedColumns) {
         const parsedSavedColumns = JSON.parse(savedColumns);
         const mergedColumns = { ...initialColumnsConfig };
         Object.keys(parsedSavedColumns).forEach(key => {
@@ -66,9 +60,9 @@ function RegisterManageSub2Page() {
           }
         });
         setColumns(mergedColumns);
-      } catch (e) {
-        setColumns(initialColumnsConfig);
       }
+    } catch (e) {
+      setColumns(initialColumnsConfig);
     }
   }, []);
 
@@ -89,7 +83,6 @@ function RegisterManageSub2Page() {
         if (selectedProvince) params.tinhThanhPho = selectedProvince;
         if (selectedCommune) params.xaPhuong = selectedCommune;
 
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
         const response = await axios.get(`${API_BASE_URL}/api/farms`, {
           headers: { Authorization: `Bearer ${token}` },
           params: params
@@ -98,8 +91,6 @@ function RegisterManageSub2Page() {
         const fetchedFarms = response.data.docs || [];
         setFarms(fetchedFarms);
 
-        // Lấy tất cả dữ liệu một lần để tạo dropdown, không phụ thuộc vào trang hiện tại
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API thứ hai
         const allFarmsResponse = await axios.get(`${API_BASE_URL}/api/farms?limit=1000`, { headers: { Authorization: `Bearer ${token}` } });
         const allFarms = allFarmsResponse.data.docs || [];
 
@@ -127,7 +118,6 @@ function RegisterManageSub2Page() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa cơ sở này?')) {
       try {
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
         await axios.delete(`${API_BASE_URL}/api/farms/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -146,12 +136,53 @@ function RegisterManageSub2Page() {
     navigate(`/farm/${farmId}/add-product`);
   };
 
-  const currentItems = farms; 
-  const totalPages = Math.ceil(farms.length / itemsPerPage); 
+  // ✅ Sửa đổi: Định nghĩa filteredFarms ở đây để nó có thể được truy cập trong JSX và logic phân trang
+  const filteredFarms = farms.filter(f => {
+    const generalMatch = (
+      (f.tenCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (f.tinhThanhPho || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (f.xaPhuong || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (f.diaChiCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (f.ghiChu || '').toLowerCase().includes(filter.toLowerCase()) || 
+      (f.loaiCoSoDangKy || '').toLowerCase().includes(filter.toLowerCase()) || 
+      (f.nganhNgheKinhDoanhGo || '').toLowerCase().includes(filter.toLowerCase()) || 
+      (f.tongDan && String(f.tongDan).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.khoiLuong && String(f.khoiLuong).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.tenLamSan && String(f.tenLamSan).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.tenKhoaHoc && String(f.tenKhoaHoc).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.trangThai && String(f.trangThai).toLowerCase().includes(filter.toLowerCase())) ||
+      (f.tenNguoiDaiDien || '').toLowerCase().includes(filter.toLowerCase()) ||
+      (f.namSinh && String(f.namSinh).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.soCCCD && String(f.soCCCD).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.ngayCapCCCD && new Date(f.ngayCapCCCD).toLocaleDateString().toLowerCase().includes(filter.toLowerCase())) ||
+      (f.noiCapCCCD && String(f.noiCapCCCD).toLowerCase().includes(filter.toLowerCase())) || 
+      (f.soDienThoaiNguoiDaiDien && String(f.soDienThoaiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) ||
+      (f.diaChiNguoiDaiDien && String(f.diaChiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) 
+    );
+
+    const provinceMatch = selectedProvince ? (f.tinhThanhPho === selectedProvince) : true;
+    const communeMatch = selectedCommune ? (f.xaPhuong === selectedCommune) : true;
+    const speciesMatch = selectedSpecies ? (f.species && f.species.some(s => s.name === selectedSpecies)) : true;
+    const nganhNgheKinhDoanhGoMatch = selectedNganhNgheKinhDoanhGo ? (f.nganhNgheKinhDoanhGo === selectedNganhNgheKinhDoanhGo) : true;
+    const trangThaiMatch = selectedTrangThai ? (f.trangThai === selectedTrangThai) : true;
+    const loaiHinhCheBienGoMatch = selectedLoaiHinhCheBienGo ? (f.loaiHinhCheBienGo === selectedLoaiHinhCheBienGo) : true;
+    const nguonGocGoMatch = selectedNguonGocGo ? (f.nguonGocGo === selectedNguonGocGo) : true;
+
+
+    return generalMatch && provinceMatch && communeMatch && speciesMatch && nganhNgheKinhDoanhGoMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch;
+  });
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // ✅ Sửa đổi để sử dụng filteredFarms cho phân trang
+  const currentItems = filteredFarms.slice(indexOfFirstItem, indexOfLastItem); 
+
+  // ✅ Sửa đổi để sử dụng filteredFarms cho tổng số trang
+  const totalPages = Math.ceil(filteredFarms.length / itemsPerPage); 
   
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () => setCurrentPage(prev => prev + 1);
-  const prevPage = () => setCurrentPage(prev => prev - 1);
+  const nextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); } };
+  const prevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); } };
   const handleColumnToggle = (columnKey) => {
     setColumns(prev => ({ ...prev, [columnKey]: { ...prev[columnKey], visible: !prev[columnKey].visible } }));
   };
@@ -172,7 +203,7 @@ function RegisterManageSub2Page() {
 
   const handleExportExcel = () => {
     const columnsToExport = Object.values(columns).filter(col => col.visible && col.id !== 'actions');
-    const dataToExport = farms.map(farm => {
+    const dataToExport = farms.map(farm => { // Sử dụng farms gốc hoặc filteredFarms tùy nhu cầu xuất
       const rowData = {};
       columnsToExport.forEach(col => {
         let value = farm[col.id];
@@ -185,6 +216,11 @@ function RegisterManageSub2Page() {
       });
       return rowData;
     });
+
+    if (dataToExport.length === 0) {
+      alert("Không có dữ liệu để xuất Excel.");
+      return;
+    }
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = XLSX.utils.book_new();
@@ -241,9 +277,11 @@ function RegisterManageSub2Page() {
         </div>
       )}
 
-      {farms.length === 0 && <p>Không có cơ sở nào phù hợp.</p>}
+      {/* ✅ Sửa điều kiện kiểm tra hiển thị "Không có cơ sở nào phù hợp." */}
+      {filteredFarms.length === 0 && <p>Không có cơ sở nào phù hợp.</p>}
 
-      {farms.length > 0 && (
+      {/* ✅ Bảng hiển thị danh sách cơ sở nếu có dữ liệu */}
+      {filteredFarms.length > 0 && (
         <table className="farm-table">
           <thead>
             <tr>
@@ -322,4 +360,4 @@ function RegisterManageSub2Page() {
   );
 }
 
-export default RegisterManageSub2Page;
+export default BreedingFarmListPage;
