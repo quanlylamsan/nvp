@@ -128,17 +128,13 @@ function RegisterManageSub1Page() {
         </select>
 		
 		<select
-          value={selectedLoaiHinhCheBienGo} // ✅ SỬ DỤNG state này
-          onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}
-        >
+          value={selectedLoaiHinhCheBienGo} onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}>
           <option value="">Tất cả Loại hình chế biến</option>
           {uniqueLoaiHinhCheBienGo.map(l => (<option key={l} value={l}>{l}</option>))}
         </select>
 
         <select
-          value={selectedNguonGocGo} // ✅ SỬ DỤNG state này
-          onChange={e => setSelectedNguonGocGo(e.target.value)}
-        >
+          value={selectedNguonGocGo} onChange={e => setSelectedNguonGocGo(e.target.value)}>
           <option value="">Tất cả Nguồn gốc gỗ</option>
           {uniqueNguonGocGo.map(n => (<option key={n} value={n}>{n}</option>))}
         </select>
