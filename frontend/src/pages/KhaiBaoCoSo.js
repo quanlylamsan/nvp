@@ -7,13 +7,26 @@ import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
 // ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
+// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
+// nó sẽ mặc định dùng localhost:10000.
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; 
 
 function KhaiBaoCoSo() {
   const navigate = useNavigate();
 
   const initialFormState = {
     // ... (giữ nguyên initialFormState)
+    tenCoSo: '', tinhThanhPho: '', xaPhuong: '', diaChiCoSo: '', vido: '', kinhdo: '',
+    ngayThanhLap: '', giayPhepKinhDoanh: '',
+    tenNguoiDaiDien: '', namSinh: '', soCCCD: '', ngayCapCCCD: '', noiCapCCCD: '',
+    soDienThoaiNguoiDaiDien: '', diaChiNguoiDaiDien: '', emailNguoiDaiDien: '',
+    mucDichNuoi: '', hinhThucNuoi: '', maSoCoSoGayNuoi: '', tongDan: '',
+    loaiHinhKinhDoanhGo: '', nganhNgheKinhDoanhGo: '', khoiLuong: '',
+    loaiHinhCheBienGo: '', nguonGocGo: '',
+    loaiCoSoDangKy: '',
+    tenLamSan: '', tenKhoaHoc: '',
+    issueDate: '', expiryDate: '',
+    trangThai: 'Đang hoạt động',
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -41,13 +54,8 @@ function KhaiBaoCoSo() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token); // Giải mã token
-        if (decodedToken.role === 'admin') { // Kiểm tra vai trò từ token đã giải mã
-          setIsAdmin(true);
-        } else {
-          // Nếu không phải admin, có thể chuyển hướng hoặc hạn chế quyền
-          // navigate('/dashboard'); // Ví dụ: chuyển hướng về dashboard nếu không phải admin
-        }
+        const decodedToken = jwtDecode(token);
+        if (decodedToken.role === 'admin') setIsAdmin(true);
       } catch (err) {
         console.error("Lỗi giải mã token:", err);
         localStorage.removeItem('token');
@@ -57,7 +65,7 @@ function KhaiBaoCoSo() {
     } else {
       navigate('/login');
     }
-  }, [navigate]); // Thêm navigate vào dependency array
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,7 +83,7 @@ function KhaiBaoCoSo() {
     setMessage({ type: '', text: '' });
     const token = localStorage.getItem('token');
     if (!token) { 
-        navigate('/login'); // Chuyển hướng nếu không có token
+        navigate('/login');
         return; 
     }
 
@@ -83,12 +91,11 @@ function KhaiBaoCoSo() {
         const submissionData = { ...formData };
         submissionData.products = [];
         
-        // ... (logic chuẩn bị submissionData giữ nguyên)
         if (submissionData.loaiCoSoDangKy === 'Đăng ký cơ sở gây nuôi' && submissionData.tenLamSan) {
             const selectedSpecies = speciesOptions.find(s => s.tenLamSan === submissionData.tenLamSan);
             submissionData.products.push({
                 tenLamSan: submissionData.tenLamSan,
-                tenKhoaHoc: selectedSpecies ? selectedSpecies.tenKhoaHoc : '', // Lấy tên khoa học từ speciesOptions
+                tenKhoaHoc: selectedSpecies ? selectedSpecies.tenKhoaHoc : '',
                 khoiLuong: submissionData.tongDan,
                 donViTinh: 'cá thể',
                 mucDichNuoi: submissionData.mucDichNuoi,
@@ -100,7 +107,7 @@ function KhaiBaoCoSo() {
                 tenLamSan: submissionData.tenLamSan,
                 tenKhoaHoc: submissionData.tenKhoaHoc,
                 khoiLuong: submissionData.khoiLuong,
-                donViTinh: 'm³', // Đã sửa
+                donViTinh: 'm³',
                 loaiHinhCheBienGo: submissionData.loaiHinhCheBienGo,
                 nguonGocGo: submissionData.nguonGocGo
             });
@@ -179,7 +186,7 @@ function KhaiBaoCoSo() {
             product.donViTinh = 'cá thể';
             mappedRow.products = [product];
           } else if (mappedRow.loaiCoSoDangKy === 'Đăng ký cơ sở kinh doanh, chế biến gỗ') {
-            mappedRow.loaiHinhKinhDoanhGo = row['Loại hình KD gỗ'] || '';
+            mappedRow.loaiHinhKinhDoanhGo = row['Loai hinh KD gỗ'] || '';
             mappedRow.nganhNgheKinhDoanhGo = row['Ngành nghề KD gỗ'] || '';
             mappedRow.khoiLuong = row['Khối lượng'] || 0;
             mappedRow.loaiHinhCheBienGo = row['Loại hình chế biến gỗ'] || '';
