@@ -111,10 +111,38 @@ function RegisterManageSub1Page() {
       {/* === PHẦN CODE BỊ THIẾU ĐÃ ĐƯỢC THÊM LẠI TẠI ĐÂY === */}
       <div className="filter-container">
         <input type="text" placeholder="🔍 Tìm kiếm chung..." value={filter} onChange={e => setFilter(e.target.value)} />
+		
+		 <select value={selectedLoaiCoSoDangKy} onChange={e => setSelectedLoaiCoSoDangKy(e.target.value)}>
+          <option value="">Tất cả Loại Cơ sở</option>
+          {uniqueLoaiCoSoDangKy.map(type => (<option key={type} value={type}>{type}</option>))}
+        </select>
+		
+		 <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
+          <option value="">Tất cả Trạng thái</option>
+          {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
+        </select>
+
         <select value={selectedProvince} onChange={e => setSelectedProvince(e.target.value)}>
           <option value="">Tất cả Tỉnh (TP)</option>
           {uniqueProvinces.map(p => (<option key={p} value={p}>{p}</option>))}
         </select>
+		
+		<select
+          value={selectedLoaiHinhCheBienGo} // ✅ SỬ DỤNG state này
+          onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}
+        >
+          <option value="">Tất cả Loại hình chế biến</option>
+          {uniqueLoaiHinhCheBienGo.map(l => (<option key={l} value={l}>{l}</option>))}
+        </select>
+
+        <select
+          value={selectedNguonGocGo} // ✅ SỬ DỤNG state này
+          onChange={e => setSelectedNguonGocGo(e.target.value)}
+        >
+          <option value="">Tất cả Nguồn gốc gỗ</option>
+          {uniqueNguonGocGo.map(n => (<option key={n} value={n}>{n}</option>))}
+        </select>
+		
         <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
           <option value="">Tất cả Trạng thái</option>
           {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
