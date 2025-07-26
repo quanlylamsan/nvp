@@ -47,7 +47,7 @@ jobs:
         run: npm run build
         working-directory: frontend # Đảm bảo dòng này có
         env:
-          REACT_APP_API_URL=https://kiemtra-zg3v.onrender.com # Đảm bảo URL này đúng
+          REACT_APP_API_URL: https://kiemtra-zg3v.onrender.com # ✅ Đã sửa cú pháp thành dấu hai chấm
 
       # 6. Cấu hình GitHub Pages
       - name: Setup Pages
