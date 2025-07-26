@@ -6,11 +6,6 @@ import '../Dashboard.css'; // Sử dụng CSS chung hoặc CSS của form
 import './FormPage.css'; // Đảm bảo bạn có CSS này nếu dùng các class form-group, form-container
 import speciesOptions from '../data/speciesData'; // Import danh sách loài từ file mới
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
-
 function FarmEditPage() {
   const { farmId } = useParams(); // Lấy farmId từ URL
   const navigate = useNavigate();
@@ -25,6 +20,7 @@ function FarmEditPage() {
     diaChiCoSo: '',
     vido: '',
     kinhdo: '',
+    // loaiHinhCoSo: '', // Đã bỏ trường này
     ngayThanhLap: '', // Sẽ được định dạng lại cho input type="date"
     giayPhepKinhDoanh: '', // Đã di chuyển xuống nhóm Giấy phép
 
@@ -36,6 +32,7 @@ function FarmEditPage() {
     noiCapCCCD: '',
     soDienThoaiNguoiDaiDien: '',
     diaChiNguoiDaiDien: '',
+    // emailNguoiDaiDien: '', // Đã bỏ trường này
 
     // Cơ sở gây nuôi
     mucDichNuoi: '',
@@ -56,6 +53,7 @@ function FarmEditPage() {
     tenKhoaHoc: '',
 
     // Các trường giấy phép
+    // licenseNumber: '', // Đã bỏ trường này
     issueDate: '',
     expiryDate: '',
 
@@ -78,8 +76,7 @@ function FarmEditPage() {
           navigate('/login');
           return;
         }
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API GET
-        const response = await axios.get(`${API_BASE_URL}/api/farms/${farmId}`, {
+        const response = await axios.get(`http://localhost:10000/api/farms/${farmId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = response.data;
@@ -98,6 +95,7 @@ function FarmEditPage() {
           diaChiCoSo: data.diaChiCoSo || '',
           vido: data.vido || '',
           kinhdo: data.kinhdo || '',
+          // loaiHinhCoSo: data.loaiHinhCoSo || '', // Bỏ trường này
           ngayThanhLap: data.ngayThanhLap || '',
           giayPhepKinhDoanh: data.giayPhepKinhDoanh || '',
 
@@ -108,6 +106,7 @@ function FarmEditPage() {
           noiCapCCCD: data.noiCapCCCD || '',
           soDienThoaiNguoiDaiDien: data.soDienThoaiNguoiDaiDien || '',
           diaChiNguoiDaiDien: data.diaChiNguoiDaiDien || '',
+          // emailNguoiDaiDien: data.emailNguoiDaiDien || '', // Bỏ trường này
 
           mucDichNuoi: data.mucDichNuoi || '',
           hinhThucNuoi: data.hinhThucNuoi || '',
@@ -123,6 +122,7 @@ function FarmEditPage() {
           tenLamSan: data.tenLamSan || '',
           tenKhoaHoc: data.tenKhoaHoc || '',
 
+          // licenseNumber: data.licenseNumber || '', // Bỏ trường này
           issueDate: data.issueDate || '',
           expiryDate: data.expiryDate || '',
 
@@ -222,9 +222,8 @@ function FarmEditPage() {
         delete dataToSend.tenKhoaHoc; // Xóa nếu không thuộc loại hình nào
       }
 
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API PUT
       const response = await axios.put(
-        `${API_BASE_URL}/api/farms/${farmId}`,
+        `http://localhost:10000/api/farms/${farmId}`,
         dataToSend,
         { headers: { Authorization: `Bearer ${token}` } }
       );

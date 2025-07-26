@@ -3,11 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './KhaiBaoCoSo.css'; // Tái sử dụng CSS từ form khai báo để giao diện nhất quán
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
-
 function AddProductToFarm() {
   // Lấy ID của cơ sở từ thanh địa chỉ URL (ví dụ: /farm/abc-123/add-product)
   const { farmId } = useParams(); 
@@ -21,8 +16,7 @@ function AddProductToFarm() {
     tenLamSan: '',
     tenKhoaHoc: '',
     khoiLuong: 0,
-    // Sửa lỗi chính tả: 'mu' -> 'm³'
-    donViTinh: 'm³', // Đã sửa
+    donViTinh: 'm³',
     loaiHinhCheBienGo: '',
     nguonGocGo: ''
   });
@@ -40,8 +34,7 @@ function AddProductToFarm() {
     const fetchFarmInfo = async () => {
       setLoading(true);
       try {
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API GET
-        const response = await axios.get(`${API_BASE_URL}/api/farms/${farmId}`, {
+        const response = await axios.get(`http://localhost:10000/api/farms/${farmId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFarmInfo(response.data);
@@ -69,8 +62,8 @@ function AddProductToFarm() {
     setMessage({ type: '', text: '' });
 
     try {
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API POST
-      const response = await axios.post(`${API_BASE_URL}/api/farms/${farmId}/products`, productData, {
+      // Gọi đến API endpoint mới đã tạo ở backend
+      const response = await axios.post(`http://localhost:10000/api/farms/${farmId}/products`, productData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

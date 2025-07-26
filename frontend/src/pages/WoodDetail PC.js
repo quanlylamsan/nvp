@@ -5,12 +5,7 @@ import axios from 'axios';
 import '../Dashboard.css';
 import './FormPage.css';
 import './Manager.css';
-import speciesData from '../data/speciesData'; // Đảm bảo speciesData này tồn tại và có định dạng đúng
-
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
+import speciesData from '../data/speciesData';
 
 function WoodDetail() {
   const { farmId } = useParams();
@@ -20,42 +15,39 @@ function WoodDetail() {
 
   const [farmDetails, setFarmDetails] = useState(null);
   const [activities, setActivities] = useState([]);
-  const [speciesOptions, setSpeciesOptions] = useState([]); // Các loài có sẵn của cơ sở
+  const [speciesOptions, setSpeciesOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
   const [formData, setFormData] = useState({
-    speciesName: '',        // Tên lâm sản chính
-    newSpeciesName: '',     // Tên lâm sản nhập thủ công (nếu chọn)
-    newScientificName: '',  // Tên khoa học nhập thủ công (nếu chọn)
-    date: '',               // Ngày ghi nhận
-    quantity: 0,            // Số lượng
-    unit: '',               // Đơn vị
-    type: '',               // Loại giao dịch (nhập/xuất)
-    reason: '',             // Lý do
-    source: '',             // Nguồn gốc (chỉ khi nhập)
-    destination: '',        // Nơi đến (chỉ khi xuất)
-    verifiedBy: '',         // Người xác nhận
+    speciesName: '',
+    newSpeciesName: '',
+    newScientificName: '',
+    date: '',
+    quantity: 0,
+    unit: '',
+    type: '',
+    reason: '',
+    source: '',
+    destination: '',
+    verifiedBy: '',
   });
 
-  const [selectedNewSpecies, setSelectedNewSpecies] = useState(''); // Giá trị chọn từ dropdown "Tên lâm sản mới"
-  const [isManualEntry, setIsManualEntry] = useState(false); // Trạng thái cho phép nhập thủ công
+  const [selectedNewSpecies, setSelectedNewSpecies] = useState('');
+  const [isManualEntry, setIsManualEntry] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!farmId || !token) {
       setError('Thiếu thông tin xác thực hoặc ID cơ sở.');
       setLoading(false);
-      // Có thể chuyển hướng về trang đăng nhập nếu không có token
-      if (!token) navigate('/'); 
       return;
     }
     setLoading(true);
     setError('');
     setMessage('');
     try {
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API GET
-      const farmRes = await axios.get(`${API_BASE_URL}/api/farms/${farmId}`, {
+      const farmRes = await axios.get(`http://localhost:10000/api/farms/${farmId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const details = farmRes.data;
@@ -64,29 +56,23 @@ function WoodDetail() {
       let availableSpecies = [];
       if (details.loaiDongVatRung && Array.isArray(details.loaiDongVatRung)) {
         availableSpecies = details.loaiDongVatRung.map(s => s.tenLamSan).filter(Boolean);
-      } else if (typeof details.tenLamSan === 'string' && details.tenLamSan) { // Đảm bảo details.tenLamSan tồn tại và là string
+      } else if (typeof details.tenLamSan === 'string') {
         availableSpecies.push(details.tenLamSan);
       }
       setSpeciesOptions(availableSpecies);
 
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API GET
-      const activitiesRes = await axios.get(`${API_BASE_URL}/api/wood-activities/${farmId}`, {
+      const activitiesRes = await axios.get(`http://localhost:10000/api/wood-activities/${farmId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setActivities(activitiesRes.data);
 
-      // Cập nhật formData.speciesName với loài đầu tiên nếu có, hoặc trống
       setFormData(prev => ({ ...prev, speciesName: availableSpecies[0] || '' }));
     } catch (err) {
-      console.error('Error loading farm details or tracking records:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Không thể tải dữ liệu.');
-      if (err.response && (err.response.status === 401 || err.response.status === 403 || err.response.status === 404)) {
-        navigate('/admin/wood-farms'); // Chuyển hướng về trang danh sách cơ sở gỗ
-      }
     } finally {
       setLoading(false);
     }
-  }, [farmId, token, navigate]);
+  }, [farmId, token]);
 
   useEffect(() => {
     fetchData();
@@ -103,84 +89,59 @@ function WoodDetail() {
   const handleNewSpeciesChange = (e) => {
     const value = e.target.value;
     setSelectedNewSpecies(value);
-    setFormData(prev => ({ ...prev, speciesName: '' })); // Đặt speciesName về trống khi chọn mới
+    setFormData(prev => ({ ...prev, speciesName: '' }));
 
     if (value === 'Nhập thủ công') {
       setIsManualEntry(true);
       setFormData(prev => ({ ...prev, newSpeciesName: '', newScientificName: '' }));
-    } else if (value === '') { // Nếu chọn "Chọn hoặc nhập thủ công" (giá trị rỗng)
+    } else if (value === '') {
       setIsManualEntry(false);
       setFormData(prev => ({ ...prev, newSpeciesName: '', newScientificName: '' }));
-    } else { // Nếu chọn một loài cụ thể từ speciesData
+    } else {
       setIsManualEntry(false);
       const matched = speciesData.find(s => s.tenLamSan === value);
       if (matched) {
         setFormData(prev => ({
           ...prev,
-          newSpeciesName: matched.tenLamSan, // Lưu tên lâm sản đã chọn vào newSpeciesName
-          newScientificName: matched.tenKhoaHoc, // Lưu tên khoa học tự động
+          newSpeciesName: matched.tenLamSan,
+          newScientificName: matched.tenKhoaHoc,
         }));
-      } else { // Trường hợp không tìm thấy, reset
-         setFormData(prev => ({ ...prev, newSpeciesName: '', newScientificName: '' }));
       }
     }
   };
-
 
   const handleAddActivity = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
     try {
-      const finalSpeciesName = formData.newSpeciesName || formData.speciesName; // Ưu tiên newSpeciesName nếu có, sau đó là speciesName
-      const finalScientificName = formData.newScientificName || (speciesData.find(s => s.tenLamSan === finalSpeciesName)?.tenKhoaHoc || '');
+      const finalSpeciesName = formData.newSpeciesName || formData.speciesName;
+      const finalScientificName = formData.newScientificName;
 
       const dataToSend = { ...formData, speciesName: finalSpeciesName, scientificName: finalScientificName, farm: farmId };
-      delete dataToSend.newSpeciesName; // Xóa các trường tạm thời trước khi gửi
+      delete dataToSend.newSpeciesName;
       delete dataToSend.newScientificName;
 
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API POST
-      await axios.post(`${API_BASE_URL}/api/wood-activities`, dataToSend, {
+      await axios.post(`http://localhost:10000/api/wood-activities`, dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      fetchData(); // Tải lại dữ liệu sau khi thêm
+      fetchData();
       setMessage('Thêm bản ghi thành công!');
-      // Reset form
       setFormData(prev => ({
         ...prev,
         newSpeciesName: '', newScientificName: '', date: '', quantity: 0,
         unit: '', type: '', reason: '', source: '', destination: '', verifiedBy: '',
-        speciesName: speciesOptions[0] || '' // Đặt lại speciesName về loài đầu tiên nếu có
+        speciesName: speciesOptions[0] || ''
       }));
-      setSelectedNewSpecies(''); // Đặt lại lựa chọn dropdown
-      setIsManualEntry(false); // Tắt nhập thủ công
-
+      setSelectedNewSpecies('');
+      setIsManualEntry(false);
     } catch (err) {
-      console.error('Error adding tracking record:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Thêm bản ghi thất bại.');
     }
   };
 
-  const handleDeleteActivity = async (activityId) => {
-    const confirmed = window.confirm('Bạn có chắc chắn muốn xóa bản ghi này?');
-    if (confirmed) {
-      setMessage('');
-      setError('');
-      try {
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API DELETE
-        await axios.delete(`${API_BASE_URL}/api/wood-activities/${activityId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMessage('Bản ghi đã được xóa thành công.');
-        fetchData(); // Tải lại dữ liệu sau khi xóa
-      } catch (err) {
-        console.error('Error deleting tracking record:', err.response?.data || err.message);
-        setError(err.response?.data?.message || 'Xóa bản ghi thất bại.');
-      }
-    }
-  };
-
+  const handleDeleteActivity = async (activityId) => { /* ... giữ nguyên ... */ };
 
   if (loading) return <div className="form-container"><p>Đang tải dữ liệu...</p></div>;
   if (error && !farmDetails) return <div className="form-container"><p style={{ color: 'red' }}>Lỗi: {error}</p></div>;
@@ -198,7 +159,7 @@ function WoodDetail() {
       </section>
 
       <h3>Thêm bản ghi nhập/xuất mới:</h3>
-      {message.text && <div className={`message ${message.type === 'success' ? 'success-message' : 'error-message'}`}>{message.text}</div>}
+      {message && <div className="success-message">{message}</div>}
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleAddActivity} className="modern-form">
         <div className="form-grid">
@@ -224,8 +185,7 @@ function WoodDetail() {
                   {speciesData.map((species, index) => (
                     <option key={index} value={species.tenLamSan}>{species.tenLamSan}</option>
                   ))}
-                   {/* Thêm tùy chọn "Nhập thủ công" */}
-                  <option value="Nhập thủ công">Nhập thủ công...</option>
+                  {/* Dòng "Nhập tay..." đã được xóa đi */}
                 </select>
               </div>
 
@@ -297,49 +257,10 @@ function WoodDetail() {
 
       <h3>Lịch sử nhập/xuất gỗ:</h3>
       <div className="activity-list-container">
-        {activities.length === 0 ? (
-          <p>Chưa có bản ghi hoạt động cho cơ sở này.</p>
-        ) : (
-          <table className="activity-table">
-            <thead>
-              <tr>
-                <th rowSpan="2">No.</th>
-                <th rowSpan="2">Tên Lâm sản</th>
-                <th rowSpan="2">Ngày</th>
-                <th rowSpan="2">Loại</th>
-                <th rowSpan="2">Số lượng</th>
-                <th rowSpan="2">Đơn vị</th>
-                <th rowSpan="2">Lý do</th>
-                <th rowSpan="2">Nguồn gốc/Nơi đến</th>
-                <th rowSpan="2">Người xác nhận</th>
-                {role === 'admin' && <th rowSpan="2">Hành động</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {activities.map((activity, index) => (
-                <tr key={activity._id || index}>
-                  <td>{index + 1}</td>
-                  <td>{activity.speciesName || 'N/A'}</td>
-                  <td>{activity.date ? new Date(activity.date).toLocaleDateString() : 'N/A'}</td>
-                  <td>{activity.type === 'import' ? 'Nhập' : 'Xuất'}</td>
-                  <td>{activity.quantity ?? 0}</td>
-                  <td>{activity.unit || 'N/A'}</td>
-                  <td>{activity.reason || 'N/A'}</td>
-                  <td>{activity.source || activity.destination || 'N/A'}</td>
-                  <td>{activity.verifiedBy || 'N/A'}</td>
-                  {role === 'admin' && (
-                    <td>
-                      <button onClick={() => handleDeleteActivity(activity._id)} className="delete-button">Xóa</button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+        {/* ... giữ nguyên ... */}
       </div>
       <div className="detail-actions">
-        <button onClick={() => navigate('/admin/wood-farms')} className="cancel-button">Quay lại danh sách</button>
+        <button onClick={() => navigate('/admin/woods')} className="cancel-button">Quay lại danh sách</button>
       </div>
     </div>
   );

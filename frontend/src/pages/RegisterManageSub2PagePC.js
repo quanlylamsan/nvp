@@ -6,13 +6,7 @@ import * as XLSX from 'xlsx';
 
 import './RegisterManageSub2Page.css';
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
-
-// ✅ Đổi tên hàm component để khớp với import BreedingFarmListPage
-function BreedingFarmListPage() { 
+function FarmListPage() {
   const [farms, setFarms] = useState([]);
   const [filter, setFilter] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
@@ -89,8 +83,7 @@ function BreedingFarmListPage() {
         if (selectedProvince) params.tinhThanhPho = selectedProvince;
         if (selectedCommune) params.xaPhuong = selectedCommune;
 
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-        const response = await axios.get(`${API_BASE_URL}/api/farms`, {
+        const response = await axios.get('http://localhost:10000/api/farms', {
           headers: { Authorization: `Bearer ${token}` },
           params: params
         });
@@ -99,8 +92,7 @@ function BreedingFarmListPage() {
         setFarms(fetchedFarms);
 
         // Lấy tất cả dữ liệu một lần để tạo dropdown, không phụ thuộc vào trang hiện tại
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API thứ hai
-        const allFarmsResponse = await axios.get(`${API_BASE_URL}/api/farms?limit=1000`, { headers: { Authorization: `Bearer ${token}` } });
+        const allFarmsResponse = await axios.get('http://localhost:10000/api/farms?limit=1000', { headers: { Authorization: `Bearer ${token}` } });
         const allFarms = allFarmsResponse.data.docs || [];
 
         setUniqueProvinces([...new Set(allFarms.map(f => f.tinhThanhPho).filter(Boolean))].sort());
@@ -127,8 +119,7 @@ function BreedingFarmListPage() {
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa cơ sở này?')) {
       try {
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-        await axios.delete(`${API_BASE_URL}/api/farms/${id}`, {
+        await axios.delete(`http://localhost:10000/api/farms/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFarms(farms.filter(f => f._id !== id));
@@ -142,13 +133,15 @@ function BreedingFarmListPage() {
   const handleEdit = (id) => navigate(`/edit-farm/${id}`);
   const handleView = (id) => navigate(`/farm-details/${id}`);
   
+  // *** HÀM MỚI: Xử lý sự kiện nhấn nút "Thêm Lâm sản" ***
   const handleAddProduct = (farmId) => {
     navigate(`/farm/${farmId}/add-product`);
   };
 
-  const currentItems = farms; 
-  const totalPages = Math.ceil(farms.length / itemsPerPage); 
+  const currentItems = farms; // Backend đã phân trang
+  const totalPages = Math.ceil(farms.length / itemsPerPage); // Cần lấy totalPages từ API
   
+  // Các hàm phân trang, ẩn/hiện cột giữ nguyên như cũ
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () => setCurrentPage(prev => prev + 1);
   const prevPage = () => setCurrentPage(prev => prev - 1);
@@ -177,6 +170,7 @@ function BreedingFarmListPage() {
       columnsToExport.forEach(col => {
         let value = farm[col.id];
         if (col.id === 'products' && Array.isArray(value)) {
+          // Gộp thông tin sản phẩm thành một chuỗi
           value = value.map(p => `${p.tenLamSan} (${p.khoiLuong} ${p.donViTinh || 'm³'})`).join('; ');
         } else if (['ngayThanhLap', 'ngayCapCCCD'].includes(col.id)) {
           value = value ? new Date(value).toLocaleDateString() : '';
@@ -284,42 +278,8 @@ function BreedingFarmListPage() {
           </tbody>
         </table>
       )}
-
-      {/* Điều khiển phân trang */}
-      {filteredFarms.length > 0 && (
-        <div className="pagination-container">
-          <div className="pagination-info">
-            {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredFarms.length)} / {filteredFarms.length} bản ghi
-          </div>
-          <div className="pagination-controls">
-            <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => paginate(i + 1)}
-                className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
-          </div>
-          <div className="items-per-page">
-            <select value={itemsPerPage} onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1); // Đặt lại về trang đầu tiên khi số mục mỗi trang thay đổi
-            }}>
-              <option value="5">5 bản ghi/trang</option>
-              <option value="10">10 bản ghi/trang</option>
-              <option value="15">15 bản ghi/trang</option>
-              <option value="20">20 bản ghi/trang</option>
-              <option value="50">50 bản ghi/trang</option>
-            </select>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export default BreedingFarmListPage;
+export default FarmListPage;
