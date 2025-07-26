@@ -1,5 +1,5 @@
 // src/pages/RegisterManageSub2Page.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react'; // ✅ THÊM useMemo
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -18,12 +18,19 @@ function BreedingFarmListPage() {
   const [selectedNganhNgheKinhDoanhGo, setSelectedNganhNgheKinhDoanhGo] = useState('');
   const [selectedTrangThai, setSelectedTrangThai] = useState('');
 
+  // ✅ Đảm bảo các state này được khai báo đúng
+  const [selectedLoaiHinhCheBienGo, setSelectedLoaiHinhCheBienGo] = useState(''); 
+  const [selectedNguonGocGo, setSelectedNguonGocGo] = useState(''); 
+
   const [uniqueProvinces, setUniqueProvinces] = useState([]);
   const [uniqueCommunes, setUniqueCommunes] = useState([]);
   const [uniqueSpecies, setUniqueSpecies] = useState([]);
   const [uniqueNganhNgheKinhDoanhGo, setUniqueNganhNgheKinhDoanhGo] = useState([]);
   const [uniqueTrangThai, setUniqueTrangThai] = useState([]);
   const [uniqueLoaiCoSoDangKy, setUniqueLoaiCoSoDangKy] = useState([]); 
+  // ✅ Đảm bảo các unique states này cũng được khai báo đúng
+  const [uniqueLoaiHinhCheBienGo, setUniqueLoaiHinhCheBienGo] = useState([]); 
+  const [uniqueNguonGocGo, setUniqueNguonGocGo] = useState([]); 
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -98,6 +105,9 @@ function BreedingFarmListPage() {
         setUniqueCommunes([...new Set(allFarms.map(f => f.xaPhuong).filter(Boolean))].sort());
         setUniqueLoaiCoSoDangKy([...new Set(allFarms.map(f => f.loaiCoSoDangKy).filter(Boolean))].sort());
         setUniqueTrangThai([...new Set(allFarms.map(f => f.trangThai).filter(Boolean))].sort());
+        // ✅ Cập nhật unique values cho các bộ lọc mới
+        setUniqueLoaiHinhCheBienGo([...new Set(allFarms.map(f => f.loaiHinhCheBienGo).filter(Boolean))].sort()); 
+        setUniqueNguonGocGo([...new Set(allFarms.map(f => f.nguonGocGo).filter(Boolean))].sort()); 
 
       } catch (error) {
         console.error('Lỗi khi lấy danh sách cơ sở:', error);
@@ -113,7 +123,10 @@ function BreedingFarmListPage() {
     } else {
       navigate('/');
     }
-  }, [token, navigate, currentPage, itemsPerPage, filter, selectedLoaiCoSoDangKy, selectedTrangThai, selectedProvince, selectedCommune]);
+    // ✅ CẬP NHẬT DEPENDENCY ARRAY ĐẦY ĐỦ
+  }, [token, navigate, currentPage, itemsPerPage, filter, selectedLoaiCoSoDangKy, selectedTrangThai, selectedProvince, selectedCommune, selectedSpecies, selectedNganhNgheKinhDoanhGo, selectedLoaiHinhCheBienGo, selectedNguonGocGo]); 
+  // Đảm bảo tất cả các state được sử dụng trong fetchFarms và các bộ lọc ngoài useEffect đều có trong đây.
+
 
   const handleDelete = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa cơ sở này?')) {
@@ -136,41 +149,44 @@ function BreedingFarmListPage() {
     navigate(`/farm/${farmId}/add-product`);
   };
 
-  // ✅ Sửa đổi: Định nghĩa filteredFarms ở đây để nó có thể được truy cập trong JSX và logic phân trang
-  const filteredFarms = farms.filter(f => {
-    const generalMatch = (
-      (f.tenCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
-      (f.tinhThanhPho || '').toLowerCase().includes(filter.toLowerCase()) ||
-      (f.xaPhuong || '').toLowerCase().includes(filter.toLowerCase()) ||
-      (f.diaChiCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
-      (f.ghiChu || '').toLowerCase().includes(filter.toLowerCase()) || 
-      (f.loaiCoSoDangKy || '').toLowerCase().includes(filter.toLowerCase()) || 
-      (f.nganhNgheKinhDoanhGo || '').toLowerCase().includes(filter.toLowerCase()) || 
-      (f.tongDan && String(f.tongDan).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.khoiLuong && String(f.khoiLuong).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.tenLamSan && String(f.tenLamSan).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.tenKhoaHoc && String(f.tenKhoaHoc).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.trangThai && String(f.trangThai).toLowerCase().includes(filter.toLowerCase())) ||
-      (f.tenNguoiDaiDien || '').toLowerCase().includes(filter.toLowerCase()) ||
-      (f.namSinh && String(f.namSinh).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.soCCCD && String(f.soCCCD).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.ngayCapCCCD && new Date(f.ngayCapCCCD).toLocaleDateString().toLowerCase().includes(filter.toLowerCase())) ||
-      (f.noiCapCCCD && String(f.noiCapCCCD).toLowerCase().includes(filter.toLowerCase())) || 
-      (f.soDienThoaiNguoiDaiDien && String(f.soDienThoaiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) ||
-      (f.diaChiNguoiDaiDien && String(f.diaChiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) 
-    );
+  // ✅ SỬ DỤNG useMemo để tối ưu và đảm bảo filteredFarms được định nghĩa rõ ràng
+  const filteredFarms = useMemo(() => {
+    return farms.filter(f => {
+      const generalMatch = (
+        (f.tenCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (f.tinhThanhPho || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (f.xaPhuong || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (f.diaChiCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (f.ghiChu || '').toLowerCase().includes(filter.toLowerCase()) || 
+        (f.loaiCoSoDangKy || '').toLowerCase().includes(filter.toLowerCase()) || 
+        (f.nganhNgheKinhDoanhGo || '').toLowerCase().includes(filter.toLowerCase()) || 
+        (f.tongDan && String(f.tongDan).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.khoiLuong && String(f.khoiLuong).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.tenLamSan && String(f.tenLamSan).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.tenKhoaHoc && String(f.tenKhoaHoc).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.trangThai && String(f.trangThai).toLowerCase().includes(filter.toLowerCase())) ||
+        (f.tenNguoiDaiDien || '').toLowerCase().includes(filter.toLowerCase()) ||
+        (f.namSinh && String(f.namSinh).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.soCCCD && String(f.soCCCD).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.ngayCapCCCD && new Date(f.ngayCapCCCD).toLocaleDateString().toLowerCase().includes(filter.toLowerCase())) ||
+        (f.noiCapCCCD && String(f.noiCapCCCD).toLowerCase().includes(filter.toLowerCase())) || 
+        (f.soDienThoaiNguoiDaiDien && String(f.soDienThoaiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) ||
+        (f.diaChiNguoiDaiDien && String(f.diaChiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) 
+      );
 
-    const provinceMatch = selectedProvince ? (f.tinhThanhPho === selectedProvince) : true;
-    const communeMatch = selectedCommune ? (f.xaPhuong === selectedCommune) : true;
-    const speciesMatch = selectedSpecies ? (f.species && f.species.some(s => s.name === selectedSpecies)) : true;
-    const nganhNgheKinhDoanhGoMatch = selectedNganhNgheKinhDoanhGo ? (f.nganhNgheKinhDoanhGo === selectedNganhNgheKinhDoanhGo) : true;
-    const trangThaiMatch = selectedTrangThai ? (f.trangThai === selectedTrangThai) : true;
-    const loaiHinhCheBienGoMatch = selectedLoaiHinhCheBienGo ? (f.loaiHinhCheBienGo === selectedLoaiHinhCheBienGo) : true;
-    const nguonGocGoMatch = selectedNguonGocGo ? (f.nguonGocGo === selectedNguonGocGo) : true;
+      const provinceMatch = selectedProvince ? (f.tinhThanhPho === selectedProvince) : true;
+      const communeMatch = selectedCommune ? (f.xaPhuong === selectedCommune) : true;
+      const speciesMatch = selectedSpecies ? (f.species && f.species.some(s => s.name === selectedSpecies)) : true;
+      const nganhNgheKinhDoanhGoMatch = selectedNganhNgheKinhDoanhGo ? (f.nganhNgheKinhDoanhGo === selectedNganhNgheKinhDoanhGo) : true;
+      const trangThaiMatch = selectedTrangThai ? (f.trangThai === selectedTrangThai) : true;
+      const loaiHinhCheBienGoMatch = selectedLoaiHinhCheBienGo ? (f.loaiHinhCheBienGo === selectedLoaiHinhCheBienGo) : true;
+      const nguonGocGoMatch = selectedNguonGocGo ? (f.nguonGocGo === selectedNguonGocGo) : true;
 
+      return generalMatch && provinceMatch && communeMatch && speciesMatch && nganhNgheKinhDoanhGoMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch;
+    });
+    // ✅ CẬP NHẬT DEPENDENCY ARRAY ĐẦY ĐỦ CHO useMemo
+  }, [farms, filter, selectedProvince, selectedCommune, selectedSpecies, selectedLoaiCoSoDangKy, selectedNganhNgheKinhDoanhGo, selectedTrangThai, selectedLoaiHinhCheBienGo, selectedNguonGocGo]); 
 
-    return generalMatch && provinceMatch && communeMatch && speciesMatch && nganhNgheKinhDoanhGoMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch;
-  });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -203,7 +219,7 @@ function BreedingFarmListPage() {
 
   const handleExportExcel = () => {
     const columnsToExport = Object.values(columns).filter(col => col.visible && col.id !== 'actions');
-    const dataToExport = farms.map(farm => { // Sử dụng farms gốc hoặc filteredFarms tùy nhu cầu xuất
+    const dataToExport = filteredFarms.map(farm => { // ✅ Sử dụng filteredFarms cho xuất Excel
       const rowData = {};
       columnsToExport.forEach(col => {
         let value = farm[col.id];
@@ -255,7 +271,26 @@ function BreedingFarmListPage() {
           {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
         </select>
         
-        <button onClick={() => setShowColumnOptions(!showColumnOptions)}>Hiện/Ẩn Cột</button>
+        <select
+          value={selectedLoaiHinhCheBienGo} // ✅ SỬ DỤNG state này
+          onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}
+        >
+          <option value="">Tất cả Loại hình chế biến</option>
+          {uniqueLoaiHinhCheBienGo.map(l => (<option key={l} value={l}>{l}</option>))}
+        </select>
+
+        <select
+          value={selectedNguonGocGo} // ✅ SỬ DỤNG state này
+          onChange={e => setSelectedNguonGocGo(e.target.value)}
+        >
+          <option value="">Tất cả Nguồn gốc gỗ</option>
+          {uniqueNguonGocGo.map(n => (<option key={n} value={n}>{n}</option>))}
+        </select>
+
+
+        <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
+          {showColumnOptions ? 'Ẩn tùy chọn' : 'Hiện/Ẩn Cột'}
+        </button>
         <button onClick={handleExportExcel} className="export-excel-button">Xuất Excel</button>
       </div>
 
