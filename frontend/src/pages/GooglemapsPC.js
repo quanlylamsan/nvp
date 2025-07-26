@@ -6,16 +6,11 @@ import { useNavigate } from 'react-router-dom';
 
 import './Googlemaps.css'; // Import file CSS riêng cho trang này
 
-// Lấy URL API từ biến môi trường.
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; // Thêm dòng này
-
 /**
  * Component FarmListPage hiển thị danh sách các cơ sở nuôi,
  * cho phép tìm kiếm, lọc, ẩn/hiện cột và phân trang.
  */
-function GoogleMapsPage() { // Đã đổi tên hàm từ FarmListPage thành GoogleMapsPage để khớp với Route
+function FarmListPage() {
   // State để lưu trữ danh sách các cơ sở được tải về từ API
   const [farms, setFarms] = useState([]);
   // State cho bộ lọc tìm kiếm chung (theo tên, địa chỉ, người đại diện, v.v.)
@@ -141,8 +136,7 @@ function GoogleMapsPage() { // Đã đổi tên hàm từ FarmListPage thành Go
         }
 
         // Gửi yêu cầu GET đến API để lấy danh sách cơ sở
-        // Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-        const response = await axios.get(`${API_BASE_URL}/api/farms`, {
+        const response = await axios.get('http://localhost:10000/api/farms', {
           headers: {
             Authorization: `Bearer ${token}` // Gửi token xác thực trong header
           },
@@ -195,8 +189,7 @@ function GoogleMapsPage() { // Đã đổi tên hàm từ FarmListPage thành Go
    */
   const handleNavigateToMap = (lat, lon) => {
     if (lat && lon) {
-      // Sửa đổi: Sử dụng Google Maps URL chính xác
-      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=$${lat},${lon}`;
       window.open(mapUrl, '_blank'); // Mở bản đồ trong tab mới
     } else {
       alert('Không có thông tin vĩ độ hoặc kinh độ cho cơ sở này.'); // Thay bằng modal thông báo tùy chỉnh
@@ -493,4 +486,4 @@ function GoogleMapsPage() { // Đã đổi tên hàm từ FarmListPage thành Go
   );
 }
 
-export default GoogleMapsPage;
+export default FarmListPage;

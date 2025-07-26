@@ -3,11 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './MasterProductListPage.css';
 
-// Lấy URL API từ biến môi trường.
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; // Thêm dòng này
-
 function MasterProductListPage() {
     const navigate = useNavigate();
     const [masterData, setMasterData] = useState([]);
@@ -31,19 +26,18 @@ function MasterProductListPage() {
     const fetchMasterData = async (token) => {
         setLoading(true);
         try {
-            // Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-            const response = await axios.get(`${API_BASE_URL}/api/master-product-list`, {
+            const response = await axios.get('http://localhost:10000/api/master-product-list', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setMasterData(response.data);
         } catch (err) {
             console.error("Lỗi khi gọi API:", err.response || err.message);
-            // Có thể muốn hiển thị một thông báo lỗi cho người dùng ở đây
         } finally {
             setLoading(false);
         }
     };
 
+    // Hàm được định nghĩa với tên 'handleFilterChange' (chữ C hoa)
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
@@ -69,6 +63,7 @@ function MasterProductListPage() {
             <h1>Bảng tổng hợp Lâm sản và Cơ sở</h1>
 
             <div className="filters-panel">
+                {/* === ĐÃ SỬA LỖI CHÍNH TẢ Ở ĐÂY === */}
                 <input type="text" name="tenCoSo" placeholder="Lọc theo tên cơ sở..." onChange={handleFilterChange} value={filters.tenCoSo} />
                 <input type="text" name="tinhThanhPho" placeholder="Lọc theo tỉnh (TP)..." onChange={handleFilterChange} value={filters.tinhThanhPho} />
                 <input type="text" name="tenLamSan" placeholder="Lọc theo tên lâm sản..." onChange={handleFilterChange} value={filters.tenLamSan} />

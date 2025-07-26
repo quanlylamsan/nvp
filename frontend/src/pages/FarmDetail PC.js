@@ -6,11 +6,6 @@ import '../Dashboard.css';
 import './FormPage.css'; // Reuse CSS for forms
 import './Manager.css'; // Reuse CSS for tables (if you have specific table styles for activities)
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
-
 function FarmDetail() {
   const { farmId } = useParams(); // Get farmId from URL
   const navigate = useNavigate();
@@ -25,14 +20,23 @@ function FarmDetail() {
 
   // State for the activity tracking form
   const [activityFormData, setActivityFormData] = useState({
-    speciesName: '',
-    date: '',
-    totalIndividuals: 0,
-    currentStatus: { parents: { male: 0, female: 0 }, otherIndividuals: { male: 0, female: 0, unidentified: 0 } },
-    increase: { parents: { male: 0, female: 0 }, otherIndividuals: { male: 0, female: 0, unidentified: 0 } },
-    decrease: { parents: { male: 0, female: 0 }, otherIndividuals: { male: 0, female: 0, unidentified: 0 } },
+    speciesName: '', // Species name - now selected from a dropdown at the top
+    date: '',        // Date recorded
+    totalIndividuals: 0, // Total individuals - This value will no longer be entered via the UI form
+    currentStatus: { // currentStatus is still kept in state to send to the backend
+      parents: { male: 0, female: 0 },
+      otherIndividuals: { male: 0, female: 0, unidentified: 0 }
+    },
+    increase: {
+      parents: { male: 0, female: 0 },
+      otherIndividuals: { male: 0, female: 0, unidentified: 0 }
+    },
+    decrease: {
+      parents: { male: 0, female: 0 },
+      otherIndividuals: { male: 0, female: 0, unidentified: 0 }
+    },
     reasonForChange: '',
-    verifiedBy: '',
+    verifiedBy: '', // This field will no longer be entered via the UI form
   });
 
   // Function to fetch farm details and tracking records
@@ -41,20 +45,22 @@ function FarmDetail() {
     setError('');
     setMessage('');
     try {
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-      const resFarm = await axios.get(`${API_BASE_URL}/api/farms/${farmId}`, {
+      // Get farm details
+      const resFarm = await axios.get(`http://localhost:10000/api/farms/${farmId}`, { // Giữ cổng 10000 như bạn yêu cầu
         headers: { Authorization: `Bearer ${token}` },
       });
       setFarm(resFarm.data);
 
       // CẬP NHẬT LOGIC LẤY TÊN LÂM SẢN (speciesName) TỪ loaiDongVatRung
+      // Đảm bảo resFarm.data.loaiDongVatRung tồn tại và là một mảng
       if (resFarm.data.loaiDongVatRung && Array.isArray(resFarm.data.loaiDongVatRung) && resFarm.data.loaiDongVatRung.length > 0) {
         setActivityFormData(prev => ({
           ...prev,
-          speciesName: resFarm.data.loaiDongVatRung[0].tenLamSan
+          speciesName: resFarm.data.loaiDongVatRung[0].tenLamSan // Lấy tenLamSan từ phần tử đầu tiên
         }));
       } else {
-        if (resFarm.data.tenLamSan) {
+        // Nếu loaiDongVatRung không có hoặc rỗng, có thể kiểm tra tenLamSan trực tiếp (nếu nó là một trường riêng)
+        if (resFarm.data.tenLamSan) { // Nếu farm có trường tenLamSan trực tiếp
             setActivityFormData(prev => ({
                 ...prev,
                 speciesName: resFarm.data.tenLamSan
@@ -62,8 +68,8 @@ function FarmDetail() {
         }
       }
 
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-      const resActivities = await axios.get(`${API_BASE_URL}/api/farm-activities/${farmId}`, {
+      // Get activity tracking records for this farm
+      const resActivities = await axios.get(`http://localhost:10000/api/farm-activities/${farmId}`, { // Giữ cổng 10000
         headers: { Authorization: `Bearer ${token}` },
       });
       setActivities(resActivities.data);
@@ -128,8 +134,7 @@ function FarmDetail() {
         ...activityFormData,
         farm: farmId,
       };
-      // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-      const res = await axios.post(`${API_BASE_URL}/api/farm-activities`, dataToSend, {
+      const res = await axios.post(`http://localhost:10000/api/farm-activities`, dataToSend, { // Giữ cổng 10000
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessage('Tracking record added successfully!');
@@ -156,8 +161,7 @@ function FarmDetail() {
       setMessage('');
       setError('');
       try {
-        // ✅ Sửa đổi: Sử dụng API_BASE_URL cho cuộc gọi API
-        await axios.delete(`${API_BASE_URL}/api/farm-activities/${activityId}`, {
+        await axios.delete(`http://localhost:10000/api/farm-activities/${activityId}`, { // Giữ cổng 10000
           headers: { Authorization: `Bearer ${token}` },
         });
         setMessage('Record deleted successfully.');
