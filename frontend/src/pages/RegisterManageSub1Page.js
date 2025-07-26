@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 
 import './RegisterManageSub1Page.css';
 
-function WoodFarmListPage() {
+function RegisterManageSub1Page() {
   const [woods, setWoods] = useState([]);
   const [filter, setFilter] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
