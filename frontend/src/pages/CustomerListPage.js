@@ -1,6 +1,10 @@
+// src/pages/CustomerListPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Manager.css';
+
+// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
 function CustomerListPage() {
   const [customers, setCustomers] = useState([]);
@@ -10,28 +14,37 @@ function CustomerListPage() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, {
+      // ✅ SỬ DỤNG API_BASE_URL
+      const res = await axios.get(`${API_BASE_URL}/api/customers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCustomers(res.data);
-    } catch {
-      alert('Không thể tải khách hàng');
+    } catch (error) { // Thêm `error` vào catch
+      alert('Không thể tải khách hàng: ' + (error.response?.data?.message || error.message)); // Thông báo lỗi chi tiết hơn
     }
   };
 
-  useEffect(() => { fetchCustomers(); }, []);
+  useEffect(() => { 
+    if (token) { // Chỉ fetch nếu có token
+      fetchCustomers(); 
+    } else {
+      // Optional: navigate to login if no token
+    }
+  }, [token]); // Thêm token vào dependency array
 
   const handleAddCustomer = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/customers`, {
+      // ✅ SỬ DỤNG API_BASE_URL
+      await axios.post(`${API_BASE_URL}/api/customers`, {
         name, address
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setName(''); setAddress(''); fetchCustomers();
-    } catch {
-      alert('Lỗi khi thêm khách hàng');
+      alert('Thêm khách hàng thành công!'); // Thêm thông báo thành công
+    } catch (error) { // Thêm `error` vào catch
+      alert('Lỗi khi thêm khách hàng: ' + (error.response?.data?.message || error.message));
     }
   };
 
