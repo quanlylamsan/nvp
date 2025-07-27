@@ -545,8 +545,8 @@ body {
 }
 
 .login-card button:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-1px);
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
 .login-card .forgot-register-links {
@@ -816,7 +816,6 @@ table td button:last-child {
   }
 
   /* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
-  /* --- ĐIỀU CHỈNH CHÍNH: TỪ GIỜ SUBMENU CHỈ ẨN/HIỆN DỰA VÀO isSidebarOpen VÀ open state CỦA CHÚNG --- */
   .sidebar:not(.sidebar-open) .submenu { 
     max-height: 0 !important;
     opacity: 0 !important;
@@ -832,22 +831,39 @@ table td button:last-child {
     background-color: var(--secondary-color);
   }
 
-  /* --- NÚT HAMBURGER MENU --- */
+  /* NÚT HAMBURGER MENU */
   .hamburger-menu-button {
-    display: flex; /* Hiển thị nút hamburger trên mobile */
-    background-color: transparent !important; /* Nền trong suốt */
-    border: none;
-    color: #FF0000 !important; /* Màu đỏ */
-    font-size: 1.8em;
-    cursor: pointer;
-    padding: 5px;
-    position: absolute !important; /* Định vị tuyệt đối */
-    bottom: 10px !important; /* Cách dưới 10px */
-    left: 10px !important; /* Cách trái 10px */
-    z-index: 10; /* Đảm bảo nó nằm trên các phần tử khác trong banner */
-    margin-right: 0; /* Bỏ margin-right */
+    display: none; /* --- Mặc định ẩn trên DESKTOP --- */
+  }
+  /* Hiển thị chỉ khi max-width là 768px (mobile) VÀ orientation là portrait */
+  @media (max-width: 768px) and (orientation: portrait) {
+    .hamburger-menu-button {
+      display: flex !important; /* Hiển thị nút hamburger trên mobile dọc */
+      background-color: transparent !important; /* Nền trong suốt */
+      border: none;
+      color: #FF0000 !important; /* Màu đỏ */
+      font-size: 1.8em;
+      cursor: pointer;
+      padding: 0; /* Loại bỏ padding để không ảnh hưởng vị trí */
+      position: absolute !important; /* Định vị tuyệt đối */
+      bottom: 10px !important; /* Cách dưới 10px */
+      left: 10px !important; /* Cách trái 10px */
+      z-index: 10; /* Đảm bảo nó nằm trên các phần tử khác trong banner */
+      margin: 0; /* Loại bỏ margin */
+      width: 40px; /* Kích thước cố định cho nút */
+      height: 40px;
+      justify-content: center; /* Căn giữa icon bên trong nút */
+      align-items: center;
+    }
   }
 
+  /* Ẩn nút hamburger trên Desktop và Landscape */
+  @media (min-width: 769px), (max-width: 768px) and (orientation: landscape) {
+    .hamburger-menu-button {
+      display: none !important;
+    }
+  }
+  
   /* MAIN CONTENT OVERLAY KHI SIDEBAR MỞ */
   .main-layout-content::before {
     content: '';
@@ -885,10 +901,10 @@ table td button:last-child {
 
   /* Mobile Header/Banner adjustments */
   .main-header-banner {
-    padding: 0; /* Loại bỏ padding để banner kéo dài hết */
+    padding: 0;
     border-radius: 0;
-    margin-bottom: 0; /* Loại bỏ margin-bottom */
-    min-height: 80px; /* Giữ chiều cao đã điều chỉnh */
+    margin-bottom: 0;
+    min-height: 80px;
     position: relative; /* Để user-profile-banner có thể absolute theo nó */
     justify-content: flex-start; /* Giữ căn trái, nhưng hamburger sẽ ở đầu */
   }
@@ -919,7 +935,7 @@ table td button:last-child {
     font-size: 1.2em;
   }
   .header-text h2 {
-    font-size: 0.8em;
+    font-size: 0.9em;
   }
   .header-text .header-copyright {
     font-size: 0.55em;
