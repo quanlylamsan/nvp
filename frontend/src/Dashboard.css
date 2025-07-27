@@ -484,8 +484,8 @@ body {
 }
 
 .logout-item:hover {
-    background-color: #c0392b;
-    color: white;
+  background-color: var(--primary-dark);
+  color: white;
 }
 
 /* Login Form Specific Styles */
@@ -641,7 +641,7 @@ body {
   background-color: white;
 }
 .filter-section select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' viewBox='0 0 24 24' fill='%23666'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
     background-size: 20px;
@@ -831,9 +831,9 @@ table td button:last-child {
     background-color: var(--secondary-color);
   }
 
-  /* NÚT HAMBURGER MENU */
+  /* --- NÚT HAMBURGER MENU --- */
   .hamburger-menu-button {
-    display: none; /* --- Mặc định ẩn trên DESKTOP --- */
+    display: none; /* --- Mặc định ẩn trên DESKTOP và MOBILE LANDSCAPE --- */
   }
   /* Hiển thị chỉ khi max-width là 768px (mobile) VÀ orientation là portrait */
   @media (max-width: 768px) and (orientation: portrait) {
@@ -858,6 +858,7 @@ table td button:last-child {
   }
 
   /* Ẩn nút hamburger trên Desktop và Landscape */
+  /* --- Bổ sung quy tắc này để đảm bảo ẩn trên Desktop và Landscape --- */
   @media (min-width: 769px), (max-width: 768px) and (orientation: landscape) {
     .hamburger-menu-button {
       display: none !important;

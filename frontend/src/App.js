@@ -5,7 +5,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import UserListPage from './pages/UserListPage';
 import CustomerListPage from './pages/CustomerListPage';
-import KhaiBaoCoSo from './pages/KhaiBaoCoSo';
+import KhaiBaoCoSoPage from './pages/KhaiBaoCoSo'; // Đã sửa tên import
 import LogoutPage from './pages/LogoutPage';
 import Sidebar from './components/Sidebar';
 import FarmDetail from './pages/FarmDetail';
@@ -18,7 +18,7 @@ import AddProductToFarm from './pages/AddProductToFarm';
 import MasterProductListPage from './pages/MasterProductListPage';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons'; // Import faBars (hamburger icon)
+import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons';
 
 import './Dashboard.css';
 import bannerImage from './assets/images/banner.jpg';
@@ -28,11 +28,11 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [role, setRole] = useState(localStorage.getItem('role'));
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false); 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State này điều khiển ẩn/hiện sidebar mobile
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
 
   const userMenuRef = useRef(null); 
-  const sidebarRef = useRef(null); // Ref cho sidebar
-  const hamburgerButtonRef = useRef(null); // Ref cho nút hamburger
+  const sidebarRef = useRef(null); 
+  const hamburgerButtonRef = useRef(null); 
 
   const handleSetAuthStatus = (newToken, newRole) => {
     localStorage.setItem('token', newToken);
@@ -44,14 +44,13 @@ function App() {
   const handleLogout = () => {
     handleSetAuthStatus('', ''); 
     setShowUserProfileMenu(false); 
-    setIsSidebarOpen(false); // Đảm bảo sidebar đóng khi logout
+    setIsSidebarOpen(false); 
   };
 
-  const toggleSidebar = () => { // Hàm để mở/đóng sidebar mobile
+  const toggleSidebar = () => { 
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Logic để đóng menu user khi click ra ngoài
   useEffect(() => {
     function handleClickOutsideUserMenu(event) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -64,10 +63,8 @@ function App() {
     };
   }, [userMenuRef]);
 
-  // Logic để đóng sidebar khi click ra ngoài (mobile) HOẶC click vào overlay
   useEffect(() => {
     function handleClickOutsideSidebar(event) {
-      // Nếu sidebar đang mở VÀ click không phải vào sidebar HOẶC click không phải vào nút hamburger
       if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target) && hamburgerButtonRef.current && !hamburgerButtonRef.current.contains(event.target)) {
         setIsSidebarOpen(false);
       }
@@ -76,23 +73,17 @@ function App() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutsideSidebar);
     };
-  }, [isSidebarOpen, sidebarRef, hamburgerButtonRef]); // Thêm hamburgerButtonRef vào dependencies
-
+  }, [isSidebarOpen, sidebarRef, hamburgerButtonRef]);
 
   useEffect(() => {
     setToken(localStorage.getItem('token'));
     setRole(localStorage.getItem('role'));
-    // Thêm logic để đảm bảo sidebar đóng khi tải trang hoặc chuyển hướng (trên mobile)
-    // Và đóng sidebar khi resize (chuyển từ mobile sang desktop)
     const handleResizeAndRouteChange = () => {
-        if (window.innerWidth > 768) { // Nếu chuyển sang desktop view
-            setIsSidebarOpen(false); // Đảm bảo sidebar đóng (và sẽ hiển thị theo desktop default)
+        if (window.innerWidth > 768) { 
+            setIsSidebarOpen(false); 
         }
     };
     window.addEventListener('resize', handleResizeAndRouteChange); 
-    // Nếu dùng react-router-dom v6+, chuyển hướng không trigger popstate cho các NavLink thông thường
-    // Cần một cách khác để theo dõi thay đổi route nếu muốn đóng sidebar khi chuyển trang
-    // Hiện tại, handleClickOutsideSidebar sẽ đóng khi click vào nội dung chính
     
     return () => {
         window.removeEventListener('resize', handleResizeAndRouteChange);
@@ -107,15 +98,12 @@ function App() {
 
   return (
     <Router basename="/nvp">
-      {/* Thêm class sidebar-open vào app-container để điều khiển overlay */}
       <div className={`app-container ${isSidebarOpen ? 'sidebar-open' : ''}`}> 
-        {/* Gán ref cho Sidebar và truyền isSidebarOpen */}
         {isLoggedIn && <Sidebar userRole={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarRef={sidebarRef} />} 
 
-        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''} `}> {/* Class sidebar-open được thêm vào app-container */}
+        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''} `}> 
           <div className="main-header-banner" style={{ '--banner-image-url': `url(${bannerImage})` }}>
             <div className="header-content-wrapper">
-              {/* Nút Hamburger cho Mobile - Chỉ hiển thị khi đã đăng nhập */}
               {isLoggedIn && (
                 <button className="hamburger-menu-button" onClick={toggleSidebar} ref={hamburgerButtonRef}>
                   <FontAwesomeIcon icon={faBars} />
@@ -167,7 +155,7 @@ function App() {
               <Route path="/" element={<LoginPage setAuthStatus={handleSetAuthStatus} />} />
               <Route path="/admin/woods/:farmId" element={<WoodDetail />} />
               <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
-              <Route path="/khai-bao" element={isLoggedIn ? <KhaiBaoCoSo /> : <Navigate to="/" />} />
+              <Route path="/khai-bao" element={isLoggedIn ? <KhaiBaoCoSoPage /> : <Navigate to="/" />} /> 
               <Route path="/bao-cao-tong-hop" element={<MasterProductListPage />} />
               <Route path="/farm/:farmId/add-product" element={<AddProductToFarm />} />
               <Route

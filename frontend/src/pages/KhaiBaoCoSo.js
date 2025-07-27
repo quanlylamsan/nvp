@@ -1,17 +1,15 @@
+// src/pages/KhaiBaoCoSo.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import './KhaiBaoCoSo.css';
+import './KhaiBaoCoSo.css'; // Giữ import này nếu bạn có các style riêng cho component này
 import speciesOptions from '../data/speciesData';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
-// ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
-// nó sẽ mặc định dùng localhost:10000.
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; 
 
-function KhaiBaoCoSo() {
+function KhaiBaoCoSoPage() { // Đã sửa tên function
   const navigate = useNavigate();
 
   const initialFormState = {
@@ -27,6 +25,7 @@ function KhaiBaoCoSo() {
     tenLamSan: '', tenKhoaHoc: '',
     issueDate: '', expiryDate: '',
     trangThai: 'Đang hoạt động',
+    ghiChu: '', // Thêm ghiChu vào initialFormState nếu nó không có
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -41,7 +40,7 @@ function KhaiBaoCoSo() {
     thongTinCoSo: true,
     nguoiDaiDien: true,
     loaiCoSo: true,
-    thongTinLoaiHinh: false,
+    thongTinLoaiHinh: true, // Sửa thành true để hiển thị mặc định
     giayPhep: true,
     upload: true,
   });
@@ -92,10 +91,10 @@ function KhaiBaoCoSo() {
         submissionData.products = [];
         
         if (submissionData.loaiCoSoDangKy === 'Đăng ký cơ sở gây nuôi' && submissionData.tenLamSan) {
-            const selectedSpecies = speciesOptions.find(s => s.tenLamSan === submissionData.tenLamSan);
+            const selectedSpecies = speciesOptions.find(s => s.name === submissionData.tenLamSan); // Đã sửa s.name thay vì s.tenLamSan
             submissionData.products.push({
                 tenLamSan: submissionData.tenLamSan,
-                tenKhoaHoc: selectedSpecies ? selectedSpecies.tenKhoaHoc : '',
+                tenKhoaHoc: selectedSpecies ? selectedSpecies.scientificName : '', // scientificName
                 khoiLuong: submissionData.tongDan,
                 donViTinh: 'cá thể',
                 mucDichNuoi: submissionData.mucDichNuoi,
@@ -116,7 +115,6 @@ function KhaiBaoCoSo() {
         const fieldsToDelete = ['tenLamSan', 'tenKhoaHoc', 'khoiLuong', 'tongDan', 'loaiHinhCheBienGo', 'nguonGocGo', 'mucDichNuoi', 'hinhThucNuoi', 'maSoCoSoGayNuoi'];
         fieldsToDelete.forEach(field => delete submissionData[field]);
 
-        // ✅ SỬ DỤNG API_BASE_URL
         await axios.post(`${API_BASE_URL}/api/farms`, submissionData, {
             headers: { Authorization: `Bearer ${token}` }
         });
@@ -148,7 +146,6 @@ function KhaiBaoCoSo() {
         const sheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(sheet);
         
-        // Chuyển đổi tên trường từ tiếng Việt sang tên tiếng Anh trong schema backend
         const mappedData = jsonData.map(row => {
           const mappedRow = {};
           mappedRow.tenCoSo = row['Tên cơ sở'];
@@ -173,7 +170,6 @@ function KhaiBaoCoSo() {
           mappedRow.trangThai = row['Trạng thái'] || 'Đang hoạt động';
           mappedRow.ghiChu = row['Ghi chú'] || '';
 
-          // Xử lý thông tin sản phẩm và loại hình đặc thù
           const product = {};
           if (mappedRow.loaiCoSoDangKy === 'Đăng ký cơ sở gây nuôi') {
             mappedRow.mucDichNuoi = row['Mục đích nuôi'] || '';
@@ -200,8 +196,8 @@ function KhaiBaoCoSo() {
 
           return mappedRow;
         });
-        setExcelData(mappedData);
-        setMessage({ type: 'success', text: `Đã đọc thành công ${mappedData.length} dòng dữ liệu từ file CSV.` });
+        setExcelData(jsonData); // Sử dụng jsonData trực tiếp nếu mapping xảy ra sau đó
+        setMessage({ type: 'success', text: `Đã đọc thành công ${jsonData.length} dòng dữ liệu từ file CSV.` });
       } catch (err) {
         console.error("Lỗi khi đọc file CSV:", err);
         setMessage({ type: 'error', text: 'Lỗi khi đọc file CSV. Vui lòng kiểm tra định dạng.' });
@@ -227,13 +223,12 @@ function KhaiBaoCoSo() {
     }
 
     try {
-      // ✅ SỬ DỤNG API_BASE_URL
       const response = await axios.post(`${API_BASE_URL}/api/farms/bulk`, excelData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessage({ type: 'success', text: `Tải lên thành công ${response.data.successCount} cơ sở, ${response.data.failCount} thất bại.` });
-      setExcelData([]); // Xóa dữ liệu sau khi tải lên
-      setCsvFile(null); // Reset file input
+      setExcelData([]);
+      setCsvFile(null);
     } catch (err) {
       console.error("Lỗi khi tải lên hàng loạt:", err.response?.data || err.message);
       setMessage({ type: 'error', text: `Tải lên hàng loạt thất bại: ${err.response?.data?.message || err.message}` });
@@ -249,15 +244,13 @@ function KhaiBaoCoSo() {
   };
 
   return (
-    <div className="khai-bao-container">
-      <h2>Đăng ký cơ sở</h2>
-      {message.type && <div className={`message ${message.type}`}>{message.text}<button onClick={() => setMessage({ type: '', text: '' })}>x</button></div>}
-      
-      <form onSubmit={handleSubmit} className="khai-bao-form">
+    <div className="form-page-container">
+      <h2>📄 Khai báo cơ sở nuôi</h2>
+      <form onSubmit={handleSubmit} className="form-layout"> {/* Đã thêm className */}
         <section className="khai-bao-section">
-          <h3 onClick={() => toggleSection('thongTinCoSo')} className="section-title-clickable">Thông tin cơ sở {openSections.thongTinCoSo ? '▲' : '▼'}</h3>
+          <h3 onClick={() => toggleSection('thongTinCoSo')} className="section-title-clickable">Thông tin chính của cơ sở nuôi {openSections.thongTinCoSo ? '▲' : '▼'}</h3>
           {openSections.thongTinCoSo && (
-            <>
+            <div className="grid-form-fields"> {/* Đổi tên class */}
                 <div className="form-group"><label>Tên cơ sở:</label><input type="text" name="tenCoSo" value={formData.tenCoSo} onChange={handleChange} required /></div>
                 <div className="form-group"><label>Tỉnh (Thành phố):</label><input type="text" name="tinhThanhPho" value={formData.tinhThanhPho} onChange={handleChange} required /></div>
                 <div className="form-group"><label>Xã (Phường):</label><input type="text" name="xaPhuong" value={formData.xaPhuong} onChange={handleChange} required /></div>
@@ -266,14 +259,14 @@ function KhaiBaoCoSo() {
                 <div className="form-group"><label>Kinh độ:</label><input type="number" name="kinhdo" value={formData.kinhdo} onChange={handleChange} step="any" /></div>
                 <div className="form-group"><label>Ngày thành lập:</label><input type="date" name="ngayThanhLap" value={formData.ngayThanhLap} onChange={handleChange} /></div>
                 <div className="form-group"><label>Số giấy phép kinh doanh:</label><input type="text" name="giayPhepKinhDoanh" value={formData.giayPhepKinhDoanh} onChange={handleChange} /></div>
-            </>
+            </div>
           )}
         </section>
 
         <section className="khai-bao-section">
           <h3 onClick={() => toggleSection('nguoiDaiDien')} className="section-title-clickable">Thông tin người đại diện {openSections.nguoiDaiDien ? '▲' : '▼'}</h3>
           {openSections.nguoiDaiDien && (
-             <>
+             <div className="grid-form-fields"> {/* Đổi tên class */}
                 <div className="form-group"><label>Tên người đại diện:</label><input type="text" name="tenNguoiDaiDien" value={formData.tenNguoiDaiDien} onChange={handleChange} required /></div>
                 <div className="form-group"><label>Năm sinh:</label><input type="number" name="namSinh" value={formData.namSinh} onChange={handleChange} /></div>
                 <div className="form-group"><label>Số CCCD/Hộ chiếu:</label><input type="text" name="soCCCD" value={formData.soCCCD} onChange={handleChange} required /></div>
@@ -282,7 +275,7 @@ function KhaiBaoCoSo() {
                 <div className="form-group"><label>Số điện thoại người đại diện:</label><input type="tel" name="soDienThoaiNguoiDaiDien" value={formData.soDienThoaiNguoiDaiDien} onChange={handleChange} /></div>
                 <div className="form-group"><label>Địa chỉ người đại diện:</label><input type="text" name="diaChiNguoiDaiDien" value={formData.diaChiNguoiDaiDien} onChange={handleChange} /></div>
                 <div className="form-group"><label>Email người đại diện:</label><input type="email" name="emailNguoiDaiDien" value={formData.emailNguoiDaiDien} onChange={handleChange} /></div>
-            </>
+            </div>
           )}
         </section>
         
@@ -304,7 +297,7 @@ function KhaiBaoCoSo() {
           <section className="khai-bao-section">
             <h3 onClick={() => toggleSection('thongTinGayNuoi')} className="section-title-clickable">Thông tin cơ sở gây nuôi {openSections.thongTinGayNuoi ? '▲' : '▼'}</h3>
             {openSections.thongTinGayNuoi && (
-              <>
+              <div className="grid-form-fields"> {/* Đổi tên class */}
                 <div className="form-group"><label>Mục đích nuôi:</label><input type="text" name="mucDichNuoi" value={formData.mucDichNuoi} onChange={handleChange} /></div>
                 <div className="form-group"><label>Hình thức nuôi:</label><input type="text" name="hinhThucNuoi" value={formData.hinhThucNuoi} onChange={handleChange} /></div>
                 <div className="form-group"><label>Mã số cơ sở gây nuôi:</label><input type="text" name="maSoCoSoGayNuoi" value={formData.maSoCoSoGayNuoi} onChange={handleChange} /></div>
@@ -320,7 +313,7 @@ function KhaiBaoCoSo() {
                   <label htmlFor="tenKhoaHoc">Tên khoa học (tự động điền):</label>
                   <input type="text" value={Array.isArray(speciesOptions) ? (speciesOptions.find(s => s.name === formData.tenLamSan)?.scientificName || '') : ''} readOnly disabled />
                 </div>
-              </>
+              </div>
             )}
           </section>
         )}
@@ -329,7 +322,7 @@ function KhaiBaoCoSo() {
           <section className="khai-bao-section">
              <h3 onClick={() => toggleSection('thongTinKinhDoanhGo')} className="section-title-clickable">Thông tin cơ sở kinh doanh, chế biến gỗ {openSections.thongTinKinhDoanhGo ? '▲' : '▼'}</h3>
              {openSections.thongTinKinhDoanhGo && (
-                <>
+                <div className="grid-form-fields"> {/* Đổi tên class */}
                     <div className="form-group"><label>Loại hình kinh doanh gỗ:</label><input type="text" name="loaiHinhKinhDoanhGo" value={formData.loaiHinhKinhDoanhGo} onChange={handleChange} /></div>
                     <div className="form-group"><label>Ngành nghề kinh doanh gỗ:</label><input type="text" name="nganhNgheKinhDoanhGo" value={formData.nganhNgheKinhDoanhGo} onChange={handleChange} /></div>
                     <div className="form-group"><label>Khối lượng (m³):</label><input type="number" name="khoiLuong" value={formData.khoiLuong} onChange={handleChange} step="any" /></div>
@@ -337,7 +330,7 @@ function KhaiBaoCoSo() {
                     <div className="form-group"><label>Nguồn gốc gỗ:</label><select name="nguonGocGo" value={formData.nguonGocGo} onChange={handleChange}><option value="">-- Chọn nguồn gốc --</option><option value="Nhập khẩu">Nhập khẩu</option><option value="Vườn">Vườn</option><option value="Khác">Khác</option></select></div>
                     <div className="form-group"><label>Tên lâm sản:</label><input type="text" name="tenLamSan" value={formData.tenLamSan} onChange={handleChange} /></div>
                     <div className="form-group"><label>Tên khoa học:</label><input type="text" name="tenKhoaHoc" value={formData.tenKhoaHoc} onChange={handleChange} /></div>
-                </>
+                </div>
              )}
           </section>
         )}
@@ -345,12 +338,12 @@ function KhaiBaoCoSo() {
         <section className="khai-bao-section">
           <h3 onClick={() => toggleSection('giayPhep')} className="section-title-clickable">Thông tin giấy phép và trạng thái {openSections.giayPhep ? '▲' : '▼'}</h3>
           {openSections.giayPhep && (
-            <>
+            <div className="grid-form-fields"> {/* Đổi tên class */}
                 <div className="form-group"><label>Ngày cấp phép:</label><input type="date" name="issueDate" value={formData.issueDate} onChange={handleChange} /></div>
                 <div className="form-group"><label>Ngày hết hạn:</label><input type="date" name="expiryDate" value={formData.expiryDate} onChange={handleChange} /></div>
                 <div className="form-group"><label>Trạng thái:</label><select name="trangThai" value={formData.trangThai} onChange={handleChange}><option value="Đang hoạt động">Đang hoạt động</option><option value="Đã đóng cửa">Đã đóng cửa</option><option value="Tạm dừng">Tạm ngưng</option></select></div>
                 <div className="form-group"><label>Ghi chú:</label><textarea name="ghiChu" value={formData.ghiChu} onChange={handleChange} rows="3"></textarea></div>
-            </>
+            </div>
           )}
         </section>
         
@@ -359,20 +352,8 @@ function KhaiBaoCoSo() {
           <button type="button" onClick={resetForm} className="reset-button" disabled={loading}>Đặt lại biểu mẫu</button>
         </div>
       </form>
-
-      {isAdmin && (
-        <section className="khai-bao-section excel-upload-section">
-           <h3 onClick={() => toggleSection('upload')} className="section-title-clickable">Tải lên hàng loạt từ file CSV {openSections.upload ? '▲' : '▼'}</h3>
-           {openSections.upload && (
-            <>
-              <div className="file-upload-group"><label htmlFor="csvUpload" className="file-upload-label">Chọn file CSV (.csv):</label><input type="file" id="csvUpload" accept=".csv" onChange={handleFileUpload} className="file-input" />{csvFile && <span className="file-name">{csvFile.name}</span>}</div>
-              {excelData.length > 0 && (<div className="excel-preview-info"><p>Đã đọc được {excelData.length} dòng dữ liệu từ CSV. Vui lòng nhấn "Tải lên hàng loạt" để lưu.</p><button onClick={handleBulkSubmit} className="submit-button bulk-upload-button" disabled={isLoading}>{isLoading ? 'Đang tải...' : `Tải lên hàng loạt (${excelData.length} cơ sở)`}</button><button onClick={resetCsvUpload} className="clear-excel-button" disabled={isLoading}>Xóa dữ liệu CSV</button></div>)}
-            </>
-           )}
-        </section>
-      )}
     </div>
   );
 }
 
-export default KhaiBaoCoSo;
+export default KhaiBaoCoSoPage;
