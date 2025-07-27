@@ -9,7 +9,7 @@ import {
   faSave, faFileUpload, faBell
 } from '@fortawesome/free-solid-svg-icons';
 
-// Nhận thêm props isSidebarOpen, toggleSidebar, và sidebarRef
+// Nhận thêm props sidebarRef
 function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar, sidebarRef }) { 
     const role = localStorage.getItem('role');
     const [showRegisterSub, setShowRegisterSub] = useState(false);

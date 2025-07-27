@@ -18,7 +18,7 @@ import AddProductToFarm from './pages/AddProductToFarm';
 import MasterProductListPage from './pages/MasterProductListPage';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons'; // Import faBars (hamburger icon)
 
 import './Dashboard.css';
 import bannerImage from './assets/images/banner.jpg';
@@ -32,6 +32,7 @@ function App() {
 
   const userMenuRef = useRef(null); 
   const sidebarRef = useRef(null); // Ref cho sidebar
+  const hamburgerButtonRef = useRef(null); // Ref cho nút hamburger
 
   const handleSetAuthStatus = (newToken, newRole) => {
     localStorage.setItem('token', newToken);
@@ -66,8 +67,8 @@ function App() {
   // Logic để đóng sidebar khi click ra ngoài (mobile) HOẶC click vào overlay
   useEffect(() => {
     function handleClickOutsideSidebar(event) {
-      // Nếu sidebar đang mở VÀ click không phải vào sidebar VÀ click không phải vào nút hamburger
-      if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target) && !event.target.closest('.hamburger-menu-button')) {
+      // Nếu sidebar đang mở VÀ click không phải vào sidebar HOẶC click không phải vào nút hamburger
+      if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target) && hamburgerButtonRef.current && !hamburgerButtonRef.current.contains(event.target)) {
         setIsSidebarOpen(false);
       }
     }
@@ -75,24 +76,26 @@ function App() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutsideSidebar);
     };
-  }, [isSidebarOpen, sidebarRef]);
+  }, [isSidebarOpen, sidebarRef, hamburgerButtonRef]); // Thêm hamburgerButtonRef vào dependencies
 
 
   useEffect(() => {
     setToken(localStorage.getItem('token'));
     setRole(localStorage.getItem('role'));
     // Thêm logic để đảm bảo sidebar đóng khi tải trang hoặc chuyển hướng (trên mobile)
-    const handleRouteChange = () => {
-        if (window.innerWidth <= 768) { // Chỉ trên mobile
-            setIsSidebarOpen(false);
+    // Và đóng sidebar khi resize (chuyển từ mobile sang desktop)
+    const handleResizeAndRouteChange = () => {
+        if (window.innerWidth > 768) { // Nếu chuyển sang desktop view
+            setIsSidebarOpen(false); // Đảm bảo sidebar đóng (và sẽ hiển thị theo desktop default)
         }
     };
-    window.addEventListener('popstate', handleRouteChange); // Khi điều hướng bằng nút back/forward
-    window.addEventListener('resize', handleRouteChange); // Khi xoay màn hình hoặc resize
-
+    window.addEventListener('resize', handleResizeAndRouteChange); 
+    // Nếu dùng react-router-dom v6+, chuyển hướng không trigger popstate cho các NavLink thông thường
+    // Cần một cách khác để theo dõi thay đổi route nếu muốn đóng sidebar khi chuyển trang
+    // Hiện tại, handleClickOutsideSidebar sẽ đóng khi click vào nội dung chính
+    
     return () => {
-        window.removeEventListener('popstate', handleRouteChange);
-        window.removeEventListener('resize', handleRouteChange);
+        window.removeEventListener('resize', handleResizeAndRouteChange);
     };
   }, []);
 
@@ -100,20 +103,21 @@ function App() {
 
   console.log('App.js - Is Logged In:', isLoggedIn, 'Role:', role);
   console.log('showUserProfileMenu current state:', showUserProfileMenu);
-  console.log('isSidebarOpen state:', isSidebarOpen); // Giữ dòng log này để kiểm tra
+  console.log('isSidebarOpen state:', isSidebarOpen); 
 
   return (
     <Router basename="/nvp">
-      <div className="app-container">
+      {/* Thêm class sidebar-open vào app-container để điều khiển overlay */}
+      <div className={`app-container ${isSidebarOpen ? 'sidebar-open' : ''}`}> 
         {/* Gán ref cho Sidebar và truyền isSidebarOpen */}
         {isLoggedIn && <Sidebar userRole={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarRef={sidebarRef} />} 
 
-        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''} ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''} `}> {/* Class sidebar-open được thêm vào app-container */}
           <div className="main-header-banner" style={{ '--banner-image-url': `url(${bannerImage})` }}>
             <div className="header-content-wrapper">
               {/* Nút Hamburger cho Mobile - Chỉ hiển thị khi đã đăng nhập */}
               {isLoggedIn && (
-                <button className="hamburger-menu-button" onClick={toggleSidebar}>
+                <button className="hamburger-menu-button" onClick={toggleSidebar} ref={hamburgerButtonRef}>
                   <FontAwesomeIcon icon={faBars} />
                 </button>
               )}
@@ -126,7 +130,6 @@ function App() {
               </div>
             </div>
             
-            {/* THÊM PHẦN USER VÀ NÚT ĐĂNG XUẤT VÀO ĐÂY */}
             {isLoggedIn && (
                 <div 
                     className={`user-profile-banner ${showUserProfileMenu ? 'open' : ''}`} 
