@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect, useRef } from 'react'; // Import useRef
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, NavLink } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
@@ -18,7 +18,7 @@ import AddProductToFarm from './pages/AddProductToFarm';
 import MasterProductListPage from './pages/MasterProductListPage';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOutAlt, faEdit, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons'; // Import faBars (hamburger icon)
 
 import './Dashboard.css';
 import bannerImage from './assets/images/banner.jpg';
@@ -28,8 +28,10 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [role, setRole] = useState(localStorage.getItem('role'));
   const [showUserProfileMenu, setShowUserProfileMenu] = useState(false); 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State mới cho sidebar mobile
 
-  const userMenuRef = useRef(null); // Ref cho toàn bộ khối user profile (bao gồm cả điểm click mở và dropdown)
+  const userMenuRef = useRef(null); 
+  const sidebarRef = useRef(null); // Ref mới cho sidebar
 
   const handleSetAuthStatus = (newToken, newRole) => {
     localStorage.setItem('token', newToken);
@@ -40,24 +42,40 @@ function App() {
 
   const handleLogout = () => {
     handleSetAuthStatus('', ''); 
-    setShowUserProfileMenu(false); // Đóng menu sau khi đăng xuất
+    setShowUserProfileMenu(false); 
   };
 
-  // Logic để đóng menu khi click ra ngoài
+  const toggleSidebar = () => { // Hàm để mở/đóng sidebar mobile
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // Logic để đóng menu user khi click ra ngoài
   useEffect(() => {
-    function handleClickOutside(event) {
-      // Nếu click không nằm trong khối userMenuRef, thì đóng menu
+    function handleClickOutsideUserMenu(event) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setShowUserProfileMenu(false);
       }
     }
-    // Gắn listener khi component mount
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideUserMenu);
     return () => {
-      // Dọn dẹp listener khi component unmount
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideUserMenu);
     };
-  }, [userMenuRef]); // Dependency array: chỉ chạy lại khi userMenuRef thay đổi
+  }, [userMenuRef]);
+
+  // Logic để đóng sidebar khi click ra ngoài (mobile)
+  useEffect(() => {
+    function handleClickOutsideSidebar(event) {
+      // Chỉ chạy logic này trên mobile khi sidebar đang mở và click không phải vào sidebar hay hamburger
+      if (isSidebarOpen && sidebarRef.current && !sidebarRef.current.contains(event.target) && !event.target.closest('.hamburger-menu-button')) {
+        setIsSidebarOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutsideSidebar);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideSidebar);
+    };
+  }, [isSidebarOpen, sidebarRef]);
+
 
   useEffect(() => {
     setToken(localStorage.getItem('token'));
@@ -67,31 +85,40 @@ function App() {
   const isLoggedIn = !!token;
 
   console.log('App.js - Is Logged In:', isLoggedIn, 'Role:', role);
-  console.log('showUserProfileMenu current state:', showUserProfileMenu); // Giữ dòng log này để kiểm tra
+  console.log('showUserProfileMenu current state:', showUserProfileMenu);
+  console.log('isSidebarOpen state:', isSidebarOpen); // Log trạng thái sidebar
 
   return (
     <Router basename="/nvp">
       <div className="app-container">
-        {isLoggedIn && <Sidebar userRole={role} />}
+        {/* Truyền prop isSidebarOpen và toggleSidebar cho Sidebar */}
+        {isLoggedIn && <Sidebar userRole={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />} 
 
-        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''}`}>
+        <div className={`main-layout-content ${isLoggedIn ? 'logged-in' : ''} ${isSidebarOpen ? 'sidebar-open' : ''}`}> {/* Thêm class sidebar-open */}
           <div className="main-header-banner" style={{ '--banner-image-url': `url(${bannerImage})` }}>
             <div className="header-content-wrapper">
+              {/* Nút Hamburger cho Mobile */}
+              {isLoggedIn && (
+                <button className="hamburger-menu-button" onClick={toggleSidebar}>
+                  <FontAwesomeIcon icon={faBars} />
+                </button>
+              )}
+              
               <img src={logoKiemLam} alt="Logo Chi cục Kiểm Lâm" className="header-logo" />
               <div className="header-text">
                 <h1>CHI CỤC KIỂM LÂM TỈNH ĐỒNG THÁP</h1>
                 <h2>QUẢN LÝ LÂM SẢN</h2>
-                <h3 className="header-copyright" translate="no">Software copyright: Nguyen Van Phuc &copy;Ver 2025 1.0.0&copy;</h3>
+                <h3 className="header-copyright" translate="no">Software copyright: Nguyen Văn Phúc &copy;Ver 2025 1.0.0&copy;</h3>
               </div>
             </div>
             
             {/* THÊM PHẦN USER VÀ NÚT ĐĂNG XUẤT VÀO ĐÂY */}
             {isLoggedIn && ( /* Chỉ hiển thị khi đã đăng nhập */
                 <div 
-                    className={`user-profile-banner ${showUserProfileMenu ? 'open' : ''}`} // Thêm class 'open' để CSS điều khiển
-                    ref={userMenuRef} // Gán ref vào div bao ngoài này
+                    className={`user-profile-banner ${showUserProfileMenu ? 'open' : ''}`} 
+                    ref={userMenuRef}
                 >
-                    <div className="user-info-display" onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}> {/* Click để toggle menu */}
+                    <div className="user-info-display" onClick={() => setShowUserProfileMenu(!showUserProfileMenu)}>
                         <div className="user-avatar-banner">
                             <FontAwesomeIcon icon={faUser} />
                         </div>
@@ -101,7 +128,6 @@ function App() {
                         </div>
                     </div>
 
-                    {/* Menu dropdown được render luôn nhưng ẩn bằng CSS */}
                     <div className="user-dropdown-menu">
                         <NavLink to="/user-profile" className="dropdown-item" onClick={() => setShowUserProfileMenu(false)}>
                             <FontAwesomeIcon icon={faInfoCircle} /> Thông tin cá nhân

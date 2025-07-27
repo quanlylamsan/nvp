@@ -195,7 +195,7 @@ body {
 }
 
 
-/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU (Hiện trong luồng, đẩy các mục khác xuống) --- */
+/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU TRÊN DESKTOP (Hiện trong luồng, đẩy các mục khác xuống) --- */
 /* Submenu styles (Phong cách submenu) */
 .sidebar .submenu {
   list-style: none;
@@ -222,8 +222,7 @@ body {
   position: relative; /* Giữ relative cho mục cha có submenu nếu cần thiết */
 }
 
-/* --- QUY TẮC ĐỂ SUBMENU TỰ ĐỘNG ẨN KHI SIDEBAR THU GỌN --- */
-/* Khi sidebar THU GỌN, submenu sẽ bị ẩn hoàn toàn */
+/* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
 .sidebar:not(:hover) .submenu {
   max-height: 0 !important;
   opacity: 0 !important;
@@ -238,7 +237,6 @@ body {
   padding-left: 30px; /* Thụt lề cho mục con */
   background-color: var(--secondary-color); /* Nền của submenu khi hiển thị */
 }
-
 
 /* Submenu items */
 .sidebar .submenu li {
@@ -468,7 +466,7 @@ body {
 .dropdown-item svg {
     margin-right: 10px;
     font-size: 1.1em;
-}
+  }
 
 .dropdown-divider {
     height: 1px;
@@ -746,51 +744,116 @@ table td button:last-child {
     content: none !important;
   }
 
+  /* --- ĐIỀU CHỈNH CHÍNH CHO SIDEBAR TRÊN MOBILE (OFF-CANVAS MENU) --- */
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    min-width: auto;
-    box-shadow: none;
-    padding: 10px 0;
-    flex-direction: row;
-    justify-content: space-around;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    border-radius: 0;
+    position: fixed; /* Giữ cố định */
+    width: 250px; /* Chiều rộng khi mở trên mobile */
+    min-width: 250px;
+    height: 100%; /* Chiếm toàn bộ chiều cao màn hình */
+    left: -250px; /* --- Ẩn sidebar bằng cách đẩy nó ra ngoài màn hình về phía trái --- */
+    top: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3); /* Bóng đổ khi mở */
+    padding: 20px 0; /* Padding khi mở */
+    flex-direction: column; /* Các mục menu xếp dọc */
+    justify-content: flex-start; /* Căn chỉnh nội dung lên đầu */
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    overflow-x: hidden; /* Ngăn cuộn ngang */
+    white-space: normal; /* Cho phép chữ xuống dòng */
+    border-radius: 0; /* Không bo góc */
+    transition: left 0.3s ease-in-out; /* Thêm transition cho left */
+  }
+
+  /* Class này sẽ được JS thêm vào/bỏ đi để hiển thị/ẩn sidebar trên mobile */
+  .sidebar.sidebar-open {
+    left: 0; /* Hiện sidebar khi class này được thêm */
   }
 
   /* Mobile sidebar menu item adjustments */
   .sidebar ul {
     display: flex;
-    flex-direction: row;
-    padding: 0 5px;
+    flex-direction: column; /* Các mục menu xếp dọc */
+    padding: 0 10px; /* Điều chỉnh padding */
   }
 
   .sidebar ul li {
-    margin: 0 3px;
+    margin-bottom: 5px; /* Giữ khoảng cách giữa các mục */
   }
 
   .sidebar ul li a,
   .sidebar .summary {
-    padding: 8px 8px;
-    font-size: 0.85em;
-    flex-direction: column;
-    text-align: center;
+    padding: 10px 15px; /* Padding cho các mục menu */
+    font-size: 0.95em; /* Kích thước font */
+    flex-direction: row; /* Icon và chữ nằm ngang */
+    text-align: left; /* Căn trái text */
   }
 
   .sidebar ul li a svg,
   .sidebar .summary svg {
-    margin-right: 3px;
-    margin-bottom: 3px;
-    font-size: 1.2em;
+    margin-right: 10px; /* Khoảng cách icon và chữ */
+    margin-bottom: 0; /* Bỏ margin-bottom */
+    font-size: 1.1em; /* Kích thước icon */
   }
 
-  .sidebar ul li a .menu-text {
-    opacity: 1;
-    width: auto;
+  .sidebar ul li a .menu-text,
+  .sidebar .summary .menu-text {
+    opacity: 1; /* Luôn hiển thị chữ khi sidebar mở */
+    width: auto; /* Luôn hiển thị chữ */
     margin-left: 0;
+  }
+  
+  /* --- SUBMENU TRÊN MOBILE (Đẩy xuống) --- */
+  .sidebar .submenu {
+    position: relative; /* Submenu là tương đối, đẩy xuống */
+    left: 0; /* Không offset */
+    width: 100%; /* Chiếm toàn bộ chiều rộng của cha */
+    box-shadow: none; /* Bỏ bóng đổ */
+    border-radius: 0; /* Không bo góc */
+    /* Mặc định ẩn */
+    max-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  /* Khi sidebar.sidebar-open VÀ summary.open (do click), hiển thị submenu */
+  .sidebar.sidebar-open .summary.open + .submenu {
+    max-height: 300px !important;
+    opacity: 1 !important;
+    margin-top: 5px;
+    padding-left: 30px;
+    background-color: var(--secondary-color);
+  }
+
+  /* NÚT HAMBURGER MENU */
+  .hamburger-menu-button {
+    display: flex; /* Hiển thị nút hamburger trên mobile */
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 15px; /* Khoảng cách từ logo/text */
+  }
+
+  /* MAIN CONTENT OVERLAY KHI SIDEBAR MỞ */
+  .main-layout-content::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Lớp phủ đen mờ */
+    z-index: 99; /* Đảm bảo nó nằm dưới sidebar nhưng trên nội dung chính */
+    opacity: 0; /* Mặc định ẩn */
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .main-layout-content.sidebar-open::before {
+    opacity: 1; /* Hiển thị lớp phủ */
+    visibility: visible;
   }
 
   /* Main content layout on mobile */
@@ -798,55 +861,108 @@ table td button:last-child {
     margin-left: 0;
     margin-top: 0;
     width: 100%;
-    padding: 0; /* Đảm bảo không có padding ngang trên mobile */
+    padding: 0 10px; /* Thêm padding cho nội dung chính trên mobile */
+    padding-bottom: 10px;
+    overflow-y: auto; /* Cho phép nội dung chính cuộn */
+    height: calc(100vh - var(--main-header-banner-height) - 10px); /* Điều chỉnh chiều cao để cuộn tốt */
   }
-  .sidebar:hover + .main-layout-content {
+  .sidebar:hover + .main-layout-content { /* Quy tắc này không còn cần thiết cho mobile hamburger */
     margin-left: 0;
     width: 100%;
   }
 
   /* Mobile Header/Banner adjustments */
   .main-header-banner {
-    padding: 0; /* Loại bỏ padding để banner kéo dài hết */
+    padding: 0;
     border-radius: 0;
-    margin-bottom: 0; /* Loại bỏ margin-bottom */
-    min-height: 80px; /* Giữ chiều cao đã điều chỉnh */
+    margin-bottom: 0;
+    min-height: 80px;
+    position: relative; /* Để user-profile-banner có thể absolute theo nó */
+    /* Loại bỏ justify-content: flex-start để hamburger button có thể đẩy logo/text */
+    justify-content: flex-start; /* Giữ căn trái, nhưng hamburger sẽ ở đầu */
   }
 
   .header-content-wrapper {
-    flex-direction: row; /* Thay đổi thành hàng ngang để logo và text cạnh nhau trên mobile */
+    flex-direction: row;
     align-items: center;
-    justify-content: flex-start; /* Căn trái nội dung trong wrapper trên mobile */
+    justify-content: flex-start;
     background-color: transparent !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    width: 100%; /* Đảm bảo wrapper chiếm toàn bộ chiều rộng */
-    padding: 10px 20px; /* Thêm padding vào đây để nội dung không bị sát mép */
-    box-sizing: border-box; /* Quan trọng để padding không đẩy nội dung ra ngoài */
+    width: auto; /* Giữ tự động chiều rộng, không chiếm hết để user profile nằm bên phải */
+    padding: 10px 0px; /* Padding ngang chỉ cho nội dung bên trong wrapper */
   }
 
   .header-logo {
     height: 50px;
     width: 50px;
     margin-right: 10px;
-    margin-bottom: 0;
+    margin-left: 10px; /* Khoảng cách từ nút hamburger nếu có */
   }
 
   .header-text {
       text-align: left;
+      flex-grow: 1; /* Cho phép text giãn nở */
   }
-
   .header-text h1 {
-    font-size: 1.2em;
+    font-size: 1.2em; /* Nhỏ hơn để vừa màn hình */
   }
-
   .header-text h2 {
-    font-size: 0.9em;
+    font-size: 0.8em; /* Nhỏ hơn */
+  }
+  .header-text .header-copyright {
+    font-size: 0.55em; /* Nhỏ hơn */
+  }
+  
+  /* Vùng User Profile trên Banner trên Mobile */
+  .user-profile-banner {
+    top: 50%; 
+    right: 10px; /* Sát mép phải hơn */
+    transform: translateY(-50%);
+    flex-direction: row; /* Xếp ngang User / Quản trị viên / Đăng xuất */
+    align-items: center;
+    padding: 4px 8px; /* Giảm padding */
+    background-color: rgba(0,0,0,0.6); /* Nền rõ hơn để dễ đọc */
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+  .user-profile-banner .user-info-display {
+      margin-bottom: 0;
+      margin-right: 8px; /* Khoảng cách giữa user info và nút logout */
+  }
+  .user-profile-banner .user-info-text-banner {
+      display: none; /* Ẩn text "User" và "Quản trị viên" để gọn hơn */
+  }
+  .user-avatar-banner {
+      width: 25px; /* Giảm kích thước avatar */
+      height: 25px;
+      font-size: 1em;
+      margin-right: 5px; /* Khoảng cách avatar và text */
+  }
+  .logout-button-banner {
+      padding: 3px 6px; /* Giảm padding nút logout */
+      font-size: 0.65em; /* Giảm font size nút logout */
+      margin-left: 0;
+  }
+  .logout-button-banner svg {
+      font-size: 0.7em;
+      margin-right: 2px;
+  }
+  .user-dropdown-menu { /* Menu dropdown của user trên mobile */
+    top: calc(100% + 5px); /* Vị trí dropdown */
+    right: 0;
+    min-width: 140px; /* Giảm chiều rộng */
+    padding: 5px 0;
+    transform: translateY(5px);
+  }
+  .user-dropdown-menu .dropdown-item {
+      padding: 8px 12px;
+      font-size: 0.8em;
+  }
+  .user-dropdown-menu .dropdown-item svg {
+      font-size: 0.9em;
   }
 
-  .header-text .header-copyright {
-    font-size: 0.6em;
-  }
 
   /* Content area and widgets on mobile */
   .route-content-wrapper {
@@ -884,10 +1000,15 @@ table td button:last-child {
   }
 
   /* Table on mobile */
-  table th,
-  table td {
-    padding: 10px 12px;
-    font-size: 0.8em;
+  table {
+    display: block; /* Cho phép bảng cuộn ngang nếu quá rộng */
+    overflow-x: auto;
+  }
+  table th, table td {
+    white-space: nowrap; /* Đảm bảo không xuống dòng trong cell */
+  }
+  table td button {
+    white-space: nowrap; /* Ngăn nút xuống dòng */
   }
 
   /* Bottom copyright on mobile */

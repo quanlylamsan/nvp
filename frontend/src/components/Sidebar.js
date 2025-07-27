@@ -9,7 +9,8 @@ import {
   faSave, faFileUpload, faBell
 } from '@fortawesome/free-solid-svg-icons';
 
-function Sidebar({ userRole, isLoggedIn }) { // Vẫn nhận isLoggedIn
+// Nhận thêm props isSidebarOpen và toggleSidebar
+function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar }) { 
     const role = localStorage.getItem('role');
     const [showRegisterSub, setShowRegisterSub] = useState(false);
     const [showReportSub, setShowReportSub] = useState(false);
@@ -28,21 +29,12 @@ function Sidebar({ userRole, isLoggedIn }) { // Vẫn nhận isLoggedIn
     };
 
     return (
-        <div className="sidebar">
+        // Thêm class sidebar-open để điều khiển ẩn/hiện trên mobile
+        <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}> 
             <nav className="sidebar-nav">
                 <ul>
-                    {/* Mục Dashboard - THÊM CLASS hide-dashboard-item VÀO ĐÂY */}
-                    {/* Giữ isLoggedIn nếu bạn muốn nó chỉ hiện trong DOM khi logged in, nhưng sẽ bị ẩn bởi CSS */}
-                    {isLoggedIn && (
-                        <li className="hide-dashboard-item"> {/* <-- THÊM DÒNG NÀY */}
-                            <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                                <FontAwesomeIcon icon={faHome} /><span className="menu-text">Dashboard</span>
-                            </NavLink>
-                        </li>
-                    )}
-                    
                     {/* ... (các mục menu khác còn lại) ... */}
-					
+                    
                     {/* Mục "Thông báo" */}
                     <li>
                         <NavLink to="/notifications" className={({ isActive }) => isActive ? "active" : ""}>
@@ -91,7 +83,6 @@ function Sidebar({ userRole, isLoggedIn }) { // Vẫn nhận isLoggedIn
                             </ul>
                         )}
                     </li>
-
 
                     {/* Mục Điều hướng bản đồ */}
                     <li>
