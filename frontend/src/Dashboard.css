@@ -50,8 +50,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   overflow-y: auto;
-  border-top-right-radius: 0px(--border-radius-base); /* Sử dụng biến 0px */
-  border-bottom-right-radius: var(--border-radius-base); /* Sử dụng biến 0px */
+  border-top-right-radius: var(--border-radius-base);
+  border-bottom-right-radius: var(--border-radius-base);
   flex-shrink: 0;
   transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out, padding 0.3s ease-in-out;
   white-space: nowrap;
@@ -62,8 +62,8 @@ body {
 }
 
 .sidebar:hover {
-  width: 225px; /* Expanded width (Chiều rộng mở rộng) */
-  min-width: 225px;
+  width: 250px; /* Expanded width (Chiều rộng mở rộng) */
+  min-width: 250px;
   padding: 20px;
 }
 
@@ -142,8 +142,8 @@ body {
 /* Sidebar icon adjustments (Điều chỉnh icon sidebar) */
 .sidebar ul li a svg,
 .sidebar .summary svg {
-  width: 24px; /* Kích thước cố định cho icon để chúng đồng đều */
-  height: 24px; /* Kích thước cố định cho icon */
+  width: 24px; /* Kích thước cố định cho icon */
+  height: 24px;
   flex-shrink: 0;
   margin-right: 12px; /* Khoảng cách giữa icon và chữ */
   font-size: 1.1em;
@@ -194,35 +194,53 @@ body {
 }
 
 
+/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU --- */
 /* Submenu styles (Phong cách submenu) */
 .sidebar .submenu {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
+  max-height: 0; /* Ẩn submenu khi sidebar thu gọn */
+  overflow: hidden; /* Ẩn nội dung tràn */
+  opacity: 0; /* Ẩn mờ dần */
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  position: absolute;
-  background-color: var(--secondary-color);
-  width: 250px;
-  left: 70px;
-  top: auto;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  z-index: 101;
-  border-radius: var(--border-radius-base);
+  /* Quan trọng: Xóa position: absolute để submenu đẩy các phần tử khác xuống */
+  /* background-color: var(--secondary-color); */ /* Giữ nền giống sidebar */
+  width: 100%; /* Chiếm toàn bộ chiều rộng li cha */
+  box-shadow: none; /* Bỏ bóng đổ */
+  border-radius: var(--border-radius-base); /* Bo góc */
+  z-index: 101; /* Đảm bảo submenu luôn trên cùng nếu có chồng chéo */
+
+  display: flex; /* Cho phép các mục con xếp chồng */
+  flex-direction: column;
+  gap: 5px; /* Khoảng cách giữa các mục con */
 }
 
-/* Hiển thị submenu khi sidebar được hover */
-.sidebar:hover .submenu {
-  max-height: 300px;
-  opacity: 1;
-  margin-top: 0;
-  top: var(--submenu-top-position, auto);
+/* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
+.sidebar:not(:hover) .submenu {
+  max-height: 0 !important; /* Buộc ẩn submenu khi sidebar thu gọn */
+  opacity: 0 !important; /* Buộc ẩn mờ dần */
+  overflow: hidden !important; /* Buộc ẩn nội dung tràn */
 }
+
+/* Khi sidebar được hover VÀ summary có class 'open' (được điều khiển bởi JS) */
+.sidebar:hover .summary.open + .submenu {
+  max-height: 300px !important; /* Buộc đặt một chiều cao đủ lớn để hiển thị tất cả mục con */
+  opacity: 1 !important; /* Buộc hiển thị */
+  margin-top: 5px; /* Khoảng cách từ mục cha */
+  padding-left: 30px; /* Thụt lề cho mục con */
+  background-color: var(--secondary-color); /* Nền của submenu khi hiển thị */
+}
+
+/* Đảm bảo li cha có position: relative để submenu định vị đúng */
+.sidebar ul li.sidebar-item {
+  position: relative; /* Đảm bảo submenu được định vị tương đối với li cha */
+}
+
+
 /* Submenu items */
 .sidebar .submenu li {
-  margin-bottom: 5px;
+  margin-bottom: 0;
 }
 
 .sidebar .submenu li a {
@@ -351,79 +369,80 @@ body {
   text-align: left !important;
 }
 
-/* --- Vùng code liên quan đến User Profile và Logout trên Banner --- */
-/* BẮT ĐẦU user-profile-banner STYLES */
+/* Vùng code liên quan đến User Profile và Logout trên Banner */
 .user-profile-banner {
-    position: absolute; /* Định vị tuyệt đối trong main-header-banner */
-    top: 50%; /* Căn giữa theo chiều dọc của banner */
-    right: 20px; /* Cách lề phải 20px */
-    transform: translateY(-50%); /* Dịch chuyển lên trên 50% chiều cao của chính nó để căn giữa thật sự */
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
     display: flex;
-    flex-direction: column; /* Xếp thông tin user và nút đăng xuất theo chiều dọc */
-    align-items: flex-end; /* Căn phải các mục bên trong */
-    background-color: transparent; /* Đảm bảo không có nền đen/xám */
-    padding: 0; /* Không padding */
+    flex-direction: column;
+    align-items: flex-end;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: var(--border-radius-base);
     color: white;
     z-index: 10;
-    box-shadow: none; /* Không bóng */
-    cursor: pointer; /* Biến thành con trỏ khi di chuột vào toàn bộ khối user */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
 }
 
 .user-profile-banner .user-info-display {
     display: flex;
     align-items: center;
-    margin-bottom: 5px; /* Khoảng cách giữa thông tin user và nút logout */
+    margin-bottom: 5px;
+    cursor: pointer;
 }
 
 .user-avatar-banner {
-    width: 35px; /* Kích thước avatar lớn hơn một chút */
+    width: 35px;
     height: 35px;
-    background-color: rgba(255, 255, 255, 0.2); /* Nền icon mờ */
+    background-color: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 8px; /* Khoảng cách giữa avatar và text */
-    font-size: 1.4em; /* Kích thước icon bên trong avatar */
+    margin-right: 8px;
+    font-size: 1.1em;
     flex-shrink: 0;
 }
 
 .user-info-text-banner {
     display: flex;
     flex-direction: column;
-    text-align: right; /* Căn phải text user info */
-    white-space: nowrap; /* Ngăn text xuống dòng */
+    text-align: right;
+    white-space: nowrap;
 }
 
 .user-name-banner {
     font-weight: bold;
-    font-size: 1em; /* Kích thước tên user */
+    font-size: 0.9em;
 }
 
 .user-role-banner {
-    font-size: 0.85em; /* Kích thước vai trò */
+    font-size: 0.75em;
     opacity: 0.8;
 }
 
 .user-dropdown-menu {
     position: absolute;
-    top: calc(100% + 5px); /* Đặt menu dropdown ngay dưới khối user-profile-banner, có khoảng cách 5px */
-    right: 0; /* Căn phải */
-    background-color: var(--secondary-color); /* Nền dropdown */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh hơn */
-    border-radius: var(--border-radius-base); /* Bo góc */
-    min-width: 200px; /* Chiều rộng tối thiểu của dropdown */
+    top: 100%;
+    right: 0;
+    background-color: var(--secondary-color);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-radius: var(--border-radius-base);
+    min-width: 200px;
     padding: 8px 0;
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    opacity: 0; /* Mặc định ẩn */
-    visibility: hidden; /* Mặc định ẩn */
-    transform: translateY(10px); /* Bắt đầu dịch chuyển xuống */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out, visibility 0.2s ease-out;
 }
 
-.user-profile-banner.open .user-dropdown-menu { /* Khi user-profile-banner có class 'open' */
+.user-profile-banner.open .user-dropdown-menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -457,26 +476,24 @@ body {
 
 .logout-item {
     font-weight: bold;
-    color: #e74c3c; /* Màu đỏ cho nút đăng xuất */
+    color: #e74c3c;
 }
 
 .logout-item svg {
-    color: #e74c3c; /* Màu đỏ cho icon đăng xuất */
+    color: #e74c3c;
 }
 
 .logout-item:hover {
     background-color: #c0392b;
     color: white;
 }
-/* KẾT THÚC user-profile-banner STYLES */
 
-/* Login Form Specific Styles (Phong cách riêng cho Form Đăng nhập) */
-/* Adjustments for the main content area when not logged in to position the login card */
+/* Login Form Specific Styles */
 .main-layout-content:not(.logged-in) {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center items horizontally */
-    justify-content: center; /* Center items vertically */
+    align-items: center;
+    justify-content: center;
     padding: 0;
     margin-left: 0 !important;
     width: 100% !important;
@@ -532,7 +549,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* Adjustments for "Forgot password?" and "Register" links */
 .login-card .forgot-register-links {
     display: flex;
     justify-content: center;
@@ -550,7 +566,6 @@ body {
     text-decoration: underline;
 }
 
-/* Version and copyright information at the bottom of the login card */
 .login-card .version-info {
     font-size: 0.75em;
     color: #777;
@@ -559,20 +574,20 @@ body {
 }
 
 
-/* route-content-wrapper: Main scrollable content area (Khu vực nội dung chính có thể cuộn) */
+/* route-content-wrapper: Main scrollable content area */
 .route-content-wrapper {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 0 20px; /* Giữ padding ngang 20px cho nội dung bên trong */
+  padding: 0 20px;
   padding-bottom: 20px;
   box-sizing: border-box;
 }
 
-/* Content page containers (Dashboard, FormPage, Manager) (Container trang nội dung) */
+/* Content page containers */
 .dashboard-body,
 .form-page-container,
 .manager-container {
-  padding: 25px 30px; /* Default padding for content pages */
+  padding: 25px 30px;
   background-color: var(--background-card);
   margin-bottom: 20px;
   border-radius: var(--border-radius-base);
@@ -580,7 +595,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Fixed bottom-left copyright info (Thông tin bản quyền cố định góc dưới bên trái) */
+/* Fixed bottom-left copyright info */
 .app-copyright {
   position: fixed;
   bottom: 10px;
@@ -593,7 +608,7 @@ body {
   text-shadow: none;
 }
 
-/* Filter/Search section (Vùng Filter/Tìm kiếm) */
+/* Filter/Search section */
 .filter-section {
   display: flex;
   flex-wrap: wrap;
@@ -650,7 +665,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* Table styles (Phong cách bảng) */
+/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -695,7 +710,7 @@ table td button {
 }
 
 table td button:hover {
-  background-color: var(--primary-dark); /* Sử dụng màu dark khi hover cho thống nhất */
+  background-color: var(--primary-dark);
   transform: translateY(-1px);
 }
 
@@ -703,7 +718,7 @@ table td button:last-child {
   margin-right: 0;
 }
 
-/* App-wide copyright at bottom left (Bản quyền toàn ứng dụng ở góc dưới bên trái) */
+/* App-wide copyright at bottom left */
 .app-copyright {
   position: fixed;
   bottom: 10px;
