@@ -9,8 +9,8 @@ import {
   faSave, faFileUpload, faBell
 } from '@fortawesome/free-solid-svg-icons';
 
-// Nhận thêm props isSidebarOpen và toggleSidebar
-function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar }) { 
+// Nhận thêm props isSidebarOpen, toggleSidebar, và sidebarRef
+function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar, sidebarRef }) { 
     const role = localStorage.getItem('role');
     const [showRegisterSub, setShowRegisterSub] = useState(false);
     const [showReportSub, setShowReportSub] = useState(false);
@@ -29,11 +29,11 @@ function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar }) {
     };
 
     return (
-        // Thêm class sidebar-open để điều khiển ẩn/hiện trên mobile
-        <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}> 
+        // Gán ref vào div sidebar và thêm class sidebar-open
+        <div className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`} ref={sidebarRef}> 
             <nav className="sidebar-nav">
                 <ul>
-                    {/* ... (các mục menu khác còn lại) ... */}
+                    {/* ... (các mục menu còn lại) ... */}
                     
                     {/* Mục "Thông báo" */}
                     <li>
