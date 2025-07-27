@@ -194,18 +194,18 @@ body {
 }
 
 
-/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU --- */
+/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU TRÊN DESKTOP (Hiện trong luồng, đẩy các mục khác xuống) --- */
 /* Submenu styles (Phong cách submenu) */
 .sidebar .submenu {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 0; /* Ẩn submenu khi sidebar thu gọn */
-  overflow: hidden; /* Ẩn nội dung tràn */
-  opacity: 0; /* Ẩn mờ dần */
+  max-height: 0; /* Mặc định ẩn */
+  overflow: hidden;
+  opacity: 0;
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  /* Quan trọng: Xóa position: absolute để submenu đẩy các phần tử khác xuống */
-  /* background-color: var(--secondary-color); */ /* Giữ nền giống sidebar */
+  
+  background-color: var(--secondary-color); /* Nền của submenu */
   width: 100%; /* Chiếm toàn bộ chiều rộng li cha */
   box-shadow: none; /* Bỏ bóng đổ */
   border-radius: var(--border-radius-base); /* Bo góc */
@@ -216,31 +216,30 @@ body {
   gap: 5px; /* Khoảng cách giữa các mục con */
 }
 
-/* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
-.sidebar:not(:hover) .submenu {
-  max-height: 0 !important; /* Buộc ẩn submenu khi sidebar thu gọn */
-  opacity: 0 !important; /* Buộc ẩn mờ dần */
-  overflow: hidden !important; /* Buộc ẩn nội dung tràn */
+/* Đảm bảo li cha có position: relative để submenu định vị đúng */
+.sidebar ul li.sidebar-item {
+  position: relative; /* Giữ relative cho mục cha có submenu */
 }
 
-/* Khi sidebar được hover VÀ summary có class 'open' (được điều khiển bởi JS) */
+/* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
+.sidebar:not(:hover) .submenu {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Khi sidebar được hover VÀ summary có class 'open' (được điều khiển bởi JS), hiển thị submenu */
 .sidebar:hover .summary.open + .submenu {
   max-height: 300px !important; /* Buộc đặt một chiều cao đủ lớn để hiển thị tất cả mục con */
-  opacity: 1 !important; /* Buộc hiển thị */
+  opacity: 1 !important;
   margin-top: 5px; /* Khoảng cách từ mục cha */
   padding-left: 30px; /* Thụt lề cho mục con */
   background-color: var(--secondary-color); /* Nền của submenu khi hiển thị */
 }
 
-/* Đảm bảo li cha có position: relative để submenu định vị đúng */
-.sidebar ul li.sidebar-item {
-  position: relative; /* Đảm bảo submenu được định vị tương đối với li cha */
-}
-
-
 /* Submenu items */
 .sidebar .submenu li {
-  margin-bottom: 0;
+  margin-bottom: 8px;
 }
 
 .sidebar .submenu li a {
