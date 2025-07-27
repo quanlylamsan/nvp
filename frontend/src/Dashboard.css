@@ -20,7 +20,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Ngăn cuộn ngang không mong muốn ở mọi màn hình */
-  /* Loại bỏ overflow-y: hidden; để cho phép cuộn dọc tự nhiên trên mobile */
+  /* --- Bỏ overflow-y: hidden; để cho phép cuộn dọc tự nhiên trên mobile --- */
 }
 
 body {
@@ -815,8 +815,15 @@ table td button:last-child {
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
 
-  /* Khi sidebar.sidebar-open VÀ summary.open (do click), hiển thị submenu */
-  .sidebar.sidebar-open .summary.open + .submenu {
+  /* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
+  .sidebar:not(.sidebar-open) .submenu { /* --- Thay đổi selector để submenu ẩn khi sidebar không open --- */
+    max-height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Khi sidebar mở VÀ summary có class 'open' (do click), hiển thị submenu */
+  .sidebar.sidebar-open .summary.open + .submenu { /* --- Thay đổi selector để submenu chỉ hiện khi sidebar open --- */
     max-height: 300px !important;
     opacity: 1 !important;
     margin-top: 5px;
@@ -845,7 +852,7 @@ table td button:last-child {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Lớp phủ đen mờ */
-    z-index: 99; /* Đảm bảo nó nằm dưới sidebar nhưng trên nội dung chính */
+    z-index: 99; /* Dưới sidebar nhưng trên nội dung chính */
     opacity: 0; /* Mặc định ẩn */
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -864,7 +871,7 @@ table td button:last-child {
     padding: 0 10px; /* Thêm padding cho nội dung chính trên mobile */
     padding-bottom: 10px;
     overflow-y: auto; /* Cho phép nội dung chính cuộn */
-    height: calc(100vh - var(--main-header-banner-height) - 10px); /* Điều chỉnh chiều cao để cuộn tốt */
+    min-height: calc(100vh - 80px); /* Đảm bảo đủ chiều cao để cuộn */
   }
   .sidebar:hover + .main-layout-content { /* Quy tắc này không còn cần thiết cho mobile hamburger */
     margin-left: 0;
@@ -878,7 +885,6 @@ table td button:last-child {
     margin-bottom: 0;
     min-height: 80px;
     position: relative; /* Để user-profile-banner có thể absolute theo nó */
-    /* Loại bỏ justify-content: flex-start để hamburger button có thể đẩy logo/text */
     justify-content: flex-start; /* Giữ căn trái, nhưng hamburger sẽ ở đầu */
   }
 
@@ -902,56 +908,56 @@ table td button:last-child {
 
   .header-text {
       text-align: left;
-      flex-grow: 1; /* Cho phép text giãn nở */
+      flex-grow: 1;
   }
   .header-text h1 {
-    font-size: 1.2em; /* Nhỏ hơn để vừa màn hình */
+    font-size: 1.2em;
   }
   .header-text h2 {
-    font-size: 0.8em; /* Nhỏ hơn */
+    font-size: 0.8em;
   }
   .header-text .header-copyright {
-    font-size: 0.55em; /* Nhỏ hơn */
+    font-size: 0.55em;
   }
   
   /* Vùng User Profile trên Banner trên Mobile */
   .user-profile-banner {
     top: 50%; 
-    right: 10px; /* Sát mép phải hơn */
+    right: 10px;
     transform: translateY(-50%);
-    flex-direction: row; /* Xếp ngang User / Quản trị viên / Đăng xuất */
+    flex-direction: row;
     align-items: center;
-    padding: 4px 8px; /* Giảm padding */
-    background-color: rgba(0,0,0,0.6); /* Nền rõ hơn để dễ đọc */
+    padding: 4px 8px;
+    background-color: rgba(0,0,0,0.6);
     border-radius: 5px;
     white-space: nowrap;
   }
   .user-profile-banner .user-info-display {
       margin-bottom: 0;
-      margin-right: 8px; /* Khoảng cách giữa user info và nút logout */
+      margin-right: 8px;
   }
   .user-profile-banner .user-info-text-banner {
       display: none; /* Ẩn text "User" và "Quản trị viên" để gọn hơn */
   }
   .user-avatar-banner {
-      width: 25px; /* Giảm kích thước avatar */
+      width: 25px;
       height: 25px;
       font-size: 1em;
-      margin-right: 5px; /* Khoảng cách avatar và text */
+      margin-right: 5px;
   }
   .logout-button-banner {
-      padding: 3px 6px; /* Giảm padding nút logout */
-      font-size: 0.65em; /* Giảm font size nút logout */
+      padding: 3px 6px;
+      font-size: 0.65em;
       margin-left: 0;
   }
   .logout-button-banner svg {
       font-size: 0.7em;
       margin-right: 2px;
   }
-  .user-dropdown-menu { /* Menu dropdown của user trên mobile */
-    top: calc(100% + 5px); /* Vị trí dropdown */
+  .user-dropdown-menu {
+    top: calc(100% + 5px);
     right: 0;
-    min-width: 140px; /* Giảm chiều rộng */
+    min-width: 140px;
     padding: 5px 0;
     transform: translateY(5px);
   }
@@ -1001,14 +1007,11 @@ table td button:last-child {
 
   /* Table on mobile */
   table {
-    display: block; /* Cho phép bảng cuộn ngang nếu quá rộng */
+    display: block;
     overflow-x: auto;
   }
   table th, table td {
-    white-space: nowrap; /* Đảm bảo không xuống dòng trong cell */
-  }
-  table td button {
-    white-space: nowrap; /* Ngăn nút xuống dòng */
+    white-space: nowrap;
   }
 
   /* Bottom copyright on mobile */
