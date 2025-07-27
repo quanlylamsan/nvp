@@ -832,16 +832,20 @@ table td button:last-child {
     background-color: var(--secondary-color);
   }
 
-  /* NÚT HAMBURGER MENU */
+  /* --- NÚT HAMBURGER MENU --- */
   .hamburger-menu-button {
     display: flex; /* Hiển thị nút hamburger trên mobile */
-    background: transparent;
+    background-color: transparent !important; /* Nền trong suốt */
     border: none;
-    color: white;
+    color: #FF0000 !important; /* Màu đỏ */
     font-size: 1.8em;
     cursor: pointer;
     padding: 5px;
-    margin-right: 15px; /* Khoảng cách từ logo/text */
+    position: absolute !important; /* Định vị tuyệt đối */
+    bottom: 10px !important; /* Cách dưới 10px */
+    left: 10px !important; /* Cách trái 10px */
+    z-index: 10; /* Đảm bảo nó nằm trên các phần tử khác trong banner */
+    margin-right: 0; /* Bỏ margin-right */
   }
 
   /* MAIN CONTENT OVERLAY KHI SIDEBAR MỞ */
@@ -853,7 +857,7 @@ table td button:last-child {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Lớp phủ đen mờ */
-    z-index: 99; /* Đảm bảo nó nằm dưới sidebar nhưng trên nội dung chính */
+    z-index: 99; /* Dưới sidebar nhưng trên nội dung chính */
     opacity: 0; /* Mặc định ẩn */
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
