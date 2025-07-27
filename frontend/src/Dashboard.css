@@ -20,7 +20,6 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden; /* Ngăn cuộn ngang không mong muốn ở mọi màn hình */
-  /* --- Bỏ overflow-y: hidden; để cho phép cuộn dọc tự nhiên trên mobile --- */
 }
 
 body {
@@ -816,14 +815,15 @@ table td button:last-child {
   }
 
   /* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
-  .sidebar:not(.sidebar-open) .submenu { /* --- Thay đổi selector để submenu ẩn khi sidebar không open --- */
+  /* --- ĐIỀU CHỈNH CHÍNH: TỪ GIỜ SUBMENU CHỈ ẨN/HIỆN DỰA VÀO isSidebarOpen VÀ open state CỦA CHÚNG --- */
+  .sidebar:not(.sidebar-open) .submenu { 
     max-height: 0 !important;
     opacity: 0 !important;
     overflow: hidden !important;
   }
 
   /* Khi sidebar mở VÀ summary có class 'open' (do click), hiển thị submenu */
-  .sidebar.sidebar-open .summary.open + .submenu { /* --- Thay đổi selector để submenu chỉ hiện khi sidebar open --- */
+  .sidebar.sidebar-open .summary.open + .submenu { 
     max-height: 300px !important;
     opacity: 1 !important;
     margin-top: 5px;
