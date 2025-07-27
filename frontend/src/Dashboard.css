@@ -19,7 +19,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent double scrollbar on body (Ngăn scrollbar kép trên body) */
+  /* --- LOẠI BỎ OVERFLOW: HIDDEN ĐỂ TRANG CÓ THỂ CUỘN --- */
+  /* overflow: hidden; */ /* Ngăn double scrollbar trên body */
 }
 
 body {
@@ -50,8 +51,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   overflow-y: auto;
-  border-top-right-radius: var(--border-radius-base);
-  border-bottom-right-radius: var(--border-radius-base);
+  border-top-right-radius: var(--border-radius-base); /* Sử dụng biến 0px */
+  border-bottom-right-radius: var(--border-radius-base); /* Sử dụng biến 0px */
   flex-shrink: 0;
   transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out, padding 0.3s ease-in-out;
   white-space: nowrap;
@@ -194,31 +195,29 @@ body {
 }
 
 
-/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU TRÊN DESKTOP (Hiện trong luồng, đẩy các mục khác xuống) --- */
+/* --- ĐIỀU CHỈNH CHÍNH CHO SUBMENU TRÊN DESKTOP (Hiện ra dạng overlay, không đẩy) --- */
 /* Submenu styles (Phong cách submenu) */
 .sidebar .submenu {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 0; /* Mặc định ẩn */
-  overflow: hidden;
-  opacity: 0;
+  max-height: 0 !important; /* Buộc ẩn submenu khi sidebar thu gọn */
+  overflow: hidden !important; /* Buộc ẩn nội dung tràn */
+  opacity: 0 !important; /* Buộc ẩn mờ dần */
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  
-  background-color: var(--secondary-color); /* Nền của submenu */
-  width: 100%; /* Chiếm toàn bộ chiều rộng li cha */
-  box-shadow: none; /* Bỏ bóng đổ */
-  border-radius: var(--border-radius-base); /* Bo góc */
-  z-index: 101; /* Đảm bảo submenu luôn trên cùng nếu có chồng chéo */
-
-  display: flex; /* Cho phép các mục con xếp chồng */
-  flex-direction: column;
-  gap: 5px; /* Khoảng cách giữa các mục con */
+  position: absolute; /* Quan trọng: Đặt position absolute để submenu hiện lên trên nội dung khác */
+  background-color: var(--secondary-color);
+  width: 250px; /* Chiều rộng của submenu khi hiển thị */
+  left: 70px; /* Bắt đầu từ mép phải của sidebar thu gọn */
+  top: auto; /* Tự định vị theo dòng chảy */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  z-index: 101;
+  border-radius: var(--border-radius-base);
 }
 
 /* Đảm bảo li cha có position: relative để submenu định vị đúng */
 .sidebar ul li.sidebar-item {
-  position: relative; /* Giữ relative cho mục cha có submenu */
+  position: relative;
 }
 
 /* Khi sidebar thu gọn, submenu sẽ bị ẩn hoàn toàn */
