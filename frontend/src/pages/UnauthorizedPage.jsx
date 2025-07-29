@@ -1,10 +1,12 @@
+// src/pages/UnauthorizedPage.jsx
 import React from 'react';
 
 const UnauthorizedPage = () => {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>403 - Không có quyền truy cập</h1>
-      <p>Bạn không có quyền để truy cập vào trang này.</p>
+      <h1>Báo lỗi - Phân quyền truy cập!</h1>
+      <p>Bạn không được phép truy cập vào trang này.</p>
+      <a href="/nvp/login">Quay lại trang đăng nhập</a>
     </div>
   );
 };

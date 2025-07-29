@@ -1,51 +1,50 @@
-// src/pages/LoginPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './LoginPage.css'; // Import CSS cho trang đăng nhập
+import { useAuth } from '../contexts/AuthContext'; // ✅ Dùng hook useAuth đúng
+import './LoginPage.css'; // Import CSS riêng nếu có
 
-// Lấy URL API từ biến môi trường.
-// Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ mà không có tệp .env hoặc khi .env chưa được tải),
-// nó sẽ mặc định dùng localhost:10000.
-// Điều này đảm bảo ứng dụng hoạt động đúng cả khi phát triển và khi triển khai.
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000'; 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
-function LoginPage({ setAuthStatus }) {
+function LoginPage() {
+  const { setAuthStatus } = useAuth(); // ✅ Lấy hàm setAuthStatus từ context
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false); // State cho checkbox "Ghi nhớ tài khoản"
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // useEffect để tải thông tin đăng nhập đã lưu khi component mount
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
     const savedPassword = localStorage.getItem('rememberedPassword');
     if (savedEmail && savedPassword) {
       setEmail(savedEmail);
       setPassword(savedPassword);
-      setRememberMe(true); // Đặt checkbox là true nếu có thông tin đã lưu
+      setRememberMe(true);
     }
   }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    console.log('handleLogin function called.');
 
     try {
-      // Sử dụng API_BASE_URL cho tất cả các cuộc gọi API.
-      // Cuộc gọi này sẽ đến https://nvp-f0i2.onrender.com/api/auth/login khi triển khai.
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });
 
-      const { token, role } = response.data;
+      const { token, user } = response.data;
 
-      setAuthStatus(token, role);
+      // ✅ Cập nhật trạng thái đăng nhập vào context
+      setAuthStatus({
+        isLoggedIn: true,
+        user: user,
+        role: user.role,
+        token: token,
+      });
 
-      // Xử lý "Ghi nhớ tài khoản"
+      // ✅ Lưu vào localStorage nếu người dùng chọn ghi nhớ
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
         localStorage.setItem('rememberedPassword', password);
@@ -54,16 +53,10 @@ function LoginPage({ setAuthStatus }) {
         localStorage.removeItem('rememberedPassword');
       }
 
-      console.log('Token after set (via setAuthStatus):', localStorage.getItem('token'));
-      console.log('Role after set (via setAuthStatus):', localStorage.getItem('role'));
-
+      // ✅ Điều hướng sau khi đăng nhập thành công
       navigate('/dashboard');
-      console.log('Navigation to /dashboard attempted.');
-
     } catch (err) {
       console.error('Lỗi đăng nhập:', err);
-      // Kiểm tra nếu có phản hồi từ server để lấy thông báo lỗi cụ thể
-      // Nếu không có phản hồi (ví dụ: lỗi mạng), hiển thị thông báo chung.
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
     }
   };
@@ -75,7 +68,7 @@ function LoginPage({ setAuthStatus }) {
         {error && <p className="login-error-message">{error}</p>}
         <form onSubmit={handleLogin}>
           <div className="login-form-group">
-            <label htmlFor="email" className="login-label">E-mail</label>
+            <label htmlFor="email">E-mail</label>
             <input
               type="email"
               id="email"
@@ -86,13 +79,13 @@ function LoginPage({ setAuthStatus }) {
             />
           </div>
           <div className="login-form-group">
-            <label htmlFor="password" className="login-label">Mật khẩu</label>
+            <label htmlFor="password">Mật khẩu</label>
             <input
               type="password"
               id="password"
               className="login-input"
               value={password}
-              onChange={(e) => setPassword(e.target.value)} // Đã sửa: Sử dụng e.target.value cho input mật khẩu
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -107,11 +100,10 @@ function LoginPage({ setAuthStatus }) {
           </div>
           <button type="submit" className="login-button">Đăng nhập</button>
         </form>
-       
-
         <div className="login-software-info" translate="no">
-          Phiên bản 1.0.0 <br />
-          &copy;2025Nguyen Van Phuc&copy;0358.758.358&copy;Phuc88.klvn@gmail.com&copy;
+          Phiên bản 1.0.0<br />
+          &copy;2025 Nguyen Van Phuc - 0358.758.358<br />
+          Email: phuc88.klvn@gmail.com
         </div>
       </div>
     </div>
