@@ -9,7 +9,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <AuthProvider>
-      <BrowserRouter basename="/nvp/frontend">
+      <BrowserRouter basename="/nvp/">
         <App />
       </BrowserRouter>
     </AuthProvider>
