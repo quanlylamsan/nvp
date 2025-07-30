@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext'; // ✅ Dùng hook useAuth đúng
-import './LoginPage.css'; // Import CSS riêng nếu có
+import { useAuth } from '../contexts/AuthContext';
+import './LoginPage.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
 function LoginPage() {
-  const { setAuthStatus } = useAuth(); // ✅ Lấy hàm setAuthStatus từ context
+  const { setAuthStatus } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -34,17 +34,21 @@ function LoginPage() {
         password,
       });
 
-      const { token, user } = response.data;
+      // === THAY ĐỔI CHÍNH Ở ĐÂY ===
+      // Backend trả về { token, role }, không có đối tượng user.
+      // Vì vậy, chúng ta lấy `token` và `role` trực tiếp từ `response.data`.
+      const { token, role } = response.data;
 
-      // ✅ Cập nhật trạng thái đăng nhập vào context
+      // Cập nhật trạng thái đăng nhập vào context với đúng dữ liệu
       setAuthStatus({
         isLoggedIn: true,
-        user: user,
-        role: user.role,
+        user: { role: role }, // Tạo một đối tượng user đơn giản nếu cần
+        role: role,           // Dùng trực tiếp biến role vừa lấy được
         token: token,
       });
+      // === KẾT THÚC THAY ĐỔI ===
 
-      // ✅ Lưu vào localStorage nếu người dùng chọn ghi nhớ
+      // Lưu vào localStorage nếu người dùng chọn ghi nhớ
       if (rememberMe) {
         localStorage.setItem('rememberedEmail', email);
         localStorage.setItem('rememberedPassword', password);
@@ -53,9 +57,12 @@ function LoginPage() {
         localStorage.removeItem('rememberedPassword');
       }
 
-      // ✅ Điều hướng sau khi đăng nhập thành công
+      // Điều hướng sau khi đăng nhập thành công
       navigate('/dashboard');
+
     } catch (err) {
+      // Bây giờ, khối catch này sẽ chỉ chạy khi có lỗi thật sự từ server
+      // hoặc lỗi mạng, thay vì lỗi JavaScript do xử lý sai dữ liệu.
       console.error('Lỗi đăng nhập:', err);
       setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email và mật khẩu.');
     }
