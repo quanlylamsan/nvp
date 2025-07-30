@@ -2,7 +2,7 @@
   "name": "wildlife-frontend",
   "version": "1.0.0",
   "private": true,
- "homepage": "https://quanlylamsan.github.io/nvp/frontend",
+ "homepage": "https://quanlylamsan.github.io/nvp/",
   "proxy": "http://localhost:10000",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
