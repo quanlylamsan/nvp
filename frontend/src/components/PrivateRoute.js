@@ -1,26 +1,29 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // Sử dụng hook useAuth
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const PrivateRoute = ({ children, allowedRoles }) => {
-  const { isLoggedIn, role } = useAuth();
-  const location = useLocation();
+const PrivateRoute = ({ allowedRoles, children }) => {
+  // Bước 1: Lấy đúng đối tượng `auth` lồng bên trong từ context
+  const { auth } = useAuth();
 
-  // 1. Kiểm tra xem người dùng đã đăng nhập chưa
-  if (!isLoggedIn) {
-    // Nếu chưa, chuyển hướng về trang đăng nhập
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  // In ra để kiểm tra, bạn sẽ thấy đối tượng `auth` chứa dữ liệu
+  console.log("Dữ liệu auth trong PrivateRoute:", auth);
+
+  // Nếu auth chưa được khởi tạo (trạng thái ban đầu), có thể chuyển về login
+  if (!auth || !auth.isLoggedIn) {
+    return <Navigate to="/login" replace />;
   }
 
-  // 2. Kiểm tra xem vai trò của người dùng có được phép truy cập không
-  // So sánh vai trò của người dùng (auth.role) với danh sách vai trò được phép (allowedRoles)
-  if (!allowedRoles.includes(role)) {
-    // Nếu không có quyền, chuyển hướng đến trang "Unauthorized"
-    return <Navigate to="/unauthorized" state={{ from: location }} replace />;
+  // Bước 2: Bây giờ mới lấy role từ đối tượng `auth`
+  const { role } = auth;
+
+  // Kiểm tra vai trò (đảm bảo `allowedRoles` đã được truyền vào)
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  // 3. Nếu đã đăng nhập và có quyền, cho phép hiển thị trang
-  return children;
+  // Nếu mọi thứ đều ổn, hiển thị component con
+  return children || <Outlet />;
 };
 
 export default PrivateRoute;
