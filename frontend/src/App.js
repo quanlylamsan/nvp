@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedLayout from './layouts/ProtectedLayout';
-
 import LoginPage from './pages/LoginPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import DashboardPage from './pages/Dashboard';
@@ -18,11 +17,12 @@ import MasterProductListPage from './pages/MasterProductListPage';
 import UserListPage from './pages/UserListPage';
 import CustomerListPage from './pages/CustomerListPage';
 
+
 function App() {
   return (
     <Routes>
       {/* Khi người dùng truy cập /nvp thì điều hướng sang /nvp/login */}
-      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/" element={<Navigate to="/dashboard" />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
@@ -45,6 +45,7 @@ function App() {
         <Route path="bao-cao-tong-hop" element={<MasterProductListPage />} />
         <Route path="admin/users" element={<UserListPage />} />
         <Route path="admin/customers" element={<CustomerListPage />} />
+		
       </Route>
     </Routes>
   );
