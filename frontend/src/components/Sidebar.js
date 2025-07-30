@@ -1,4 +1,5 @@
 // src/components/Sidebar.js
+import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -90,7 +91,7 @@ function Sidebar({ userRole, isLoggedIn, isSidebarOpen, toggleSidebar, sidebarRe
                             <FontAwesomeIcon icon={faMapMarkedAlt} /><span className="menu-text">Điều hướng bản đồ</span>
                         </NavLink>
                     </li>
-                    
+                    										
                     {role === 'admin' && (
                         <>
                             {/* Mục Quản lý Người dùng */}
