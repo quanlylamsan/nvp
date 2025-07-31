@@ -12,6 +12,7 @@ import Googlemaps from './pages/Googlemaps';
 import WoodDetail from './pages/WoodDetail';
 import FarmDetail from './pages/FarmDetail';
 import FarmEditPage from './pages/FarmEditPage';
+import WoodEditPage from './pages/WoodEditPage';
 import AddProductToFarm from './pages/AddProductToFarm';
 import MasterProductListPage from './pages/MasterProductListPage';
 import UserListPage from './pages/UserListPage';
@@ -38,14 +39,19 @@ function App() {
         <Route path="admin/wood-farms" element={<RegisterManageSub1Page />} />
         <Route path="admin/breeding-farms" element={<RegisterManageSub2Page />} />
         <Route path="google-maps" element={<Googlemaps />} />
-        <Route path="wood-detail/:id" element={<WoodDetail />} />
-        <Route path="farm-detail/:id" element={<FarmDetail />} />
-        <Route path="farm-edit/:id" element={<FarmEditPage />} />
+        
+        {/* === SỬA LỖI Ở ĐÂY === */}
+        {/* Thay đổi "wood-detail/:id" thành "/admin/woods/:id" để khớp với lệnh navigate */}
+        <Route path="/admin/woods/:id" element={<WoodDetail />} />
+        
+        <Route path="farm-details/:id" element={<FarmDetail />} />
+        <Route path="edit-wood/:id" element={<FarmEditPage />} />
+		 <Route path="edit-farm/:id" element={<FarmEditPage />} />
         <Route path="farm/:farmId/add-product" element={<AddProductToFarm />} />
         <Route path="bao-cao-tong-hop" element={<MasterProductListPage />} />
         <Route path="admin/users" element={<UserListPage />} />
         <Route path="admin/customers" element={<CustomerListPage />} />
-		
+        
       </Route>
     </Routes>
   );

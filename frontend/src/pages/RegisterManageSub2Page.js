@@ -1,5 +1,4 @@
-// src/pages/RegisterManageSub2Page.js
-import React, { useEffect, useState, useMemo } from 'react'; // ✅ THÊM useMemo
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -8,34 +7,8 @@ import './RegisterManageSub2Page.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
 
-function BreedingFarmListPage() {
-  const [farms, setFarms] = useState([]);
-  const [filter, setFilter] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('');
-  const [selectedCommune, setSelectedCommune] = useState('');
-  const [selectedSpecies, setSelectedSpecies] = useState('');
-  const [selectedLoaiCoSoDangKy, setSelectedLoaiCoSoDangKy] = useState(''); 
-  const [selectedNganhNgheKinhDoanhGo, setSelectedNganhNgheKinhDoanhGo] = useState('');
-  const [selectedTrangThai, setSelectedTrangThai] = useState('');
-
-  // ✅ Đảm bảo các state này được khai báo đúng
-  const [selectedLoaiHinhCheBienGo, setSelectedLoaiHinhCheBienGo] = useState(''); 
-  const [selectedNguonGocGo, setSelectedNguonGocGo] = useState(''); 
-
-  const [uniqueProvinces, setUniqueProvinces] = useState([]);
-  const [uniqueCommunes, setUniqueCommunes] = useState([]);
-  const [uniqueSpecies, setUniqueSpecies] = useState([]);
-  const [uniqueNganhNgheKinhDoanhGo, setUniqueNganhNgheKinhDoanhGo] = useState([]);
-  const [uniqueTrangThai, setUniqueTrangThai] = useState([]);
-  const [uniqueLoaiCoSoDangKy, setUniqueLoaiCoSoDangKy] = useState([]); 
-  // ✅ Đảm bảo các unique states này cũng được khai báo đúng
-  const [uniqueLoaiHinhCheBienGo, setUniqueLoaiHinhCheBienGo] = useState([]); 
-  const [uniqueNguonGocGo, setUniqueNguonGocGo] = useState([]); 
-
-  const navigate = useNavigate();
-  const token = localStorage.getItem('token');
-
-  const initialColumnsConfig = {
+// Cấu hình cột ban đầu
+const initialColumnsConfig = {
     tenCoSo: { id: 'tenCoSo', label: 'Tên cơ sở', visible: true, minWidth: '180px' },
     loaiCoSoDangKy: { id: 'loaiCoSoDangKy', label: 'Loại Cơ Sở', visible: true, minWidth: '180px' },
     tinhThanhPho: { id: 'tinhThanhPho', label: 'Tỉnh (TP)', visible: true, minWidth: '100px' },
@@ -48,335 +21,324 @@ function BreedingFarmListPage() {
     kinhdo: { id: 'kinhdo', label: 'Kinh độ', visible: false, minWidth: '80px' },
     ngayThanhLap: { id: 'ngayThanhLap', label: 'Ngày thành lập', visible: false, minWidth: '100px' },
     giayPhepKinhDoanh: { id: 'giayPhepKinhDoanh', label: 'Số GPKD', visible: false, minWidth: '100px' },
-  };
+};
 
-  const [columns, setColumns] = useState(initialColumnsConfig);
-  const [showColumnOptions, setShowColumnOptions] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(15);
+function BreedingFarmListPage() {
+    // === PHẦN KHAI BÁO STATE ===
+    const [allFarms, setAllFarms] = useState([]); // State lưu trữ TOÀN BỘ danh sách từ API
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    try {
-      const savedColumns = localStorage.getItem('tableColumnsVisibility_AllFarms');
-      if (savedColumns) {
-        const parsedSavedColumns = JSON.parse(savedColumns);
-        const mergedColumns = { ...initialColumnsConfig };
-        Object.keys(parsedSavedColumns).forEach(key => {
-          if (mergedColumns[key]) {
-            mergedColumns[key].visible = parsedSavedColumns[key].visible;
-          }
-        });
-        setColumns(mergedColumns);
-      }
-    } catch (e) {
-      setColumns(initialColumnsConfig);
-    }
-  }, []);
+    // States cho các bộ lọc
+    const [filter, setFilter] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedTrangThai, setSelectedTrangThai] = useState('');
+    const [selectedLoaiCoSoDangKy, setSelectedLoaiCoSoDangKy] = useState('Đăng ký cơ sở gây nuôi động vật');
 
-  useEffect(() => {
-    localStorage.setItem('tableColumnsVisibility_AllFarms', JSON.stringify(columns));
-  }, [columns]);
+    // States cho các giá trị duy nhất trong bộ lọc
+    const [uniqueProvinces, setUniqueProvinces] = useState([]);
+    const [uniqueTrangThai, setUniqueTrangThai] = useState([]);
 
-  useEffect(() => {
-    const fetchFarms = async () => {
-      try {
-        const params = {
-            page: currentPage,
-            limit: itemsPerPage,
-        };
-        if (filter) params.search = filter;
-        if (selectedLoaiCoSoDangKy) params.farmType = selectedLoaiCoSoDangKy;
-        if (selectedTrangThai) params.trangThai = selectedTrangThai;
-        if (selectedProvince) params.tinhThanhPho = selectedProvince;
-        if (selectedCommune) params.xaPhuong = selectedCommune;
+    const navigate = useNavigate();
+    const token = localStorage.getItem('token');
 
-        const response = await axios.get(`${API_BASE_URL}/api/farms`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: params
-        });
-        
-        const fetchedFarms = response.data.docs || [];
-        setFarms(fetchedFarms);
+    // States cho bảng và phân trang
+    const [columns, setColumns] = useState(initialColumnsConfig);
+    const [showColumnOptions, setShowColumnOptions] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
 
-        const allFarmsResponse = await axios.get(`${API_BASE_URL}/api/farms?limit=1000`, { headers: { Authorization: `Bearer ${token}` } });
-        const allFarms = allFarmsResponse.data.docs || [];
-
-        setUniqueProvinces([...new Set(allFarms.map(f => f.tinhThanhPho).filter(Boolean))].sort());
-        setUniqueCommunes([...new Set(allFarms.map(f => f.xaPhuong).filter(Boolean))].sort());
-        setUniqueLoaiCoSoDangKy([...new Set(allFarms.map(f => f.loaiCoSoDangKy).filter(Boolean))].sort());
-        setUniqueTrangThai([...new Set(allFarms.map(f => f.trangThai).filter(Boolean))].sort());
-        // ✅ Cập nhật unique values cho các bộ lọc mới
-        setUniqueLoaiHinhCheBienGo([...new Set(allFarms.map(f => f.loaiHinhCheBienGo).filter(Boolean))].sort()); 
-        setUniqueNguonGocGo([...new Set(allFarms.map(f => f.nguonGocGo).filter(Boolean))].sort()); 
-
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách cơ sở:', error);
-        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          navigate('/');
+    // === PHẦN QUẢN LÝ CỘT (Lưu và tải từ localStorage) ===
+    useEffect(() => {
+        try {
+            const savedColumns = localStorage.getItem('tableColumnsVisibility_BreedingFarms'); // Key duy nhất cho trang này
+            if (savedColumns) {
+                const parsedSavedColumns = JSON.parse(savedColumns);
+                const mergedColumns = Object.keys(initialColumnsConfig).reduce((acc, key) => {
+                    const savedCol = parsedSavedColumns.find(sCol => sCol.id === key);
+                    acc[key] = savedCol ? { ...initialColumnsConfig[key], visible: savedCol.visible } : initialColumnsConfig[key];
+                    return acc;
+                }, {});
+                setColumns(mergedColumns);
+            }
+        } catch (err) {
+            console.error("Lỗi khi tải trạng thái cột từ localStorage:", err);
+            setColumns(initialColumnsConfig);
         }
-        setFarms([]);
-      }
+    }, []);
+
+    useEffect(() => {
+        try {
+            const columnsToSave = Object.values(columns).map(({ id, visible }) => ({ id, visible }));
+            localStorage.setItem('tableColumnsVisibility_BreedingFarms', JSON.stringify(columnsToSave));
+        } catch (err) {
+            console.error("Lỗi khi lưu trạng thái cột vào localStorage:", err);
+        }
+    }, [columns]);
+
+    // === PHẦN TẢI DỮ LIỆU (Tối ưu: Chỉ gọi API một lần) ===
+    useEffect(() => {
+        const fetchAllFarms = async () => {
+            if (!token) {
+                navigate('/');
+                return;
+            }
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/farms`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    params: {
+                        farmType: 'Đăng ký cơ sở gây nuôi động vật',
+                        limit: 2000 // Lấy một lượng lớn dữ liệu để xử lý ở client
+                    }
+                });
+                const fetchedData = response.data || [];
+                if (Array.isArray(fetchedData)) {
+                    setAllFarms(fetchedData);
+                    // Tối ưu: Lấy giá trị duy nhất cho bộ lọc từ dữ liệu vừa tải về
+                    setUniqueProvinces([...new Set(fetchedData.map(f => f.tinhThanhPho).filter(Boolean))].sort());
+                    setUniqueTrangThai([...new Set(fetchedData.map(f => f.trangThai).filter(Boolean))].sort());
+                } else {
+                    setError("Định dạng dữ liệu từ server không đúng.");
+                    setAllFarms([]);
+                }
+            } catch (err) {
+                console.error("Lỗi khi lấy danh sách cơ sở:", err);
+                setError('Không thể tải danh sách cơ sở. Vui lòng thử lại.');
+                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                    navigate('/');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAllFarms();
+    }, [token, navigate]);
+
+    // === PHẦN LỌC DỮ LIỆU (Tối ưu: Lọc ở client-side) ===
+    const filteredFarms = useMemo(() => {
+        return allFarms.filter(f => {
+            const searchLower = filter.toLowerCase();
+            // Logic tìm kiếm chung đơn giản hơn
+            const generalMatch = !filter || Object.values(f).some(val =>
+                String(val).toLowerCase().includes(searchLower)
+            );
+            const provinceMatch = !selectedProvince || f.tinhThanhPho === selectedProvince;
+            const trangThaiMatch = !selectedTrangThai || selectedTrangThai === 'all' || f.trangThai === selectedTrangThai;
+
+            return generalMatch && provinceMatch && trangThaiMatch;
+        });
+    }, [allFarms, filter, selectedProvince, selectedTrangThai]);
+
+
+    // === PHẦN HÀNH ĐỘNG VÀ PHÂN TRANG ===
+    const handleDelete = useCallback(async (id) => {
+        if (window.confirm('Bạn có chắc chắn muốn xóa cơ sở này?')) {
+            try {
+                await axios.delete(`${API_BASE_URL}/api/farms/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setAllFarms(prev => prev.filter(f => f._id !== id));
+            } catch (error) {
+                console.error('Lỗi khi xóa:', error);
+                alert('Xóa thất bại!');
+            }
+        }
+    }, [token]);
+
+    const handleEdit = (id) => navigate(`/edit-farm/${id}`);
+    const handleView = (id) => navigate(`/farm-details/${id}`);
+	const handleAddProduct = (farmId) => navigate(`/farm/${farmId}/add-product`);
+    const currentItems = filteredFarms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.ceil(filteredFarms.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const nextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); } };
+    const prevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); } };
+    const handleColumnToggle = (columnKey) => {
+        setColumns(prev => ({ ...prev, [columnKey]: { ...prev[columnKey], visible: !prev[columnKey].visible } }));
+    };
+    const handleSelectAllColumns = () => {
+        setColumns(prev => {
+            const newCols = { ...prev };
+            Object.keys(newCols).forEach(key => newCols[key].visible = true);
+            return newCols;
+        });
+    };
+    const handleDeselectAllColumns = () => {
+        setColumns(prev => {
+            const newCols = { ...prev };
+            Object.keys(newCols).forEach(key => newCols[key].id !== 'actions' ? newCols[key].visible = false : newCols[key].visible = true);
+            return newCols;
+        });
     };
 
-    if (token) {
-      fetchFarms();
-    } else {
-      navigate('/');
-    }
-    // ✅ CẬP NHẬT DEPENDENCY ARRAY ĐẦY ĐỦ
-  }, [token, navigate, currentPage, itemsPerPage, filter, selectedLoaiCoSoDangKy, selectedTrangThai, selectedProvince, selectedCommune, selectedSpecies, selectedNganhNgheKinhDoanhGo, selectedLoaiHinhCheBienGo, selectedNguonGocGo]); 
-  // Đảm bảo tất cả các state được sử dụng trong fetchFarms và các bộ lọc ngoài useEffect đều có trong đây.
-
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa cơ sở này?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/farms/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
+    const handleExportExcel = () => {
+        const columnsToExport = Object.values(columns).filter(col => col.visible && col.id !== 'actions');
+        const dataToExport = filteredFarms.map(farm => {
+            const rowData = {};
+            columnsToExport.forEach(col => {
+                let value = farm[col.id];
+                if (['ngayThanhLap', 'ngayCapCCCD'].includes(col.id)) {
+                    value = value ? new Date(value).toLocaleDateString() : '';
+                }
+                rowData[col.label] = value;
+            });
+            return rowData;
         });
-        setFarms(farms.filter(f => f._id !== id));
-      } catch (error) {
-        console.error('Lỗi khi xóa:', error);
-        alert('Xóa thất bại!');
-      }
-    }
-  };
-
-  const handleEdit = (id) => navigate(`/edit-farm/${id}`);
-  const handleView = (id) => navigate(`/farm-details/${id}`);
-  
-  const handleAddProduct = (farmId) => {
-    navigate(`/farm/${farmId}/add-product`);
-  };
-
-  // ✅ SỬ DỤNG useMemo để tối ưu và đảm bảo filteredFarms được định nghĩa rõ ràng
-  const filteredFarms = useMemo(() => {
-    return farms.filter(f => {
-      const generalMatch = (
-        (f.tenCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
-        (f.tinhThanhPho || '').toLowerCase().includes(filter.toLowerCase()) ||
-        (f.xaPhuong || '').toLowerCase().includes(filter.toLowerCase()) ||
-        (f.diaChiCoSo || '').toLowerCase().includes(filter.toLowerCase()) ||
-        (f.ghiChu || '').toLowerCase().includes(filter.toLowerCase()) || 
-        (f.loaiCoSoDangKy || '').toLowerCase().includes(filter.toLowerCase()) || 
-        (f.nganhNgheKinhDoanhGo || '').toLowerCase().includes(filter.toLowerCase()) || 
-        (f.tongDan && String(f.tongDan).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.khoiLuong && String(f.khoiLuong).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.tenLamSan && String(f.tenLamSan).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.tenKhoaHoc && String(f.tenKhoaHoc).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.trangThai && String(f.trangThai).toLowerCase().includes(filter.toLowerCase())) ||
-        (f.tenNguoiDaiDien || '').toLowerCase().includes(filter.toLowerCase()) ||
-        (f.namSinh && String(f.namSinh).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.soCCCD && String(f.soCCCD).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.ngayCapCCCD && new Date(f.ngayCapCCCD).toLocaleDateString().toLowerCase().includes(filter.toLowerCase())) ||
-        (f.noiCapCCCD && String(f.noiCapCCCD).toLowerCase().includes(filter.toLowerCase())) || 
-        (f.soDienThoaiNguoiDaiDien && String(f.soDienThoaiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) ||
-        (f.diaChiNguoiDaiDien && String(f.diaChiNguoiDaiDien).toLowerCase().includes(filter.toLowerCase())) 
-      );
-
-      const provinceMatch = selectedProvince ? (f.tinhThanhPho === selectedProvince) : true;
-      const communeMatch = selectedCommune ? (f.xaPhuong === selectedCommune) : true;
-      const speciesMatch = selectedSpecies ? (f.species && f.species.some(s => s.name === selectedSpecies)) : true;
-      const nganhNgheKinhDoanhGoMatch = selectedNganhNgheKinhDoanhGo ? (f.nganhNgheKinhDoanhGo === selectedNganhNgheKinhDoanhGo) : true;
-      const trangThaiMatch = selectedTrangThai ? (f.trangThai === selectedTrangThai) : true;
-      const loaiHinhCheBienGoMatch = selectedLoaiHinhCheBienGo ? (f.loaiHinhCheBienGo === selectedLoaiHinhCheBienGo) : true;
-      const nguonGocGoMatch = selectedNguonGocGo ? (f.nguonGocGo === selectedNguonGocGo) : true;
-
-      return generalMatch && provinceMatch && communeMatch && speciesMatch && nganhNgheKinhDoanhGoMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch;
-    });
-    // ✅ CẬP NHẬT DEPENDENCY ARRAY ĐẦY ĐỦ CHO useMemo
-  }, [farms, filter, selectedProvince, selectedCommune, selectedSpecies, selectedLoaiCoSoDangKy, selectedNganhNgheKinhDoanhGo, selectedTrangThai, selectedLoaiHinhCheBienGo, selectedNguonGocGo]); 
-
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  // ✅ Sửa đổi để sử dụng filteredFarms cho phân trang
-  const currentItems = filteredFarms.slice(indexOfFirstItem, indexOfLastItem); 
-
-  // ✅ Sửa đổi để sử dụng filteredFarms cho tổng số trang
-  const totalPages = Math.ceil(filteredFarms.length / itemsPerPage); 
-  
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () => { if (currentPage < totalPages) { setCurrentPage(currentPage + 1); } };
-  const prevPage = () => { if (currentPage > 1) { setCurrentPage(currentPage - 1); } };
-  const handleColumnToggle = (columnKey) => {
-    setColumns(prev => ({ ...prev, [columnKey]: { ...prev[columnKey], visible: !prev[columnKey].visible } }));
-  };
-  const handleSelectAllColumns = () => {
-    setColumns(prev => {
-        const newCols = { ...prev };
-        Object.keys(newCols).forEach(key => newCols[key].visible = true);
-        return newCols;
-    });
-  };
-  const handleDeselectAllColumns = () => {
-    setColumns(prev => {
-        const newCols = { ...prev };
-        Object.keys(newCols).forEach(key => newCols[key].id !== 'actions' ? newCols[key].visible = false : newCols[key].visible = true);
-        return newCols;
-    });
-  };
-
-  const handleExportExcel = () => {
-    const columnsToExport = Object.values(columns).filter(col => col.visible && col.id !== 'actions');
-    const dataToExport = filteredFarms.map(farm => { // ✅ Sử dụng filteredFarms cho xuất Excel
-      const rowData = {};
-      columnsToExport.forEach(col => {
-        let value = farm[col.id];
-        if (col.id === 'products' && Array.isArray(value)) {
-          value = value.map(p => `${p.tenLamSan} (${p.khoiLuong} ${p.donViTinh || 'm³'})`).join('; ');
-        } else if (['ngayThanhLap', 'ngayCapCCCD'].includes(col.id)) {
-          value = value ? new Date(value).toLocaleDateString() : '';
+        if (dataToExport.length === 0) {
+            alert("Không có dữ liệu để xuất Excel.");
+            return;
         }
-        rowData[col.label] = value;
-      });
-      return rowData;
-    });
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DanhSachCoSoGayNuoi");
+        XLSX.writeFile(wb, "DanhSachCoSoGayNuoi.xlsx");
+    };
 
-    if (dataToExport.length === 0) {
-      alert("Không có dữ liệu để xuất Excel.");
-      return;
-    }
+    // === PHẦN HIỂN THỊ (RENDER) ===
+    if (loading) return <div className="farm-list-container"><h2>Đang tải danh sách cơ sở...</h2></div>;
+    if (error) return <div className="farm-list-container"><h2 style={{ color: 'red' }}>Lỗi: {error}</h2></div>;
 
-    const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "DanhSachCoSo");
-    XLSX.writeFile(wb, "DanhSachCoSo.xlsx");
-  };
+    return (
+        <div className="farm-list-container">
+            <h2>📋 Danh sách Cơ sở gây nuôi động vật</h2>
+            <div className="filter-container">
+                <input
+                    type="text"
+                    placeholder="🔍 Tìm kiếm chung..."
+                    value={filter}
+                    onChange={e => setFilter(e.target.value)}
+                />
+                <select value={selectedProvince} onChange={e => setSelectedProvince(e.target.value)}>
+                    <option value="">Tất cả Tỉnh (TP)</option>
+                    {uniqueProvinces.map(p => (<option key={p} value={p}>{p}</option>))}
+                </select>
+                <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
+                    <option value="" disabled>Chọn trạng thái</option>
+                    <option value="all">Tất cả Trạng thái</option>
+                    {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
+                </select>
+                <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
+                    {showColumnOptions ? 'Ẩn tùy chọn' : 'Hiện/Ẩn Cột'}
+                </button>
+                <button onClick={handleExportExcel} className="export-excel-button">Xuất Excel</button>
+            </div>
 
-  return (
-    <div className="farm-list-container">
-      <h2>📋 Danh sách Cơ sở gây nuôi</h2>
+            {showColumnOptions && (
+                <div className="column-options-container">
+                    <h3>Chọn cột hiển thị:</h3>
+                    <div className="column-options-grid">
+                        {Object.keys(columns).map(key => (
+                            <label key={key}>
+                                <input type="checkbox" checked={columns[key].visible} onChange={() => handleColumnToggle(key)} />
+                                {columns[key].label}
+                            </label>
+                        ))}
+                    </div>
+                    <div className="column-control-buttons">
+                        <button onClick={handleSelectAllColumns}>Chọn tất cả</button>
+                        <button onClick={handleDeselectAllColumns}>Bỏ chọn tất cả</button>
+                    </div>
+                </div>
+            )}
 
-      <div className="filter-container">
-        <input
-          type="text"
-          placeholder="🔍 Tìm kiếm chung..."
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-        />
+            {filteredFarms.length === 0 ? (
+                <p>Không có cơ sở nào phù hợp.</p>
+            ) : (
+                <>
+                    <table className="farm-table">
+                        <thead>
+                            <tr>
+                                {Object.values(columns).map(col => col.visible && (
+                                    <th key={col.id} style={{ minWidth: col.minWidth }}>{col.label}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentItems.map((item) => (
+                                <tr key={item._id}>
+                                    {Object.values(columns).map(col => col.visible && (
+						<td key={col.id}>
+ 						   {col.id === 'actions' ? (
+ 						     <div className="action-buttons-cell">
+ 						       <button
+  						        onClick={() => handleView(item._id)}
+ 						         className="action-button view-button"
+ 						         title="Xem chi tiết"
+						        >👁️</button>
 
-        <select value={selectedLoaiCoSoDangKy} onChange={e => setSelectedLoaiCoSoDangKy(e.target.value)}>
-          <option value="">Đăng ký cơ sở gây nuôi</option>
-          {uniqueLoaiCoSoDangKy.map(type => (<option key={type} value={type}>{type}</option>))}
-        </select>
+ 						       <button
+ 						         onClick={() => handleEdit(item._id)}
+ 						         className="action-button edit-button"
+						          title="Chỉnh sửa"
+ 						       >✏️</button>
 
-        <select value={selectedProvince} onChange={e => setSelectedProvince(e.target.value)}>
-          <option value="">Tất cả Tỉnh (TP)</option>
-          {uniqueProvinces.map(p => (<option key={p} value={p}>{p}</option>))}
-        </select>
-        
-        <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
-          <option value="">Tất cả Trạng thái</option>
-          {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
-        </select>
-        
-              
-        <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
-          {showColumnOptions ? 'Ẩn tùy chọn' : 'Hiện/Ẩn Cột'}
-        </button>
-        <button onClick={handleExportExcel} className="export-excel-button">Xuất Excel</button>
-      </div>
+ 						       {false && (
+						          <button
+ 						           onClick={() => handleDelete(item._id)}
+						            className="action-button delete-button"
+  						          title="Xoá"
+  						        >🗑️</button> // Tạm ẩn
+ 						       )}
 
-      {showColumnOptions && (
-        <div className="column-options-container">
-          <h3>Chọn cột hiển thị:</h3>
-          <div className="column-options-grid">
-            {Object.keys(columns).map(key => (
-              <label key={key}>
-                <input type="checkbox" checked={columns[key].visible} onChange={() => handleColumnToggle(key)} />
-                {columns[key].label}
-              </label>
-            ))}
-          </div>
-          <div className="column-control-buttons">
-            <button onClick={handleSelectAllColumns}>Chọn tất cả</button>
-            <button onClick={handleDeselectAllColumns}>Bỏ chọn tất cả</button>
-          </div>
+ 						       <button
+ 						         onClick={() => handleAddProduct(item._id)}
+ 						         className="action-button add-product-button"
+ 						         title="Thêm Lâm sản mới"
+						        >
+						          ➕🌲
+ 						       </button>
+ 						     </div>
+						    ) : col.id === 'products' ? (
+ 						     item.products?.map(p => p.tenLamSan).join(', ') || 'Chưa có'
+						    ) : (
+ 						     ['ngayThanhLap', 'ngayCapCCCD'].includes(col.id)
+						        ? (item[col.id] ? new Date(item[col.id]).toLocaleDateString() : '')
+ 						       : item[col.id]
+ 						   )}
+						  </td>
+						))}
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="pagination-container">
+                        <div className="pagination-info">
+                            {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredFarms.length)} / {filteredFarms.length} bản ghi
+                        </div>
+                        <div className="pagination-controls">
+                            <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => paginate(i + 1)}
+                                    className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
+                        </div>
+                        <div className="items-per-page">
+                            <select value={itemsPerPage} onChange={(e) => {
+                                setItemsPerPage(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}>
+                                <option value="5">5 bản ghi/trang</option>
+                                <option value="10">10 bản ghi/trang</option>
+                                <option value="15">15 bản ghi/trang</option>
+                                <option value="20">20 bản ghi/trang</option>
+                                <option value="50">50 bản ghi/trang</option>
+                            </select>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
-      )}
-
-      {/* ✅ Sửa điều kiện kiểm tra hiển thị "Không có cơ sở nào phù hợp." */}
-      {filteredFarms.length === 0 && <p>Không có cơ sở nào phù hợp.</p>}
-
-      {/* ✅ Bảng hiển thị danh sách cơ sở nếu có dữ liệu */}
-      {filteredFarms.length > 0 && (
-        <table className="farm-table">
-          <thead>
-            <tr>
-              {Object.values(columns).map(col => col.visible && <th key={col.id} style={{minWidth: col.minWidth, width: col.width}}>{col.label}</th>)}
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((f) => (
-              <tr key={f._id}>
-                {Object.values(columns).map(col => col.visible && (
-                  <td key={col.id}>
-                    {col.id === 'actions' ? (
-                      <div className="action-buttons-cell">
-                        <button onClick={() => handleView(f._id)} className="action-button view-button" title="Xem chi tiết">👁️</button>
-                        <button onClick={() => handleEdit(f._id)} className="action-button edit-button" title="Chỉnh sửa">✏️</button>
-                        
-                        {/* *** NÚT MỚI: Chỉ hiển thị khi là cơ sở kinh doanh gỗ *** */}
-                        {f.loaiCoSoDangKy === 'Đăng ký cơ sở kinh doanh, chế biến gỗ' && (
-                          <button 
-                            onClick={() => handleAddProduct(f._id)} 
-                            className="action-button add-product-button"
-                            title="Thêm Lâm sản mới"
-                          >
-                            ➕🌲
-                          </button>
-                        )}
-                        
-                        
-                      </div>
-                    ) : (
-                      // Hiển thị ngày tháng định dạng dd/mm/yyyy
-                      ['ngayThanhLap', 'ngayCapCCCD'].includes(col.id) ? (f[col.id] ? new Date(f[col.id]).toLocaleDateString() : '') : f[col.id]
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* Điều khiển phân trang */}
-      {filteredFarms.length > 0 && (
-        <div className="pagination-container">
-          <div className="pagination-info">
-            {indexOfFirstItem + 1} - {Math.min(indexOfLastItem, filteredFarms.length)} / {filteredFarms.length} bản ghi
-          </div>
-          <div className="pagination-controls">
-            <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => paginate(i + 1)}
-                className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
-          </div>
-          <div className="items-per-page">
-            <select value={itemsPerPage} onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1); // Đặt lại về trang đầu tiên khi số mục mỗi trang thay đổi
-            }}>
-              <option value="5">5 bản ghi/trang</option>
-              <option value="10">10 bản ghi/trang</option>
-              <option value="15">15 bản ghi/trang</option>
-              <option value="20">20 bản ghi/trang</option>
-              <option value="50">50 bản ghi/trang</option>
-            </select>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default BreedingFarmListPage;

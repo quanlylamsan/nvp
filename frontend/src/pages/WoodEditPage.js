@@ -1,4 +1,4 @@
-// src/pages/FarmEditPage.js
+// src/pages/WoodEditPage.js
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';

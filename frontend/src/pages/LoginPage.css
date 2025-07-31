@@ -1,30 +1,10 @@
-/* src/LoginPage.css */
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* Đã thay đổi để căn chỉnh lên trên */
-  min-height: 100vh;
-  background-color: #f0f2f5; /* Nền màu xám nhạt hiện đại hơn */
-  padding: 15px 500px 500px 500px; /* Tăng padding-top để đẩy khung đăng nhập xuống một chút từ trên cùng */
-  box-sizing: border-box;
-}
+/* src/pages/LoginPage.css */
 
-.login-container {
-  background-color: #ffffff;
-  padding: 15px; /* Giảm padding để làm khung gọn hơn nữa */
-  border-radius: 12px; /* Bo tròn góc */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Đổ bóng mềm mại */
-  border: 2px solid #e74c3c; /* Đã thêm lại đường viền màu đỏ đậm */
-  width: 100%;
-  max-width: 500px; /* Giảm nhẹ chiều rộng tối đa */
-  text-align: center;
-  animation: fadeIn 0.8s ease-out;
-}
-
+/* Thêm hiệu ứng animation cho form */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -32,134 +12,205 @@
   }
 }
 
-.login-title {
-  color: #2c3e50;
-  margin-bottom: 20px; /* Giảm khoảng cách dưới tiêu đề */
-  font-size: 2.2em; /* Kích thước font */
-  font-weight: 700;
-  letter-spacing: -0.5px;
+/* Container chính cho toàn bộ trang */
+.login-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f0f2f5;
 }
 
+/* === CẬP NHẬT CSS CHO HEADER === */
+.login-header {
+  width: 100%;
+  min-height: 120px; /* Chiều cao tối thiểu */
+  background-size: cover; /* Đảm bảo ảnh nền che phủ hết */
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: white; /* Màu chữ mặc định cho header */
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Khoảng cách giữa logo và text */
+  max-width: 1400px;
+  width: 100%;
+}
+
+.header-logo {
+  height: 90px; /* Kích thước logo */
+  width: 90px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+}
+
+.header-text {
+  text-align: left;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); /* Đổ bóng cho chữ dễ đọc */
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* === SỬA LỖI Ở ĐÂY === */
+.header-text h2 {
+  margin: 5px 0;
+  font-size: 1.2rem;
+  font-weight: normal;
+  display: block; /* Đảm bảo nó là một khối */
+  width: fit-content; /* ✅ THAY ĐỔI: Co chiều rộng lại vừa bằng nội dung chữ */
+  border-bottom: 1px solid white; 
+  padding-bottom: 2px;
+}
+
+.header-text h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 300;
+  opacity: 0.9;
+  color: white; 
+}
+/* ================================ */
+
+/* Phần chính chứa form đăng nhập */
+.login-main-content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+/* === CẬP NHẬT STYLE CHO KHUNG ĐĂNG NHẬP === */
+.login-container {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ nhàng hơn */
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  border-top: 4px solid #c0392b; /* Thêm đường viền màu đỏ ở trên */
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Hiệu ứng chuyển động mượt mà */
+  animation: fadeIn 0.5s ease-out; /* Thêm hiệu ứng xuất hiện */
+}
+
+.login-container:hover {
+  transform: translateY(-5px); /* Hiệu ứng nhấc lên khi di chuột vào */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Tăng độ đậm của bóng */
+}
+/* ======================================== */
+
+/* === CẬP NHẬT CHO TIÊU ĐỀ ĐĂNG NHẬP === */
+.login-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  color: #333;
+  display: flex; /* Bật flexbox */
+  align-items: center; /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+  gap: 0.75rem; /* Khoảng cách giữa icon và chữ */
+}
+
+/* Icon phía trước */
+.login-title::before,
+.login-title::after { /* Áp dụng style chung cho cả hai icon */
+  content: '';
+  display: inline-block;
+  width: 24px; /* Kích thước icon */
+  height: 24px;
+  /* ✅ THAY ĐỔI: Icon mới hiện đại hơn */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h3M18 12h3M12 3v3M12 18v3'/%3E%3Ccircle cx='12' cy='12' r='7'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.7;
+}
+
+/* Icon phía sau (lật ngược lại) */
+.login-title::after {
+  transform: scaleX(-1);
+}
+/* ======================================== */
+
 .login-form-group {
-  margin-bottom: 15px; /* Giảm khoảng cách giữa các nhóm form */
+  margin-bottom: 1.25rem;
   text-align: left;
 }
 
-.login-label {
+.login-form-group label {
   display: block;
-  margin-bottom: 6px; /* Giảm khoảng cách dưới label */
-  font-weight: 600;
-  color: #34495e;
-  font-size: 1em;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
 }
 
 .login-input {
   width: 100%;
-  padding: 10px 15px; /* Giảm padding input */
-  border: 1px solid #dcdcdc;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 1em;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .login-input:focus {
-  border-color: #5a8dee;
-  box-shadow: 0 0 0 4px rgba(90, 141, 238, 0.2);
   outline: none;
+  border-color: #c0392b; /* Đổi màu viền khi focus sang màu đỏ */
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1); /* Thêm hiệu ứng bóng mờ */
 }
 
 .login-remember-me {
   display: flex;
   align-items: center;
-  margin-bottom: 18px; /* Giảm khoảng cách dưới checkbox */
-  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
 }
 
-.login-remember-me input[type="checkbox"] {
-  margin-right: 8px;
-  width: 18px; /* Kích thước checkbox */
-  height: 18px;
-  accent-color: #5a8dee;
-  cursor: pointer;
-}
-
-.login-remember-me label {
-  font-size: 0.95em;
-  color: #555;
-  cursor: pointer;
+.login-remember-me input {
+  margin-right: 0.5rem;
 }
 
 .login-button {
   width: 100%;
-  padding: 12px; /* Giảm padding nút */
-  background-color: #5a8dee;
-  color: white;
+  padding: 0.85rem;
   border: none;
   border-radius: 8px;
-  font-size: 1.1em; /* Kích thước font */
+  background-color: #007bff;
+  color: white;
+  font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
-  margin-top: 10px; /* Giảm khoảng cách trên nút */
-  box-shadow: 0 4px 10px rgba(90, 141, 238, 0.3);
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .login-button:hover {
-  background-color: #4a7ddb;
-  transform: translateY(-2px); /* Nút nhấc lên ít hơn khi hover */
-  box-shadow: 0 5px 12px rgba(90, 141, 238, 0.4);
-}
-
-.login-link {
-  margin-top: 20px; /* Giảm khoảng cách trên link */
-  font-size: 0.9em;
-  color: #777;
-}
-
-.login-link a {
-  color: #5a8dee;
-  text-decoration: none;
-  font-weight: bold;
-  transition: color 0.2s ease;
-}
-
-.login-link a:hover {
-  color: #4a7ddb;
-  text-decoration: underline;
-}
-
-.login-software-info {
-  margin-top: 15px; /* Giảm khoảng cách trên thông tin phần mềm */
-  font-size: 0.7em;
-  color: #999;
-  line-height: 1.6;
+  background-color: #0056b3;
+  transform: translateY(-2px); /* Hiệu ứng nhấc nút bấm lên */
 }
 
 .login-error-message {
-  color: #e74c3c;
-  background-color: transparent;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 12px; /* Giảm khoảng cách dưới thông báo lỗi */
-  text-align: center;
-  font-weight: 500;
+  color: #d93025;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .login-container {
-    padding: 20px 20px; /* Giảm thêm padding trên mobile */
-    margin: 10px;
-  }
-
-  .login-title {
-    font-size: 1.8em;
-  }
-
-  .login-button {
-    font-size: 1.05em;
-    padding: 10px;
-  }
+.login-software-info {
+  margin-top: 2rem;
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.4;
 }
