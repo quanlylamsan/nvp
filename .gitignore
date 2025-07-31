@@ -1,0 +1,55 @@
+# Dependencies for the frontend project
+/frontend/node_modules/
+/frontend/.pnp/
+/frontend/.pnp-debug.log
+
+# Build output for the frontend project
+/frontend/build/
+/frontend/dist/
+/frontend/out/
+
+# Environment variables for frontend
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Runtime data (general or specific to root if any)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files (general)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files (general)
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.log
+*.log.*
+*.stackdump
+
+# Project specific (general or root level)
+*.env.*.local
+.eslintcache
+.babelcache
+.cache
+*.tgz
+.npm
+
+# Optional: if you commit package-lock.json or yarn.lock, remove these lines
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# If you use React Native (if applicable)
+/ios/build
+/android/app/build
+/android/.gradle

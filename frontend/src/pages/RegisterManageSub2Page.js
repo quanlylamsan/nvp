@@ -246,7 +246,7 @@ function BreedingFarmListPage() {
 
   return (
     <div className="farm-list-container">
-      <h2>📋 Danh sách Cơ sở</h2>
+      <h2>📋 Danh sách Cơ sở gây nuôi</h2>
 
       <div className="filter-container">
         <input
@@ -257,7 +257,7 @@ function BreedingFarmListPage() {
         />
 
         <select value={selectedLoaiCoSoDangKy} onChange={e => setSelectedLoaiCoSoDangKy(e.target.value)}>
-          <option value="">Tất cả Loại Cơ sở</option>
+          <option value="">Đăng ký cơ sở gây nuôi</option>
           {uniqueLoaiCoSoDangKy.map(type => (<option key={type} value={type}>{type}</option>))}
         </select>
 
@@ -271,23 +271,7 @@ function BreedingFarmListPage() {
           {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
         </select>
         
-        <select
-          value={selectedLoaiHinhCheBienGo} // ✅ SỬ DỤNG state này
-          onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}
-        >
-          <option value="">Tất cả Loại hình chế biến</option>
-          {uniqueLoaiHinhCheBienGo.map(l => (<option key={l} value={l}>{l}</option>))}
-        </select>
-
-        <select
-          value={selectedNguonGocGo} // ✅ SỬ DỤNG state này
-          onChange={e => setSelectedNguonGocGo(e.target.value)}
-        >
-          <option value="">Tất cả Nguồn gốc gỗ</option>
-          {uniqueNguonGocGo.map(n => (<option key={n} value={n}>{n}</option>))}
-        </select>
-
-
+              
         <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
           {showColumnOptions ? 'Ẩn tùy chọn' : 'Hiện/Ẩn Cột'}
         </button>

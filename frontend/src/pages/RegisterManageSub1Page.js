@@ -14,7 +14,7 @@ function RegisterManageSub1Page() {
   const [selectedProvince, setSelectedProvince] = useState('');
   const [selectedCommune, setSelectedCommune] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState('');
-  const [selectedLoaiCoSoDangKy] = useState('Đăng ký cơ sở kinh doanh, chế biến gỗ'); // Chỉ định đây là cơ sở gỗ
+const [selectedLoaiCoSoDangKy, setSelectedLoaiCoSoDangKy] = useState('Đăng ký cơ sở kinh doanh, chế biến gỗ'); // Chỉ định đây là cơ sở gỗ
   const [selectedNganhNgheKinhDoanhGo, setSelectedNganhNgheKinhDoanhGo] = useState('');
   const [selectedTrangThai, setSelectedTrangThai] = useState('');
   // ✅ THÊM KHAI BÁO STATE NÀY
@@ -247,7 +247,7 @@ function RegisterManageSub1Page() {
 
   return (
     <div className="farm-list-container">
-      <h2>📋 Danh sách cơ sở kinh doanh, chế biến gỗ</h2>
+      <h2>📋 Danh sách Cơ sở kinh doanh, chế biến gỗ</h2>
 
       <div className="filter-container">
         <input
@@ -258,9 +258,7 @@ function RegisterManageSub1Page() {
         />
 
         <select value={selectedLoaiCoSoDangKy} onChange={e => setSelectedLoaiCoSoDangKy(e.target.value)}>
-          <option value="">Tất cả Loại Cơ sở</option>
-          {/* Unique values for loaiCoSoDangKy are hardcoded here, consider generating them */}
-          <option value="Đăng ký cơ sở gây nuôi">Đăng ký cơ sở gây nuôi</option>
+            
           <option value="Đăng ký cơ sở kinh doanh, chế biến gỗ">Đăng ký cơ sở kinh doanh, chế biến gỗ</option>
         </select>
 
@@ -270,7 +268,12 @@ function RegisterManageSub1Page() {
         </select>
         
         <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
-          <option value="">Tất cả Trạng thái</option>
+			 <option value="" disabled>Chọn trạng thái hoạt động</option>
+    <option value="all">Tất cả Trạng thái</option> {/* 👉 SỬA Ở ĐÂY */}
+    <option value="Đang hoạt động">Đang hoạt động</option>
+    <option value="Tạm ngưng">Tạm ngưng</option>
+    <option value="Đã đóng cửa">Đã đóng cửa</option>
+    {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
           {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
         </select>
         
@@ -279,8 +282,11 @@ function RegisterManageSub1Page() {
           onChange={e => setSelectedLoaiHinhCheBienGo(e.target.value)}
         >
           <option value="">Tất cả Loại hình chế biến</option>
+		  
           {uniqueLoaiHinhCheBienGo.map(l => (<option key={l} value={l}>{l}</option>))}
         </select>
+		
+		
 
         <select
           value={selectedNguonGocGo}
@@ -297,12 +303,7 @@ function RegisterManageSub1Page() {
           {uniqueNganhNgheKinhDoanhGo.map(n => (<option key={n} value={n}>{n}</option>))}
         </select>
 
-        <select
-          value={selectedSpecies}
-          onChange={e => setSelectedSpecies(e.target.value)}>
-          <option value="">Tất cả Loài nuôi</option>
-          {uniqueSpecies.map(s => (<option key={s} value={s}>{s}</option>))}
-        </select>
+        
         {/* ======================================= */}
 		
         <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
