@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-
+import AddBreedingProductModal from '../components/AddBreedingProductModal';
 import './RegisterManageSub2Page.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
@@ -23,7 +23,7 @@ const initialColumnsConfig = {
     giayPhepKinhDoanh: { id: 'giayPhepKinhDoanh', label: 'Số GPKD', visible: false, minWidth: '100px' },
 };
 
-function BreedingFarmListPage() {
+function RegisterManageSub2Page() {
     // === PHẦN KHAI BÁO STATE ===
     const [allFarms, setAllFarms] = useState([]); // State lưu trữ TOÀN BỘ danh sách từ API
     const [loading, setLoading] = useState(true);
@@ -38,7 +38,21 @@ function BreedingFarmListPage() {
     // States cho các giá trị duy nhất trong bộ lọc
     const [uniqueProvinces, setUniqueProvinces] = useState([]);
     const [uniqueTrangThai, setUniqueTrangThai] = useState([]);
+	
+	// Dạng Hộp thoại để nhập thêm lâm sản
+	const [isBreedingModalOpen, setIsBreedingModalOpen] = useState(false);
+const [selectedFarmId, setSelectedFarmId] = useState(null);
 
+const openBreedingModal = (farmId) => {
+  setSelectedFarmId(farmId);
+  setIsBreedingModalOpen(true);
+};
+
+const closeBreedingModal = () => {
+  setSelectedFarmId(null);
+  setIsBreedingModalOpen(false);
+};
+	
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
@@ -203,7 +217,7 @@ function BreedingFarmListPage() {
 
     return (
         <div className="farm-list-container">
-            <h2>📋 Danh sách Cơ sở gây nuôi động vật</h2>
+            <h2>📋 DANH SÁCH CÁC CƠ SỞ GÂY NUÔI ĐỘNG VẬT 📋</h2>
             <div className="filter-container">
                 <input
                     type="text"
@@ -282,14 +296,10 @@ function BreedingFarmListPage() {
   						          title="Xoá"
   						        >🗑️</button> // Tạm ẩn
  						       )}
-
- 						       <button
- 						         onClick={() => handleAddProduct(item._id)}
- 						         className="action-button add-product-button"
- 						         title="Thêm Lâm sản mới"
-						        >
-						          ➕🌲
- 						       </button>
+							   
+								<button onClick={() => openBreedingModal(item._id)} className="action-button add-product-button" title="Thêm Lâm sản mới">➕🦌</button>
+                                          
+ 						      
  						     </div>
 						    ) : col.id === 'products' ? (
  						     item.products?.map(p => p.tenLamSan).join(', ') || 'Chưa có'
@@ -322,23 +332,36 @@ function BreedingFarmListPage() {
                             ))}
                             <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
                         </div>
-                        <div className="items-per-page">
-                            <select value={itemsPerPage} onChange={(e) => {
-                                setItemsPerPage(Number(e.target.value));
-                                setCurrentPage(1);
-                            }}>
-                                <option value="5">5 bản ghi/trang</option>
-                                <option value="10">10 bản ghi/trang</option>
-                                <option value="15">15 bản ghi/trang</option>
-                                <option value="20">20 bản ghi/trang</option>
-                                <option value="50">50 bản ghi/trang</option>
-                            </select>
+                      <div className="items-per-page">
+  <select
+    value={itemsPerPage}
+    onChange={(e) => {
+      setItemsPerPage(Number(e.target.value));
+      setCurrentPage(1);
+    }}
+  >
+    <option value="5">5 bản ghi/trang</option>
+    <option value="10">10 bản ghi/trang</option>
+    <option value="15">15 bản ghi/trang</option>
+    <option value="20">20 bản ghi/trang</option>
+    <option value="50">50 bản ghi/trang</option>
+ </select>
                         </div>
                     </div>
                 </>
             )}
-        </div>
+
+            {/* Modal nằm ở đây */}
+            <AddBreedingProductModal
+                isOpen={isBreedingModalOpen}
+                onRequestClose={() => setIsBreedingModalOpen(false)}
+                farmId={selectedFarmId}
+                onProductAdded={() => {
+                    setIsBreedingModalOpen(false);
+                }}
+            />
+        </div>  
     );
 }
 
-export default BreedingFarmListPage;
+export default RegisterManageSub2Page;

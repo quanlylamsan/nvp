@@ -1,18 +1,16 @@
-import React, { useContext, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
+import React from 'react';
+import { Navigate, NavLink } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { AuthContext } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // 1. Dùng hook bạn đã tạo
 import logoKiemLam from '../assets/images/logo_kiemlam.png';
 import bannerImage from '../assets/images/banner.jpg';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSignOutAlt, faEdit, faInfoCircle, faBars } from '@fortawesome/free-solid-svg-icons';
-import { NavLink } from 'react-router-dom';
 import '../Dashboard.css';
 
+// 2. Loại bỏ các props không cần thiết (token, role, handleLogout)
 const ProtectedLayout = ({
   children,
-  role,
-  token,
   isSidebarOpen,
   toggleSidebar,
   sidebarRef,
@@ -20,13 +18,35 @@ const ProtectedLayout = ({
   setShowUserProfileMenu,
   userMenuRef,
   hamburgerButtonRef,
-  handleLogout,
 }) => {
-  if (!token) return <Navigate to="/" replace />;
+  // 3. Lấy state và hàm cập nhật từ context
+  const { auth, setAuthStatus } = useAuth();
+
+  // 4. Tạo hàm logout ngay tại đây
+  const handleLogout = () => {
+    // Gọi hàm setAuthStatus từ context để xóa thông tin đăng nhập
+    setAuthStatus({
+      isLoggedIn: false,
+      user: null,
+      role: null,
+      token: null,
+    });
+  };
+
+  // 5. Kiểm tra trạng thái đăng nhập từ `auth` object
+  if (!auth.isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Trường hợp dữ liệu user chưa tải xong
+  if (!auth.user) {
+    return <div>Đang tải...</div>;
+  }
 
   return (
     <>
-      <Sidebar userRole={role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarRef={sidebarRef} />
+      {/* 6. Sử dụng dữ liệu trực tiếp từ `auth` object */}
+      <Sidebar userRole={auth.role} isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} sidebarRef={sidebarRef} />
 
       <div className="main-layout-content logged-in">
         <div className="main-header-banner" style={{ '--banner-image-url': `url(${bannerImage})` }}>
@@ -34,7 +54,6 @@ const ProtectedLayout = ({
             <button className="hamburger-menu-button" onClick={toggleSidebar} ref={hamburgerButtonRef}>
               <FontAwesomeIcon icon={faBars} />
             </button>
-
             <img src={logoKiemLam} alt="Logo Chi cục Kiểm Lâm" className="header-logo" />
             <div className="header-text">
               <h1>CHI CỤC KIỂM LÂM TỈNH ĐỒNG THÁP</h1>
@@ -49,8 +68,9 @@ const ProtectedLayout = ({
                 <FontAwesomeIcon icon={faUser} />
               </div>
               <div className="user-info-text-banner">
-                <span className="user-name-banner">User</span>
-                <span className="user-role-banner">{role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
+                {/* HIỂN THỊ TÊN VÀ VAI TRÒ TỪ `auth` OBJECT */}
+                <span className="user-name-banner">{auth.user.name}</span>
+                <span className="user-role-banner">{auth.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
               </div>
             </div>
 
@@ -62,13 +82,13 @@ const ProtectedLayout = ({
                 <FontAwesomeIcon icon={faEdit} /> Chỉnh sửa hồ sơ
               </NavLink>
               <div className="dropdown-divider"></div>
-              <NavLink to="/logout" onClick={handleLogout} className="dropdown-item logout-item">
+              {/* Nút Đăng xuất giờ sẽ gọi hàm `handleLogout` đã định nghĩa ở trên */}
+              <NavLink to="/" onClick={handleLogout} className="dropdown-item logout-item">
                 <FontAwesomeIcon icon={faSignOutAlt} /> Đăng xuất
               </NavLink>
             </div>
           </div>
         </div>
-
         <div className="route-content-wrapper">{children}</div>
       </div>
     </>

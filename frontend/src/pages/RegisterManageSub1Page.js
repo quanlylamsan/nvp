@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-
+import AddProductModal from '../components/AddProductModal'; 
 import './RegisterManageSub1Page.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
@@ -41,7 +41,12 @@ function RegisterManageSub1Page() {
     const [uniqueNguonGocGo, setUniqueNguonGocGo] = useState([]);
     const [uniqueNganhNgheKinhDoanhGo, setUniqueNganhNgheKinhDoanhGo] = useState([]);
 
-    const navigate = useNavigate();
+    // Dạng Hộp thoại để nhập thêm lâm sản
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedFarmId, setSelectedFarmId] = useState(null);
+	
+    
+	const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
     // States cho bảng và phân trang
@@ -49,6 +54,18 @@ function RegisterManageSub1Page() {
     const [showColumnOptions, setShowColumnOptions] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
+	
+	const nextPage = () => {
+    if (currentPage < totalPages) {
+        setCurrentPage(currentPage + 1);
+    }
+};
+
+const prevPage = () => {
+    if (currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+    }
+};
 
     // === PHẦN QUẢN LÝ CỘT (Lưu và tải từ localStorage) ===
     useEffect(() => {
@@ -122,6 +139,47 @@ function RegisterManageSub1Page() {
         fetchAllWoodBusinesses();
     }, [token, navigate]);
 
+// === SỬA LỖI: TÁCH HÀM FETCH DATA ĐỂ CÓ THỂ GỌI LẠI ===
+    const fetchAllWoodBusinesses = useCallback(async () => {
+        if (!token) {
+            navigate('/');
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/farms`, {
+                headers: { Authorization: `Bearer ${token}` },
+                params: {
+                    farmType: 'Đăng ký cơ sở kinh doanh, chế biến gỗ',
+                    limit: 2000
+                }
+            });
+            const fetchedData = response.data || [];
+            if (Array.isArray(fetchedData)) {
+                setAllWoods(fetchedData);
+                // Lấy giá trị duy nhất cho bộ lọc
+                setUniqueProvinces([...new Set(fetchedData.map(f => f.tinhThanhPho).filter(Boolean))].sort());
+                // ... set các unique filter khác ...
+            } else {
+                setError("Định dạng dữ liệu từ server không đúng.");
+                setAllWoods([]);
+            }
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách cơ sở:", err);
+            setError('Không thể tải danh sách cơ sở. Vui lòng thử lại.');
+            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+                navigate('/');
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [token, navigate]); // Thêm dependencies cho useCallback
+
+    // Tải dữ liệu lần đầu khi component được mount
+    useEffect(() => {
+        fetchAllWoodBusinesses();
+    }, [fetchAllWoodBusinesses]);
 
     // === PHẦN LỌC DỮ LIỆU (Tối ưu: Lọc ở client-side) ===
     const filteredWoods = useMemo(() => {
@@ -158,7 +216,7 @@ function RegisterManageSub1Page() {
 
     const handleEdit = (id) => navigate(`/edit-wood/${id}`);
     const handleNavigateToWoodDetail = (id) => navigate(`/admin/woods/${id}`);
-    const handleAddProduct = (farmId) => navigate(`/farm/${farmId}/add-product`);
+    const handleNavigateToAddWoodProduct = (farmId) => navigate(`/wood/${farmId}/add-product`);
 
     const currentItems = filteredWoods.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const totalPages = Math.ceil(filteredWoods.length / itemsPerPage);
@@ -167,10 +225,26 @@ function RegisterManageSub1Page() {
     const handleColumnToggle = (columnKey) => {
         setColumns(prev => ({ ...prev, [columnKey]: { ...prev[columnKey], visible: !prev[columnKey].visible } }));
     };
+     const openAddProductModal = (farmId) => {
+        setSelectedFarmId(farmId);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedFarmId(null);
+    };
+
+    // Hàm này sẽ được gọi sau khi thêm sản phẩm thành công để làm mới danh sách
+    const handleProductAdded = () => {
+        // Bây giờ có thể gọi lại hàm fetch data một cách an toàn
+        fetchAllWoodBusinesses();
+    };
     
     const handleExportExcel = () => {
         // ... (Giữ nguyên logic xuất Excel của bạn, đảm bảo nó dùng `filteredWoods`)
     };
+
 
     // === PHẦN HIỂN THỊ (RENDER) ===
     if (loading) return <div className="farm-list-container"><h2>Đang tải danh sách cơ sở...</h2></div>;
@@ -178,7 +252,7 @@ function RegisterManageSub1Page() {
 
     return (
         <div className="farm-list-container">
-            <h2>📋 Danh sách Cơ sở kinh doanh, chế biến gỗ</h2>
+            <h2>📋 DANH SÁCH CƠ SỞ KINH DOANH, CHẾ BIẾN GỖ 📋</h2>
 
             {/* Phần bộ lọc */}
             <div className="filter-container">
@@ -231,11 +305,11 @@ function RegisterManageSub1Page() {
                                         <td key={col.id}>
                                             {col.id === 'actions' ? (
                                                 <div className="action-buttons-cell">
-                                                    <button onClick={() => handleNavigateToWoodDetail(item._id)} className="action-button view-button">Nhập, xuất</button>
+                                                    <button onClick={() => handleNavigateToWoodDetail(item._id)} className="action-button view-button">👁️</button>
                                                     <button onClick={() => handleEdit(item._id)} className="action-button edit-button">✏️</button>
                                                 {false && (<button onClick={() => handleDelete(item._id)} className="action-button delete-button">🗑️</button> //Tạm ẩn
 )}
-                                                    <button onClick={() => handleAddProduct(item._id)} className="action-button add-product-button" title="Thêm Lâm sản mới">➕🌲</button>
+                                                 <button onClick={() => openAddProductModal(item._id)} className="action-button add-product-button" title="Thêm Lâm sản mới">➕🪵</button>
                                                 </div>
                                             ) : col.id === 'products' ? (
                                                 item.products?.map(p => p.tenLamSan).join(', ') || 'Chưa có'
@@ -248,13 +322,46 @@ function RegisterManageSub1Page() {
                             ))}
                         </tbody>
                     </table>
-                    
-                    {/* Phần phân trang */}
                     <div className="pagination-container">
-                        {/* ... Code phân trang của bạn ... */}
+                        <div className="pagination-info">
+                            {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredWoods.length)} / {filteredWoods.length} bản ghi
+                        </div>
+                        <div className="pagination-controls">
+                            <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <button
+                                    key={i + 1}
+                                    onClick={() => paginate(i + 1)}
+                                    className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
+                        </div>
+                        <div className="items-per-page">
+                            <select value={itemsPerPage} onChange={(e) => {
+                                setItemsPerPage(Number(e.target.value));
+                                setCurrentPage(1);
+                            }}>
+                                <option value="5">5 bản ghi/trang</option>
+                                <option value="10">10 bản ghi/trang</option>
+                                <option value="15">15 bản ghi/trang</option>
+                                <option value="20">20 bản ghi/trang</option>
+                                <option value="50">50 bản ghi/trang</option>
+                            </select>
+                        </div>
                     </div>
                 </>
             )}
+
+            {/* Modal được đặt ở đây là hợp lý nhất */}
+            <AddProductModal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                farmId={selectedFarmId}
+                onProductAdded={handleProductAdded}
+            />
         </div>
     );
 }

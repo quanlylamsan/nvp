@@ -66,9 +66,8 @@ function MasterProductListPage() {
 
     return (
         <div className="master-list-container">
-            <h1>Bảng tổng hợp Lâm sản và Cơ sở</h1>
-
-            <div className="filters-panel">
+            <h1>📋 BẢNG TỔNG HỢP CƠ SỞ VÀ LÂM SẢN 📋</h1>
+			<div className="filters-panel">
                 <input type="text" name="tenCoSo" placeholder="Lọc theo tên cơ sở..." onChange={handleFilterChange} value={filters.tenCoSo} />
                 <input type="text" name="tinhThanhPho" placeholder="Lọc theo tỉnh (TP)..." onChange={handleFilterChange} value={filters.tinhThanhPho} />
                 <input type="text" name="tenLamSan" placeholder="Lọc theo tên lâm sản..." onChange={handleFilterChange} value={filters.tenLamSan} />

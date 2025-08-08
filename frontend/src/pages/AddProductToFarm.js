@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './KhaiBaoCoSo.css'; // Tái sử dụng CSS từ form khai báo để giao diện nhất quán
+import './AddProductTo.css'; // Tái sử dụng CSS từ form khai báo để giao diện nhất quán
 
 // ✅ THÊM DÒNG NÀY: Lấy URL API từ biến môi trường
 // Nếu biến môi trường không tồn tại (ví dụ: trong môi trường phát triển cục bộ),
@@ -100,7 +100,7 @@ function AddProductToFarm() {
 
   return (
     <div className="khai-bao-container">
-      <h2>Thêm Lâm sản mới cho Cơ sở</h2>
+      <h2>🦌 KHAI BÁO THÊM LÂM SẢN CHO CƠ SỞ GÂY NUÔI 🦌</h2>
 
       {message.type && (
         <div className={`message ${message.type}`}>

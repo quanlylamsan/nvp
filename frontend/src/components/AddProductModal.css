@@ -1,0 +1,111 @@
+/* --- 1. Import Font & Thiết lập Biến CSS --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --font-family: 'Inter', sans-serif;
+    --text-color: #212529; /* Màu chữ chính (off-black) */
+    --label-color: #495057; /* Màu của label */
+    --border-color: #ced4da; /* Màu viền mặc định */
+    --border-focus-color: #86b7fe; /* Viền xanh khi focus */
+    --brand-color: #007bff;
+    --error-color: #d32f2f; /* Màu đỏ dịu hơn */
+    --background-color: #ffffff;
+}
+
+/* --- 2. Layout của Modal (Không thay đổi nhiều) --- */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal {
+    max-height: 90vh; /* Giới hạn chiều cao tối đa là 90% chiều cao màn hình */
+    overflow-y: auto;   /* Tự động thêm thanh trượt khi nội dung dài hơn */
+    max-width: 480px; 
+    
+    /* Bo tròn hơn */
+    border-radius: 20px; 
+
+    /* Các thuộc tính khác giữ nguyên */
+    background: var(--background-color);
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    position: relative;
+    outline: none;
+    animation: slideIn 0.3s ease-out;
+    font-family: var(--font-family);
+}
+
+/* ... */
+
+.form-group input,
+.form-group select {
+    /* Bo tròn hơn */
+    border-radius: 12px;
+
+    /* Các thuộc tính khác giữ nguyên */
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-family: var(--font-family);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+/* ... */
+
+.button-cancel,
+.button-save {
+    /* Bo tròn hơn */
+    border-radius: 12px; 
+
+    /* Các thuộc tính khác giữ nguyên */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.form-actions-modern {
+    display: flex;
+    justify-content: flex-end;
+    
+    /* THAY ĐỔI Ở ĐÂY: Tăng khoảng cách từ 0.75rem lên 1rem (16px) */
+    gap: 17rem; 
+
+    padding-top: 1.0rem;
+    margin-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+.error-message {
+    color: var(--error-color);
+    font-size: 0.875rem;
+
+    /* SỬA Ở ĐÂY: Tăng khoảng cách với ô input bên trên */
+    margin-top: 5px;
+
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.readonly-field {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+}

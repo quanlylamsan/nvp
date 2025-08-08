@@ -1,0 +1,20 @@
+/* Trong file App.css hoặc index.css */
+
+.custom-select {
+    /* Xóa giao diện mặc định */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Thêm icon mới */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    
+    /* Bạn có thể thêm các style chung khác ở đây nếu muốn */
+    /* ví dụ: padding, border, border-radius */
+    padding: 0.8rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+}

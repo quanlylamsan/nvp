@@ -10,7 +10,16 @@
   /* Quan trọng: Cho phép thanh cuộn ngang nếu nội dung tràn ra ngoài */
   overflow-x: auto; 
 }
-
+/* === CẬP NHẬT Ở ĐÂY === */
+/* Kiểu dáng cho tiêu đề h2 */
+.farm-list-container h2 {
+  color: #333; /* Màu chữ đậm */
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+  text-align: center; /* ✅ Canh giữa */
+  font-weight: bold;  /* ✅ In đậm */
+  font-size: 1.8rem;  /* Tăng kích thước cho nổi bật */
+}
+/* ======================== */
 
 /* Kiểu dáng cho container chứa các bộ lọc */
 .filter-container {

@@ -1,107 +1,35 @@
-.form-page-container {
-  max-width: 100%;
-  margin-top: 0px; /* Khoảng cách trên tiêu đề */
-  margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
-  margin: 10px auto;
-  padding: 10px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  font-family: 'Inter', sans-serif;
-}
-/* === CẬP NHẬT Ở ĐÂY === */
-/* Kiểu dáng cho tiêu đề 1 */
-.form-page-container h1 {
-  margin-top: 0px; /* Khoảng cách trên tiêu đề */	
+.khai-bao-container {
   max-width: 100%;
   color: #333; /* Màu chữ đậm */
-  margin-top: 0px; /* Khoảng cách dưới tiêu đề */
-  margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
+  margin-top: 0px; /* Khoảng cách trên tiêu đề */
+  margin-bottom: 30px; /* Khoảng cách dưới tiêu đề */
   text-align: center; /* ✅ Canh giữa */
   font-weight: bold;  /* ✅ In đậm */
   font-size: 1.8rem;  /* Tăng kích thước cho nổi bật */
 }
-/* --- Vùng chứa chính cho nhóm vị trí --- */
+/* === CẬP NHẬT Ở ĐÂY === */
+/* Kiểu dáng cho tiêu đề 1 */ 
+.khai-bao-section read-only-section {
+  max-width: 100%;
+  display: grid;
+  color: #333; /* Màu chữ đậm */
+  margin-top: 550px; /* Khoảng cách dưới tiêu đề */
+  margin-bottom: 555px; /* Khoảng cách dưới tiêu đề */
+  text-align: center; /* ✅ Canh giữa */
+  font-weight: bold;  /* ✅ In đậm */
+  font-size: 1.8rem;  /* Tăng kích thước cho nổi bật */
+}
+.grid-khai-bao-form {
+  display: grid; /* Kích hoạt layout dạng lưới */
+  grid-template-columns: 1fr 1fr; /* Chia thành 2 cột với độ rộng bằng nhau */
+  gap: 1rem 2rem; /* Tạo khoảng cách giữa các ô (1rem cho hàng, 2rem cho cột) */
+  align-items: center; /* Căn chỉnh các mục bên trong cho thẳng hàng */
+}
 
-.form-group.button-container {
-  flex-basis: 100%; /* Luôn chiếm toàn bộ chiều rộng */
-  flex-direction: row; /* Sắp xếp các nút theo chiều ngang */
-  gap: 35px; /* Khoảng cách giữa các nút */
-  margin-top: 5px;
-}
-.grid-form-fields-CSo{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  grid-template-columns: 1.5fr 1.5fr 1.2fr 1.2fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
-}
-.grid-form-fields-Chu{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  
-  grid-template-columns: 1.5fr 1.5fr 1.2fr 1.2fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
- 
-}
-.grid-form-fields-DVat{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  grid-template-columns: 1.5fr 1.5fr 1.2fr 1.2fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
-}
-.grid-form-fields-Go{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  grid-template-columns: 1.5fr 1.5fr 1.5fr 1fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
-}
-.grid-form-fields-GPhep{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  grid-template-columns: 1.5fr 1.5fr 1.5fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
-}
-.grid-form-fields-GPhep{ /* Vùng Thông tin cơ sở*/
-  display: grid;  /* GIỮ LẠI: Bật chế độ Grid Layout */
-  grid-template-columns: 1.5fr 1.5fr 1.5fr; /* GIỮ LẠI: Chia cột theo tỉ lệ */
-  gap: 15px;
-  background-color: #f8f9fa;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 5px;
- }  
-/* --- Kiểu cho các OPTION trong danh sách --- */
-/* Đảm bảo các lựa chọn khác có màu chữ bình thường */
-select option {
-  color: #212529;      /* Màu chữ đen bình thường */
-  font-style: normal;
+/* Đảm bảo tiêu đề và các nút bấm chiếm trọn chiều rộng của 2 cột */
+.grid-khai-bao-form > h3,
+.grid-khai-bao-form > .form-actions {
+  grid-column: 1 / -1; /* Trải dài từ cột 1 đến hết */
 }
 
 .khai-bao-section { /*Tiêu đề các Mục 1,2,3,4*/
@@ -528,47 +456,28 @@ z-index: 1000; / Đảm bảo hiển thị trên các phần tử khác */
     transform: scale(1);
   }
 } /* Kết thúc Vùng Thông báo xác nhận*/
-/* Trong file KhaiBaoCoSo.css */
 
-.option-button {
-  padding: 10px 20px;
-  margin: 8px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-block;
-  background-color: #f9f9f9;
-}
-
-.option-button.selected {
-  border-color: #007bff;
-  background-color: #e6f0ff;
-}
-
-.warning-message {
-  margin-top: 10px;
-  color: red;
-}
-
-.custom-alert-warning {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 6px;
+/* CSS cho lớp nền mờ phía sau */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.custom-alert-icon {
-  margin-right: 10px;
-  font-size: 20px;
-}
-
-.custom-alert-close {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
+/* CSS cho hộp thoại modal */
+.modal {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 8px;
+  min-width: 450px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 1001;
 }

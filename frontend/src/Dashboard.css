@@ -583,17 +583,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Content page containers */
-.dashboard-body,
-.form-page-container,
-.manager-container {
-  padding: 25px 30px;
-  background-color: var(--background-card);
-  margin-bottom: 20px;
-  border-radius: var(--border-radius-base);
-  box-shadow: 0 4px 15px var(--shadow-light);
-  box-sizing: border-box;
-}
+
 
 /* Fixed bottom-left copyright info */
 .app-copyright {
@@ -999,7 +989,7 @@ table td button:last-child {
   }
 
   .dashboard-body,
-  .form-page-container,
+  
   .manager-container {
     padding: 15px 20px;
     margin-bottom: 15px;

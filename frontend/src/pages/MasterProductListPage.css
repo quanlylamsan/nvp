@@ -1,8 +1,345 @@
-.master-list-container { padding: 20px; }
-.filters-panel { display: flex; gap: 15px; margin-bottom: 20px; }
-.filters-panel input, .filters-panel select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-.table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #ddd; }
-.master-table { width: 100%; border-collapse: collapse; min-width: 1800px; /* Bắt buộc có để scroll ngang */}
-.master-table th, .master-table td { padding: 10px; border: 1px solid #ddd; text-align: left; white-space: nowrap; }
-.master-table th { background-color: #f2f2f2; }
-.master-table .highlight-col { font-weight: bold; }
+/* src/pages/RegisterManageSub2Page.css */
+
+/* Container chính cho trang danh sách cơ sở */
+.farm-list-container {
+  padding: 0px; /* Khoảng đệm bên trong container */
+  background-color: #f9f9f9; /* Màu nền nhẹ */
+  border-radius: 8px; /* Bo tròn góc */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+  margin: 20px; /* Khoảng lề xung quanh container */
+  /* Quan trọng: Cho phép thanh cuộn ngang nếu nội dung tràn ra ngoài */
+  overflow-x: auto; 
+}
+
+
+/* === CẬP NHẬT Ở ĐÂY === */
+/* Kiểu dáng cho tiêu đề h1 */
+.master-list-container h1 {
+  color: #333; /* Màu chữ đậm */
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+  text-align: center; /* ✅ Canh giữa */
+  font-weight: bold;  /* ✅ In đậm */
+  font-size: 1.8rem;  /* Tăng kích thước cho nổi bật */
+}
+farm-list-container h2 {
+  color: #333; /* Màu chữ đậm */
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+  text-align: center; /* ✅ Canh giữa */
+  font-weight: bold;  /* ✅ In đậm */
+  font-size: 1.8rem;  /* Tăng kích thước cho nổi bật */
+}
+
+/* Kiểu dáng cho container chứa các bộ lọc */
+.filter-container {
+  display: flex; /* Sử dụng flexbox để các mục nằm trên một hàng */
+  flex-wrap: wrap; /* Cho phép các mục xuống dòng trên màn hình nhỏ hơn */
+  gap: 10px; /* Khoảng cách giữa các mục */
+  margin-bottom: 20px; /* Khoảng cách dưới container */
+  padding: 15px; /* Khoảng đệm bên trong */
+  background-color: #eef4f8; /* Màu nền nhẹ */
+  border-radius: 8px; /* Bo tròn góc */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Đổ bóng bên trong */
+  align-items: center; /* Căn chỉnh các mục theo chiều dọc */
+}
+
+/* Kiểu dáng cho các ô input và select trong bộ lọc */
+.filter-container input[type="text"],
+.filter-container select {
+  padding: 10px 12px; /* Khoảng đệm bên trong */
+  border: 1px solid #ccc; /* Viền màu xám */
+  border-radius: 5px; /* Bo tròn góc */
+  font-size: 1rem; /* Kích thước font */
+  flex-grow: 1; /* Cho phép các input/select mở rộng để lấp đầy không gian */
+  min-width: 150px; /* Chiều rộng tối thiểu để đảm bảo khả năng đáp ứng */
+}
+
+/* Kiểu dáng cho các nút trong bộ lọc */
+.filter-container button {
+  padding: 10px 15px; /* Khoảng đệm bên trong nút */
+  background-color: #007bff; /* Màu nền xanh dương */
+  color: white; /* Màu chữ trắng */
+  border: none; /* Không có viền */
+  border-radius: 5px; /* Bo tròn góc */
+  cursor: pointer; /* Con trỏ dạng bàn tay */
+  font-size: 1rem; /* Kích thước font */
+  transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền */
+  white-space: nowrap; /* Ngăn văn bản trong nút xuống dòng */
+}
+
+/* Hiệu ứng khi di chuột qua nút bộ lọc */
+.filter-container button:hover {
+  background-color: #0056b3; /* Màu nền xanh đậm hơn khi hover */
+}
+
+/* Kiểu dáng cho container tùy chọn cột (ẩn/hiện cột) */
+.column-options-container {
+  background-color: #f0f8ff; /* Màu nền xanh nhạt */
+  border: 1px solid #cce0ff; /* Viền màu xanh nhạt */
+  border-radius: 8px; /* Bo tròn góc */
+  padding: 15px; /* Khoảng đệm bên trong */
+  margin-bottom: 20px; /* Khoảng cách dưới container */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ */
+}
+
+/* Kiểu dáng cho tiêu đề h3 trong tùy chọn cột */
+.column-options-container h3 {
+  margin-top: 0; /* Loại bỏ lề trên */
+  color: #0056b3; /* Màu chữ xanh đậm */
+  font-size: 1.1rem; /* Kích thước font */
+  margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
+}
+
+/* Lưới hiển thị các tùy chọn cột (checkboxes) */
+.column-options-grid {
+  display: grid; /* Sử dụng grid để sắp xếp các checkbox */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Grid đáp ứng, mỗi cột tối thiểu 180px */
+  gap: 10px; /* Khoảng cách giữa các mục grid */
+  margin-bottom: 15px; /* Khoảng cách dưới grid */
+}
+
+/* Kiểu dáng cho mỗi nhãn tùy chọn cột (bao gồm checkbox và văn bản) */
+.column-options-grid label {
+  display: flex; /* Sử dụng flexbox để căn chỉnh checkbox và văn bản */
+  align-items: center; /* Căn chỉnh theo chiều dọc */
+  gap: 8px; /* Khoảng cách giữa checkbox và văn bản */
+  font-size: 0.95rem; /* Kích thước font */
+  color: #555; /* Màu chữ xám */
+}
+
+/* Điều chỉnh kích thước của checkbox */
+.column-options-grid input[type="checkbox"] {
+  transform: scale(1.2); /* Phóng to checkbox một chút */
+}
+
+/* Kiểu dáng cho các nút "Chọn tất cả" và "Bỏ chọn tất cả" */
+.column-control-buttons {
+  display: flex; /* Sử dụng flexbox để các nút nằm trên một hàng */
+  gap: 10px; /* Khoảng cách giữa các nút */
+  margin-top: 10px; /* Khoảng cách trên */
+}
+
+.select-all-columns-button {
+  padding: 8px 12px; /* Khoảng đệm bên trong */
+  background-color: #28a745; /* Màu nền xanh lá cây */
+  color: white; /* Màu chữ trắng */
+  border: none; /* Không có viền */
+  border-radius: 5px; /* Bo tròn góc */
+  cursor: pointer; /* Con trỏ dạng bàn tay */
+  font-size: 0.9rem; /* Kích thước font */
+  transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền */
+}
+
+/* Hiệu ứng khi di chuột qua nút chọn/bỏ chọn tất cả */
+.select-all-columns-button:hover {
+  background-color: #218838; /* Màu nền xanh đậm hơn khi hover */
+}
+
+
+/* Kiểu dáng cho bảng */
+.table-auto {
+  border-collapse: collapse; /* Gộp các đường viền của ô */
+  margin-top: 20px; /* Khoảng cách trên bảng */
+  /* Rất quan trọng: Cố định bố cục bảng để kiểm soát chiều rộng cột chính xác */
+  table-layout: fixed; 
+}
+
+/* Kiểu dáng cho tiêu đề bảng (th) và ô dữ liệu (td) */
+.table-auto th,
+.table-auto td {
+  border: 1px solid #ddd; /* Viền cho các ô */
+  padding: 5px; /* Giảm padding để ô gọn hơn */
+  text-align: left; /* Căn lề trái */
+  white-space: nowrap; /* Ngăn văn bản xuống hàng */
+  overflow: hidden;    /* Ẩn phần văn bản tràn ra ngoài */
+  text-overflow: ellipsis; /* Hiển thị dấu ba chấm (...) cho văn bản bị ẩn */
+  font-size: 0.85rem; /* Giảm kích thước font trong ô */
+}
+
+/* Kiểu dáng cho tiêu đề bảng (th) */
+.table-auto th {
+  background-color: #f2f2f2; /* Màu nền xám nhạt */
+  font-weight: bold; /* Chữ in đậm */
+  color: #333; /* Màu chữ đậm */
+  position: sticky; /* Giúp tiêu đề dính khi cuộn */
+  top: 0; /* Dính ở vị trí trên cùng */
+  z-index: 10; /* Đảm bảo tiêu đề nằm trên các nội dung khác khi cuộn */
+}
+
+/* Kiểu dáng cho các hàng chẵn của bảng */
+.table-auto tr:nth-child(even) {
+  background-color: #f8f8f8; /* Màu nền xen kẽ */
+}
+
+/* Hiệu ứng khi di chuột qua hàng bảng */
+.table-auto tr:hover {
+  background-color: #e9e9e9; /* Màu nền khi hover */
+}
+
+/* Lớp để ẩn cột */
+.column-hidden {
+  display: none; /* Ẩn hoàn toàn cột */
+}
+
+/* Kiểu dáng cho ô chứa các nút hành động trong bảng */
+.action-buttons-cell {
+  display: flex; /* Sử dụng flexbox để các nút nằm trên một hàng */
+  gap: 5px; /* Khoảng cách giữa các nút */
+  justify-content: center; /* Căn giữa các nút theo chiều ngang */
+  align-items: center; /* Căn giữa các nút theo chiều dọc */
+}
+
+/* Kiểu dáng chung cho các nút hành động */
+.action-button {
+  padding: 6px 10px; /* Khoảng đệm bên trong */
+  border: none; /* Không có viền */
+  border-radius: 4px; /* Bo tròn góc */
+  cursor: pointer; /* Con trỏ dạng bàn tay */
+  font-size: 0.85rem; /* Kích thước font */
+  transition: background-color 0.3s ease; /* Hiệu ứng chuyển màu nền */
+}
+
+/* Kiểu dáng cụ thể cho nút "Xem" */
+.view-button {
+  background-color: #17a2b8; /* Màu xanh lam */
+  color: white; /* Màu chữ trắng */
+}
+/* Hiệu ứng khi di chuột qua nút "Xem" */
+.view-button:hover {
+  background-color: #138496; /* Màu xanh lam đậm hơn khi hover */
+}
+
+/* Kiểu dáng cho nút "Sửa" */
+.edit-button {
+  background-color: #ffc107; /* Màu vàng */
+  color: #333; /* Màu chữ đậm */
+}
+/* Hiệu ứng khi di chuột qua nút "Sửa" */
+.edit-button:hover {
+  background-color: #e0a800; /* Màu vàng đậm hơn khi hover */
+}
+
+/* Kiểu dáng cho nút "Xóa" */
+.delete-button {
+  background-color: #dc3545; /* Màu đỏ */
+  color: white; /* Màu chữ trắng */
+}
+/* Hiệu ứng khi di chuột qua nút "Xóa" */
+.delete-button:hover {
+  background-color: #c82333; /* Màu đỏ đậm hơn khi hover */
+}
+
+/* Cố định chiều rộng cho cột hành động (cột cuối cùng) */
+.table-auto th:last-child,
+.table-auto td:last-child {
+  width: 175px !important; /* Chiều rộng cố định */
+  min-width: 175px !important; /* Đảm bảo không nhỏ hơn */
+  max-width: 175px !important; /* Đảm bảo không lớn hơn */
+  text-align: center; /* Căn giữa nội dung trong cột hành động */
+}
+
+
+/* Kiểu dáng cho container phân trang */
+.pagination-container {
+  display: flex; /* Sử dụng flexbox */
+  justify-content: space-between; /* Căn chỉnh các mục sang hai bên */
+  align-items: center; /* Căn chỉnh các mục theo chiều dọc */
+  margin-top: 20px; /* Khoảng cách trên */
+  padding: 10px 15px; /* Khoảng đệm bên trong */
+  background-color: #f0f0f0; /* Màu nền xám nhạt */
+  border-radius: 8px; /* Bo tròn góc */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ */
+  flex-wrap: wrap; /* Cho phép các mục xuống dòng trên màn hình nhỏ */
+  gap: 10px; /* Khoảng cách giữa các mục */
+}
+
+/* Kiểu dáng cho thông tin phân trang (ví dụ: "1 - 10 / 100 bản ghi") */
+.pagination-info {
+  font-size: 0.9rem; /* Kích thước font */
+  color: #555; /* Màu chữ xám */
+}
+
+/* Kiểu dáng cho các nút điều khiển phân trang */
+.pagination-controls {
+  display: flex; /* Sử dụng flexbox */
+  gap: 5px; /* Khoảng cách giữa các nút */
+}
+
+/* Kiểu dáng chung cho các nút phân trang */
+.pagination-button {
+  padding: 8px 12px; /* Khoảng đệm bên trong */
+  border: 1px solid #ccc; /* Viền màu xám */
+  border-radius: 5px; /* Bo tròn góc */
+  background-color: #fff; /* Màu nền trắng */
+  cursor: pointer; /* Con trỏ dạng bàn tay */
+  font-size: 0.9rem; /* Kích thước font */
+  transition: background-color 0.2s ease, border-color 0.2s ease; /* Hiệu ứng chuyển màu */
+}
+
+/* Hiệu ứng khi di chuột qua nút phân trang (không bị vô hiệu hóa) */
+.pagination-button:hover:not(:disabled) {
+  background-color: #e9e9e9; /* Màu nền xám nhạt hơn khi hover */
+  border-color: #a0a0a0; /* Màu viền đậm hơn khi hover */
+}
+
+/* Kiểu dáng cho nút phân trang bị vô hiệu hóa */
+.pagination-button:disabled {
+  cursor: not-allowed; /* Con trỏ không cho phép */
+  opacity: 0.6; /* Giảm độ mờ */
+}
+
+/* Kiểu dáng cho nút phân trang đang hoạt động (trang hiện tại) */
+.pagination-button.active {
+  background-color: #007bff; /* Màu nền xanh dương */
+  color: white; /* Màu chữ trắng */
+  border-color: #007bff; /* Màu viền xanh dương */
+}
+
+/* Hiệu ứng khi di chuột qua nút phân trang đang hoạt động */
+.pagination-button.active:hover {
+  background-color: #0056b3; /* Màu nền xanh đậm hơn khi hover */
+  border-color: #0056b3; /* Màu viền xanh đậm hơn khi hover */
+}
+
+/* Kiểu dáng cho dropdown chọn số mục mỗi trang */
+.items-per-page select {
+  padding: 8px 12px; /* Khoảng đệm bên trong */
+  border: 1px solid #ccc; /* Viền màu xám */
+  border-radius: 5px; /* Bo tròn góc */
+  font-size: 0.9rem; /* Kích thước font */
+  background-color: #fff; /* Màu nền trắng */
+  cursor: pointer; /* Con trỏ dạng bàn tay */
+}
+
+/* Điều chỉnh đáp ứng trên màn hình nhỏ hơn 768px */
+@media (max-width: 768px) {
+  /* Bộ lọc chuyển sang bố cục cột */
+  .filter-container {
+    flex-direction: column; /* Sắp xếp các mục theo cột */
+    align-items: stretch; /* Kéo dài các mục để lấp đầy chiều rộng */
+  }
+
+  /* Các input, select, button trong bộ lọc chiếm toàn bộ chiều rộng */
+  .filter-container input[type="text"],
+  .filter-container select,
+  .filter-container button {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    margin-bottom: 5px; /* Khoảng cách dưới */
+  }
+
+  /* Container phân trang chuyển sang bố cục cột */
+  .pagination-container {
+    flex-direction: column; /* Sắp xếp các mục theo cột */
+    align-items: center; /* Căn giữa các mục */
+  }
+
+  /* Nút điều khiển phân trang có lề trên */
+  .pagination-controls {
+    margin-top: 10px; /* Khoảng cách trên */
+    justify-content: center; /* Căn giữa các nút */
+  }
+
+  /* Dropdown số mục mỗi trang có lề trên */
+  .items-per-page {
+    margin-top: 10px; /* Khoảng cách trên */
+  }
+}

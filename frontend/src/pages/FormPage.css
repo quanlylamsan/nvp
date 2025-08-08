@@ -1,6 +1,6 @@
 /* FormPage.css */
 .form-page-container {
-  max-width: 800px;
+  max-width: 100%;
   margin: 20px auto;
   padding: 30px;
   background-color: #fff;
@@ -192,4 +192,17 @@
 .detail-group strong {
     display: block;
     margin-bottom: 1px; /* Giảm khoảng cách giữa strong và p */
+}
+/* --- Vùng chứa chính cho nhóm vị trí --- */
+.location-group {
+  display: flex; /* Sắp xếp các mục theo hàng ngang */
+  flex-wrap: wrap; /* Cho phép tự động xuống dòng nếu không đủ chỗ */
+  gap: 15px; /* Khoảng cách giữa các mục */
+  
+  background-color: #f8f9fa; /* Màu nền xám rất nhạt */
+  padding: 20px;
+  border-radius: 12px; /* Bo tròn các góc */
+  border: 1px solid #e9ecef; /* Đường viền tinh tế */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ */
+  margin-top: 10px;
 }
