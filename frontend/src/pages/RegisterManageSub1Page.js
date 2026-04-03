@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
-import AddProductModal from '../components/AddProductModal'; 
+import AddProductModal from '../components/AddProductModal';
 import './RegisterManageSub1Page.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:10000';
@@ -19,10 +19,13 @@ const initialColumnsConfig = {
     actions: { id: 'actions', label: 'Hành động', visible: true, width: '210px', minWidth: '210px' },
 };
 
-
 function RegisterManageSub1Page() {
     // === PHẦN KHAI BÁO STATE ===
-    const [allWoods, setAllWoods] = useState([]); // State lưu trữ TOÀN BỘ danh sách từ API
+    const [rawFarms, setRawFarms] = useState([]); // State lưu trữ danh sách GỐC từ API
+    // NEW: States để lưu danh sách tra cứu Tỉnh và Xã
+    const [provinces, setProvinces] = useState([]);
+    const [communes, setCommunes] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -33,6 +36,7 @@ function RegisterManageSub1Page() {
     const [selectedLoaiHinhCheBienGo, setSelectedLoaiHinhCheBienGo] = useState('');
     const [selectedNguonGocGo, setSelectedNguonGocGo] = useState('');
     const [selectedNganhNgheKinhDoanhGo, setSelectedNganhNgheKinhDoanhGo] = useState('');
+    const [selectedLoaiCoSoDangKy, setSelectedLoaiCoSoDangKy] = useState('Đăng ký cơ sở kinh doanh, chế biến gỗ');
 
     // States cho các giá trị duy nhất trong bộ lọc
     const [uniqueProvinces, setUniqueProvinces] = useState([]);
@@ -40,13 +44,13 @@ function RegisterManageSub1Page() {
     const [uniqueLoaiHinhCheBienGo, setUniqueLoaiHinhCheBienGo] = useState([]);
     const [uniqueNguonGocGo, setUniqueNguonGocGo] = useState([]);
     const [uniqueNganhNgheKinhDoanhGo, setUniqueNganhNgheKinhDoanhGo] = useState([]);
+    const [uniqueLoaiCoSoDangKy, setUniqueLoaiCoSoDangKy] = useState([]);
 
     // Dạng Hộp thoại để nhập thêm lâm sản
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedFarmId, setSelectedFarmId] = useState(null);
-	
-    
-	const navigate = useNavigate();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedFarmId, setSelectedFarmId] = useState(null);
+
+    const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
     // States cho bảng và phân trang
@@ -54,18 +58,6 @@ function RegisterManageSub1Page() {
     const [showColumnOptions, setShowColumnOptions] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(15);
-	
-	const nextPage = () => {
-    if (currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
-    }
-};
-
-const prevPage = () => {
-    if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-    }
-};
 
     // === PHẦN QUẢN LÝ CỘT (Lưu và tải từ localStorage) ===
     useEffect(() => {
@@ -95,97 +87,93 @@ const prevPage = () => {
         }
     }, [columns]);
 
-
-    // === PHẦN TẢI DỮ LIỆU (Tối ưu: Chỉ gọi API một lần) ===
-    useEffect(() => {
-        const fetchAllWoodBusinesses = async () => {
-            if (!token) {
-                navigate('/');
-                return;
-            }
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await axios.get(`${API_BASE_URL}/api/farms`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    params: { 
-                        farmType: 'Đăng ký cơ sở kinh doanh, chế biến gỗ',
-                        limit: 2000 // Lấy một lượng lớn dữ liệu để xử lý ở client
-                    }
-                });
-                const fetchedData = response.data || [];
-                if (Array.isArray(fetchedData)) {
-                    setAllWoods(fetchedData);
-                    // Tối ưu: Lấy giá trị duy nhất cho bộ lọc từ dữ liệu vừa tải về
-                    setUniqueProvinces([...new Set(fetchedData.map(f => f.tinhThanhPho).filter(Boolean))].sort());
-                    setUniqueTrangThai([...new Set(fetchedData.map(f => f.trangThai).filter(Boolean))].sort());
-                    setUniqueLoaiHinhCheBienGo([...new Set(fetchedData.map(f => f.loaiHinhCheBienGo).filter(Boolean))].sort());
-                    setUniqueNguonGocGo([...new Set(fetchedData.map(f => f.nguonGocGo).filter(Boolean))].sort());
-                    setUniqueNganhNgheKinhDoanhGo([...new Set(fetchedData.map(f => f.nganhNgheKinhDoanhGo).filter(Boolean))].sort());
-                } else {
-                    setError("Định dạng dữ liệu từ server không đúng.");
-                    setAllWoods([]);
-                }
-            } catch (err) {
-                console.error("Lỗi khi lấy danh sách cơ sở:", err);
-                setError('Không thể tải danh sách cơ sở. Vui lòng thử lại.');
-                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                    navigate('/');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAllWoodBusinesses();
-    }, [token, navigate]);
-
-// === SỬA LỖI: TÁCH HÀM FETCH DATA ĐỂ CÓ THỂ GỌI LẠI ===
-    const fetchAllWoodBusinesses = useCallback(async () => {
-        if (!token) {
-            navigate('/');
-            return;
-        }
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get(`${API_BASE_URL}/api/farms`, {
+    // === PHẦN TẢI DỮ LIỆU ===
+    // MODIFIED: Hàm này giờ sẽ tải cả danh sách cơ sở, tỉnh và xã
+const fetchData = useCallback(async () => {
+    if (!token) {
+        navigate('/');
+        return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+        // Sử dụng Promise.all để tải đồng thời 3 nguồn dữ liệu
+        const [farmsResponse, provincesResponse, communesResponse] = await Promise.all([
+            axios.get(`${API_BASE_URL}/api/farms`, {
                 headers: { Authorization: `Bearer ${token}` },
-                params: {
-                    farmType: 'Đăng ký cơ sở kinh doanh, chế biến gỗ',
-                    limit: 2000
-                }
-            });
-            const fetchedData = response.data || [];
-            if (Array.isArray(fetchedData)) {
-                setAllWoods(fetchedData);
-                // Lấy giá trị duy nhất cho bộ lọc
-                setUniqueProvinces([...new Set(fetchedData.map(f => f.tinhThanhPho).filter(Boolean))].sort());
-                // ... set các unique filter khác ...
-            } else {
-                setError("Định dạng dữ liệu từ server không đúng.");
-                setAllWoods([]);
-            }
-        } catch (err) {
-            console.error("Lỗi khi lấy danh sách cơ sở:", err);
-            setError('Không thể tải danh sách cơ sở. Vui lòng thử lại.');
-            if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                navigate('/');
-            }
-        } finally {
-            setLoading(false);
+                params: { farmType: 'Đăng ký cơ sở kinh doanh, chế biến gỗ', limit: 2000 }
+            }),
+
+            // ĐÃ SỬA: Cập nhật đường dẫn để khớp với server.js
+            axios.get(`${API_BASE_URL}/api/master-product-list/provinces`, { headers: { Authorization: `Bearer ${token}` } }),
+            
+            // ĐÃ SỬA: Cập nhật đường dẫn để khớp với server.js
+            axios.get(`${API_BASE_URL}/api/master-product-list/communes`, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        
+        // Phần còn lại của hàm không thay đổi
+        const fetchedFarms = farmsResponse.data || [];
+        const fetchedProvinces = provincesResponse.data || [];
+        const fetchedCommunes = communesResponse.data || [];
+
+        if (Array.isArray(fetchedFarms) && Array.isArray(fetchedProvinces) && Array.isArray(fetchedCommunes)) {
+            setRawFarms(fetchedFarms);
+            setProvinces(fetchedProvinces);
+            setCommunes(fetchedCommunes);
+        } else {
+            setError("Định dạng dữ liệu từ server không đúng.");
         }
-    }, [token, navigate]); // Thêm dependencies cho useCallback
+    } catch (err) {
+        console.error("Lỗi khi tải dữ liệu:", err);
+        setError('Không thể tải dữ liệu. Vui lòng thử lại.');
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+            navigate('/');
+        }
+    } finally {
+        setLoading(false);
+    }
+}, [token, navigate]);
 
-    // Tải dữ liệu lần đầu khi component được mount
     useEffect(() => {
-        fetchAllWoodBusinesses();
-    }, [fetchAllWoodBusinesses]);
+        fetchData();
+    }, [fetchData]);
 
-    // === PHẦN LỌC DỮ LIỆU (Tối ưu: Lọc ở client-side) ===
+    // === NEW: PHẦN LÀM GIÀU DỮ LIỆU (DATA ENRICHMENT) ===
+    // Kết hợp dữ liệu gốc với tên Tỉnh/Xã để hiển thị
+    const enrichedWoods = useMemo(() => {
+        // Tạo map để tra cứu nhanh (hiệu năng tốt hơn)
+        const provinceMap = new Map(provinces.map(p => [p.code, p.name]));
+        const communeMap = new Map(communes.map(c => [c.code, c.name]));
+
+        return rawFarms.map(farm => ({
+            ...farm,
+            // Ghi đè trường tinhThanhPho và xaPhuong bằng tên đầy đủ
+            // Nếu không tìm thấy, sẽ giữ lại mã code cũ để tránh lỗi
+            tinhThanhPho: provinceMap.get(farm.province) || farm.province,
+            xaPhuong: communeMap.get(farm.commune) || farm.commune,
+        }));
+    }, [rawFarms, provinces, communes]);
+
+    // MODIFIED: Cập nhật các bộ lọc để lấy giá trị từ dữ liệu đã được làm giàu
+    useEffect(() => {
+        if(enrichedWoods.length > 0) {
+            setUniqueProvinces([...new Set(enrichedWoods.map(f => f.tinhThanhPho).filter(Boolean))].sort());
+            setUniqueTrangThai([...new Set(enrichedWoods.map(f => f.trangThai).filter(Boolean))].sort());
+            setUniqueLoaiHinhCheBienGo([...new Set(enrichedWoods.map(f => f.loaiHinhCheBienGo).filter(Boolean))].sort());
+            setUniqueNguonGocGo([...new Set(enrichedWoods.map(f => f.nguonGocGo).filter(Boolean))].sort());
+            setUniqueNganhNgheKinhDoanhGo([...new Set(enrichedWoods.map(f => f.nganhNgheKinhDoanhGo).filter(Boolean))].sort());
+            setUniqueLoaiCoSoDangKy([...new Set(enrichedWoods.map(f => f.loaiCoSoDangKy).filter(Boolean))].sort());
+        }
+    }, [enrichedWoods]);
+
+
+    // === PHẦN LỌC DỮ LIỆU ===
+    // MODIFIED: Lọc trên dữ liệu đã được làm giàu `enrichedWoods`
     const filteredWoods = useMemo(() => {
-        return allWoods.filter(f => {
+        return enrichedWoods.filter(f => {
             const searchLower = filter.toLowerCase();
-            const generalMatch = !filter || Object.values(f).some(val => 
+            // Tìm kiếm chung trên cả dữ liệu đã làm giàu
+            const generalMatch = !filter || Object.values(f).some(val =>
                 String(val).toLowerCase().includes(searchLower)
             );
             const provinceMatch = !selectedProvince || f.tinhThanhPho === selectedProvince;
@@ -193,10 +181,11 @@ const prevPage = () => {
             const loaiHinhCheBienGoMatch = !selectedLoaiHinhCheBienGo || f.loaiHinhCheBienGo === selectedLoaiHinhCheBienGo;
             const nguonGocGoMatch = !selectedNguonGocGo || f.nguonGocGo === selectedNguonGocGo;
             const nganhNgheKinhDoanhGoMatch = !selectedNganhNgheKinhDoanhGo || f.nganhNgheKinhDoanhGo === selectedNganhNgheKinhDoanhGo;
+            const loaiCoSoMatch = !selectedLoaiCoSoDangKy || f.loaiCoSoDangKy === selectedLoaiCoSoDangKy;
 
-            return generalMatch && provinceMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch && nganhNgheKinhDoanhGoMatch;
+            return generalMatch && provinceMatch && trangThaiMatch && loaiHinhCheBienGoMatch && nguonGocGoMatch && nganhNgheKinhDoanhGoMatch && loaiCoSoMatch;
         });
-    }, [allWoods, filter, selectedProvince, selectedTrangThai, selectedLoaiHinhCheBienGo, selectedNguonGocGo, selectedNganhNgheKinhDoanhGo]);
+    }, [enrichedWoods, filter, selectedProvince, selectedTrangThai, selectedLoaiHinhCheBienGo, selectedNguonGocGo, selectedNganhNgheKinhDoanhGo, selectedLoaiCoSoDangKy]);
 
 
     // === PHẦN HÀNH ĐỘNG VÀ PHÂN TRANG ===
@@ -206,7 +195,8 @@ const prevPage = () => {
                 await axios.delete(`${API_BASE_URL}/api/farms/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setAllWoods(prev => prev.filter(f => f._id !== id));
+                // MODIFIED: Cập nhật lại state gốc `rawFarms`
+                setRawFarms(prev => prev.filter(f => f._id !== id));
             } catch (error) {
                 console.error('Lỗi khi xóa:', error);
                 alert('Xóa thất bại!');
@@ -216,16 +206,41 @@ const prevPage = () => {
 
     const handleEdit = (id) => navigate(`/edit-wood/${id}`);
     const handleNavigateToWoodDetail = (id) => navigate(`/admin/woods/${id}`);
-    const handleNavigateToAddWoodProduct = (farmId) => navigate(`/wood/${farmId}/add-product`);
-
-    const currentItems = filteredWoods.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    
     const totalPages = Math.ceil(filteredWoods.length / itemsPerPage);
+    const currentItems = useMemo(() => {
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(1);
+        }
+        return filteredWoods.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    }, [filteredWoods, currentPage, itemsPerPage, totalPages]);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const nextPage = () => { if (currentPage < totalPages) setCurrentPage(currentPage + 1); };
+    const prevPage = () => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
+    
     const handleColumnToggle = (columnKey) => {
         setColumns(prev => ({ ...prev, [columnKey]: { ...prev[columnKey], visible: !prev[columnKey].visible } }));
     };
-     const openAddProductModal = (farmId) => {
+
+    const handleSelectAllColumns = () => {
+        const allVisible = Object.keys(columns).reduce((acc, key) => {
+            acc[key] = { ...columns[key], visible: true };
+            return acc;
+        }, {});
+        setColumns(allVisible);
+    };
+
+    const handleDeselectAllColumns = () => {
+        const allHidden = Object.keys(columns).reduce((acc, key) => {
+            const isVisible = key === 'actions';
+            acc[key] = { ...columns[key], visible: isVisible };
+            return acc;
+        }, {});
+        setColumns(allHidden);
+    };
+
+    const openAddProductModal = (farmId) => {
         setSelectedFarmId(farmId);
         setIsModalOpen(true);
     };
@@ -235,25 +250,34 @@ const prevPage = () => {
         setSelectedFarmId(null);
     };
 
-    // Hàm này sẽ được gọi sau khi thêm sản phẩm thành công để làm mới danh sách
     const handleProductAdded = () => {
-        // Bây giờ có thể gọi lại hàm fetch data một cách an toàn
-        fetchAllWoodBusinesses();
-    };
-    
-    const handleExportExcel = () => {
-        // ... (Giữ nguyên logic xuất Excel của bạn, đảm bảo nó dùng `filteredWoods`)
+        fetchData(); // Gọi lại hàm fetch data chính
     };
 
+    const handleExportExcel = () => {
+        const dataToExport = filteredWoods.map(item => ({
+            'Tỉnh (TP)': item.tinhThanhPho, // Đã có tên đầy đủ
+            'Xã (Phường)': item.xaPhuong, // Đã có tên đầy đủ
+            'Địa chỉ cơ sở': item.diaChiCoSo,
+            'Tên cơ sở': item.tenCoSo,
+            'Lâm sản': item.products?.map(p => p.tenLamSan).join(', ') || 'Chưa có',
+            'Người đại diện': item.tenNguoiDaiDien,
+            'Trạng thái': item.trangThai
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachCoSo");
+        XLSX.writeFile(workbook, "DanhSachCoSoGo.xlsx");
+    };
 
     // === PHẦN HIỂN THỊ (RENDER) ===
-    if (loading) return <div className="farm-list-container"><h2>Đang tải danh sách cơ sở...</h2></div>;
+    // Không có thay đổi lớn ở phần render, nó sẽ tự động hiển thị dữ liệu đã được làm giàu
+    if (loading) return <div className="farm-list-container"><h2>Đang tải dữ liệu...</h2></div>;
     if (error) return <div className="farm-list-container"><h2 style={{ color: 'red' }}>Lỗi: {error}</h2></div>;
 
     return (
         <div className="farm-list-container">
-            <h2>📋 DANH SÁCH CƠ SỞ KINH DOANH, CHẾ BIẾN GỖ 📋</h2>
-
+            <h2>Cơ sở kinh doanh, chế biến gỗ🪵</h2>
             {/* Phần bộ lọc */}
             <div className="filter-container">
                 <input
@@ -267,21 +291,33 @@ const prevPage = () => {
                     {uniqueProvinces.map(p => (<option key={p} value={p}>{p}</option>))}
                 </select>
                 <select value={selectedTrangThai} onChange={e => setSelectedTrangThai(e.target.value)}>
-                    <option value="" disabled>Chọn trạng thái</option>
                     <option value="all">Tất cả Trạng thái</option>
                     {uniqueTrangThai.map(s => (<option key={s} value={s}>{s}</option>))}
                 </select>
-                {/* ... Các select filter khác của bạn ... */}
-                <button onClick={() => setShowColumnOptions(!showColumnOptions)} className="toggle-columns-button">
-                    {showColumnOptions ? 'Ẩn tùy chọn' : 'Hiện/Ẩn Cột'}
-                </button>
+                <select value={selectedLoaiCoSoDangKy} onChange={e => setSelectedLoaiCoSoDangKy(e.target.value)}>
+                    <option value="">Đăng ký cơ sở kinh doanh, chế biến gỗ</option>
+                    {uniqueLoaiCoSoDangKy.map(type => (<option key={type} value={type}>{type}</option>))}
+                </select>
+                <button onClick={() => setShowColumnOptions(!showColumnOptions)}>Tùy chỉnh Cột</button>
                 <button onClick={handleExportExcel} className="export-excel-button">Xuất Excel</button>
             </div>
 
             {/* Phần tùy chọn cột */}
             {showColumnOptions && (
                 <div className="column-options-container">
-                    {/* ... Code hiển thị tùy chọn cột của bạn ... */}
+                    <h3>Chọn cột hiển thị:</h3>
+                    <div className="column-options-grid">
+                        {Object.keys(columns).map(key => (
+                            <label key={key}>
+                                <input type="checkbox" checked={columns[key].visible} onChange={() => handleColumnToggle(key)} />
+                                {columns[key].label}
+                            </label>
+                        ))}
+                    </div>
+                    <div className="column-control-buttons">
+                        <button onClick={handleSelectAllColumns}>Chọn tất cả</button>
+                        <button onClick={handleDeselectAllColumns}>Bỏ chọn tất cả</button>
+                    </div>
                 </div>
             )}
 
@@ -290,72 +326,80 @@ const prevPage = () => {
                 <p>Không có cơ sở nào phù hợp.</p>
             ) : (
                 <>
-                    <table className="farm-table">
-                        <thead>
-                            <tr>
-                                {Object.values(columns).map(col => col.visible && (
-                                    <th key={col.id} style={{ minWidth: col.minWidth }}>{col.label}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentItems.map((item) => (
-                                <tr key={item._id}>
+                    <div className="table-wrapper">
+                        <table className="farm-table">
+                            <thead>
+                                <tr>
                                     {Object.values(columns).map(col => col.visible && (
-                                        <td key={col.id}>
-                                            {col.id === 'actions' ? (
-                                                <div className="action-buttons-cell">
-                                                    <button onClick={() => handleNavigateToWoodDetail(item._id)} className="action-button view-button">👁️</button>
-                                                    <button onClick={() => handleEdit(item._id)} className="action-button edit-button">✏️</button>
-                                                {false && (<button onClick={() => handleDelete(item._id)} className="action-button delete-button">🗑️</button> //Tạm ẩn
-)}
-                                                 <button onClick={() => openAddProductModal(item._id)} className="action-button add-product-button" title="Thêm Lâm sản mới">➕🪵</button>
-                                                </div>
-                                            ) : col.id === 'products' ? (
-                                                item.products?.map(p => p.tenLamSan).join(', ') || 'Chưa có'
-                                            ) : (
-                                                ['ngayThanhLap', 'ngayCapCCCD'].includes(col.id) ? (item[col.id] ? new Date(item[col.id]).toLocaleDateString() : '') : item[col.id]
-                                            )}
-                                        </td>
+                                        <th key={col.id} style={{ minWidth: col.minWidth, width: col.width }}>{col.label}</th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <div className="pagination-container">
-                        <div className="pagination-info">
-                            {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredWoods.length)} / {filteredWoods.length} bản ghi
-                        </div>
-                        <div className="pagination-controls">
-                            <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <button
-                                    key={i + 1}
-                                    onClick={() => paginate(i + 1)}
-                                    className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                            <button onClick={nextPage} disabled={currentPage === totalPages} className="pagination-button">»</button>
-                        </div>
-                        <div className="items-per-page">
-                            <select value={itemsPerPage} onChange={(e) => {
-                                setItemsPerPage(Number(e.target.value));
-                                setCurrentPage(1);
-                            }}>
-                                <option value="5">5 bản ghi/trang</option>
-                                <option value="10">10 bản ghi/trang</option>
-                                <option value="15">15 bản ghi/trang</option>
-                                <option value="20">20 bản ghi/trang</option>
-                                <option value="50">50 bản ghi/trang</option>
-                            </select>
-                        </div>
+                            </thead>
+                            <tbody>
+                                {currentItems.map((item) => (
+                                    <tr key={item._id}>
+                                        {Object.values(columns).map(col => col.visible && (
+                                            <td key={col.id}>
+                                                {col.id === 'actions' ? (
+                                                    <div className="action-buttons-cell">
+                                                        <button onClick={() => handleNavigateToWoodDetail(item._id)} className="action-button view-button" title="Xem chi tiết">👁️</button>
+                                                        <button onClick={() => handleEdit(item._id)} className="action-button edit-button" title="Sửa">✏️</button>
+                                                        {false && (<button onClick={() => handleDelete(item._id)} className="action-button delete-button" title="Xóa">🗑️</button>)}
+                                                        <button onClick={() => openAddProductModal(item._id)} className="action-button add-product-button" title="Thêm Lâm sản mới">➕🪵</button>
+                                                    </div>
+													) : col.id === 'products' ? (
+													    (() => {
+													        // Gộp cả sản phẩm gỗ và sản phẩm động vật vào một danh sách
+ 													       const allProducts = [
+													            ...(item.woodProducts || []),
+													            ...(item.animalProducts || [])
+													        ];
+
+													        // Nếu không có sản phẩm nào, hiển thị 'Chưa có'
+ 													       if (allProducts.length === 0) {
+ 													           return 'Chưa có';
+													        }
+
+ 													       // Nếu có, lấy tên của tất cả sản phẩm và nối chúng lại
+													        return allProducts.map(p => p.tenLamSan).join(', ');
+													    })()
+													) : (
+                                                    // Dữ liệu ở đây `item[col.id]` đã là tên đầy đủ
+                                                    ['ngayThanhLap', 'ngayCapCCCD'].includes(col.id) ? (item[col.id] ? new Date(item[col.id]).toLocaleDateString('vi-VN') : '') : item[col.id]
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
+                    {/* Pagination */}
+                    <div className="pagination-container">
+                         <div className="pagination-info">
+                             Hiển thị {filteredWoods.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0} - {Math.min(currentPage * itemsPerPage, filteredWoods.length)} trên tổng số {filteredWoods.length} bản ghi
+                         </div>
+                         <div className="pagination-controls">
+                             <button onClick={prevPage} disabled={currentPage === 1} className="pagination-button">«</button>
+                             <span> Trang {currentPage} / {totalPages || 1} </span>
+                             <button onClick={nextPage} disabled={currentPage === totalPages || totalPages === 0} className="pagination-button">»</button>
+                         </div>
+                         <div className="items-per-page">
+                             <select value={itemsPerPage} onChange={(e) => {
+                                 setItemsPerPage(Number(e.target.value));
+                                 setCurrentPage(1);
+                             }}>
+                                 <option value="5">5 / trang</option>
+                                 <option value="10">10 / trang</option>
+                                 <option value="15">15 / trang</option>
+                                 <option value="20">20 / trang</option>
+                                 <option value="50">50 / trang</option>
+                             </select>
+                         </div>
+                     </div>
                 </>
             )}
 
-            {/* Modal được đặt ở đây là hợp lý nhất */}
             <AddProductModal
                 isOpen={isModalOpen}
                 onRequestClose={closeModal}

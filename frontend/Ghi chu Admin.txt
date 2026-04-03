@@ -1,0 +1,25 @@
+*
+git add .
+git commit -m "update api"
+git push
+
+
+
+
+Thêm một thành phần.
+1. // src/components/Sidebar.js
+2. // App.js
+3. // Modum_New.js
+Bankend
+4.// Sever
+5.// Routes Modum_New
+6.// Models Modum_New
+------
+1️. Backend – Model chuẩn theo dõi đàn
+models/AnimalProduct.js
+2. Backend – API tăng, giảm đàn
+routes/animalRoutes.js
+3. Hàm tự động cập nhật tổng đàn
+utils/updateTotal.js
+54. Frontend – Dropdown hiển thị tên lâm sản
+components/AnimalDropdown.jsx

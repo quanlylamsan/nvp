@@ -5,19 +5,20 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedLayout from './layouts/ProtectedLayout';
 import LoginPage from './pages/LoginPage';
+import Thongbao from './pages/Thongbao';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import DashboardPage from './pages/Dashboard';
 import KhaiBaoCoSo from './pages/KhaiBaoCoSo';
-import RegisterManageSub1Page from './pages/RegisterManageSub1Page';
-import RegisterManageSub2Page from './pages/RegisterManageSub2Page';
+import KhaiBaoCoSoDongvat from './pages/KhaiBaoCoSoDongvat';
+import RegisterManageSub1Page from './pages/RegisterManageSub1Page'; //Quan ly go
+import RegisterManageSub2Page from './pages/RegisterManageSub2Page'; //Quan ly dong vat
 import Googlemaps from './pages/Googlemaps';
 import WoodDetail from './pages/WoodDetail';
 import FarmDetail from './pages/FarmDetail';
 import FarmEditPage from './pages/FarmEditPage';
 import WoodEditPage from './pages/WoodEditPage'; // Đảm bảo import đúng component
-import AddProductToFarm from './pages/AddProductToFarm';
-
-import MasterProductListPage from './pages/MasterProductListPage';
+import MasterProductListPage from './pages/MasterProductListPage'; //Tong hop go
+import MasterAnimalListPage from './pages/MasterAnimalListPage'; //Tong hop dong vat
 import UserListPage from './pages/UserListPage';
 import CustomerListPage from './pages/CustomerListPage';
 
@@ -41,21 +42,24 @@ function App() {
           {/* Default route after login */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="dashboard" element={<DashboardPage />} />
+		  <Route path="Thongbao" element={<Thongbao />} />
           <Route path="khai-bao" element={<KhaiBaoCoSo />} />
+		  <Route path="khai-bao-dongvat" element={<KhaiBaoCoSoDongvat />} />
           <Route path="google-maps" element={<Googlemaps />} />
-          <Route path="bao-cao-tong-hop" element={<MasterProductListPage />} />
+          <Route path="tonghop-go" element={<MasterProductListPage />} />
+		  <Route path="tonghop-dongvat" element={<MasterAnimalListPage />} />
 
           {/* Farm (Gây nuôi) specific routes */}
           <Route path="admin/breeding-farms" element={<RegisterManageSub2Page />} />
           <Route path="farm-details/:id" element={<FarmDetail />} />
           <Route path="edit-farm/:id" element={<FarmEditPage />} />
-          <Route path="farm/:farmId/add-product" element={<AddProductToFarm />} />
+  
 
           {/* Wood (Kinh doanh gỗ) specific routes */}
           <Route path="admin/wood-farms" element={<RegisterManageSub1Page />} />
-          <Route path="admin/woods/:id" element={<WoodDetail />} />
+          <Route path="admin/woods/:farmId" element={<WoodDetail />} />
           <Route path="edit-wood/:id" element={<WoodEditPage />} />
-          
+
           
           {/* Admin only routes */}
           <Route path="admin/users" element={<UserListPage />} />

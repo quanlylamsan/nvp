@@ -1,208 +1,459 @@
-/* FormPage.css */
-.form-page-container {
-  max-width: 100%;
-  margin: 20px auto;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+/* ======================================================
+   CONTAINER CHÍNH
+====================================================== */
+
+.form-container{
+  width:100%;
+  padding:20px 30px;
+  box-sizing:border-box;
 }
 
-.form-page-container h2 {
-  color: #333;
-  text-align: center;
-  margin-bottom: 1px; /* Giảm khoảng cách dưới h2 */
-  font-size: 1.8em;
+/* ======================================================
+   TIÊU ĐỀ TRẠI
+====================================================== */
+
+.farm-title{
+  font-size:20px;
+  font-weight:600;
+  margin-bottom:20px;
 }
 
-.farm-form label {
-  display: block;
-  margin-bottom: 1px; /* Giảm khoảng cách dưới label */
-  font-weight: bold;
-  color: #555;
+/* ======================================================
+   GRID CHỌN LOÀI + THỐNG KÊ
+====================================================== */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:320px 1fr;
+  gap:20px;
+  margin-bottom:20px;
+  align-items:start;
 }
 
-.farm-form input[type="text"],
-.farm-form input[type="date"],
-.farm-form input[type="number"],
-.farm-form select { /* Thêm select vào đây */
-  width: calc(100% - 20px);
-  padding: 10px;
-  margin-top: 1px; /* Giảm khoảng cách trên input */
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1em;
+/* ======================================================
+   CARD CHUNG
+====================================================== */
+
+.selection-box,
+.stats-box,
+.modern-form{
+  background:#ffffff;
+  border:1px solid #dce3ea;
+  border-radius:6px;
 }
 
-.farm-form h3 {
-  margin-top: 1px; /* Giảm khoảng cách trên h3 */
-  margin-bottom: 1px; /* Giảm khoảng cách dưới h3 */
-  color: #444;
-  font-size: 1.4em;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1px; /* Giảm padding-bottom */
+/* ======================================================
+   CHỌN LOÀI
+====================================================== */
+
+.selection-box{
+  padding:16px;
 }
 
-/* Các style cho form-grid, form-group, input, button đã được định nghĩa trong FormPage.css */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1px; /* Giảm khoảng cách giữa các cột */
-  margin-bottom: 1px; /* Giảm khoảng cách dưới grid */
+.label-title{
+  font-weight:600;
+  font-size:14px;
+  margin-bottom:8px;
+  display:block;
 }
 
-.form-group {
-  margin-bottom: 0px; /* Giảm khoảng cách giữa các nhóm form */
+.custom-select{
+  width:100%;
+  padding:8px 10px;
+  border:1px solid #cfd6de;
+  border-radius:4px;
+  font-size:14px;
 }
 
-.form-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 10px; /* Giảm padding */
-  margin-bottom: 1px; /* Giảm margin-bottom */
-  background-color: #fdfdfd;
+/* ======================================================
+   THỐNG KÊ LOÀI
+====================================================== */
+
+.stats-box{
+  padding:16px;
 }
 
-.form-section h5 {
-  margin-top: 1px; /* Giảm khoảng cách trên h5 */
-  margin-bottom: 1px; /* Giảm khoảng cách dưới h5 */
-  color: #555;
-  font-size: 1.1em;
+.stats-header{
+  font-weight:600;
+  font-size:15px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
 
-.form-section-row {
-  display: flex;
-  gap: 1px; /* Giảm khoảng cách giữa các input trong hàng */
-  margin-bottom: 1px; /* Giảm khoảng cách giữa các dòng input */
-  align-items: center;
+/* ======================================================
+   TABLE WRAPPER
+====================================================== */
+
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;
 }
 
-.form-section-row .form-group {
-    margin-bottom: 0; /* Loại bỏ margin-bottom thừa trong hàng */
+/* ======================================================
+   BẢNG THỐNG KÊ
+====================================================== */
+
+.modern-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px;
 }
 
-.form-section-wrapper {
-  flex: 1; /* Đảm bảo các phần Tăng đàn/Giảm đàn chia đều không gian */
-  min-width: 280px; /* Ngăn không cho chúng quá nhỏ trên màn hình hẹp */
-  padding: 1px; /* Giảm padding để giảm khoảng cách */
-  box-sizing: border-box; /* Đảm bảo padding không làm tăng kích thước tổng thể */
+.modern-table th{
+  background:#2f6fb2;
+  color:#fff;
+  padding:8px;
+  font-size:13px;
+  text-align:center;
 }
 
-/* Điều chỉnh cho input trong form-group để chúng không bị quá nhỏ */
-.form-group input[type="number"],
-.form-group input[type="text"],
-.form-group input[type="date"],
-.form-group select { /* Thêm select vào đây */
-  width: 100%; /* Đảm bảo input chiếm hết chiều rộng có thể */
-  box-sizing: border-box; /* Bao gồm padding và border vào width */
-  padding: 5px 8px; /* Giảm padding cho input */
+.modern-table td{
+  border:1px solid #e1e5ea;
+  padding:7px;
+  text-align:center;
+  font-size:13px;
 }
 
-/* Các nút */
-.submit-button, .cancel-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.2s;
-  margin-top: 1px; /* Giảm margin-top */
-  margin-right: 1px;
+.modern-table tbody tr:nth-child(even){
+  background:#f7f9fc;
 }
 
-.submit-button:hover {
-  background-color: #0056b3;
+.modern-table tbody tr:hover{
+  background:#eef4fb;
 }
 
-.cancel-button {
-  background-color: #6c757d;
+.modern-table .italic{
+  font-style:italic;
 }
 
-.cancel-button:hover {
-  background-color: #5a6268;
+.modern-table .total{
+  font-weight:600;
+  color:#2f6fb2;
 }
 
-.success-message {
-  color: green;
-  text-align: center;
-  margin-bottom: 1px;
+/* ======================================================
+   FORM THÊM BẢN GHI
+====================================================== */
+
+.modern-form{
+  padding:16px;
+  margin-bottom:20px;
 }
 
-.error-message {
-  color: red;
-  text-align: center;
-  margin-bottom: 1px;
+/* ======================================================
+   GRID FORM
+====================================================== */
+
+.form-grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:15px;
+  margin-bottom:15px;
 }
 
-/* Specific styles for FarmDetail table */
-.activity-list-container {
-  margin-top: 1px;
-  overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+.form-group label{
+  font-size:13px;
+  margin-bottom:4px;
+  display:block;
 }
 
-.activity-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1px; /* Giảm khoảng cách trên bảng */
-  font-size: 0.9em;
+.form-group input{
+  width:100%;
+  padding:7px 8px;
+  border:1px solid #cfd6de;
+  border-radius:4px;
+  font-size:13px;
 }
 
-.activity-table th,
-.activity-table td {
-  border: 1px solid #ddd;
-  padding: 6px; /* Giảm padding cho ô bảng */
-  text-align: center;
-  vertical-align: middle;
+/* ======================================================
+   GRID TĂNG GIẢM
+====================================================== */
+
+.form-grid-tanggiam{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
 }
 
-.activity-table thead th {
-  background-color: #f2f2f2;
-  font-weight: bold;
+.form-section-wrapper{
+  border:1px solid #e1e5ea;
+  border-radius:6px;
+  padding:12px;
+  background:#f9fbfd;
 }
 
-.activity-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+.form-section-wrapper h4{
+  font-size:14px;
+  margin-bottom:10px;
 }
 
-.activity-table tbody tr:hover {
-  background-color: #f1f1f1;
+/* nested grid */
+
+.nested-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
 }
 
-.activity-table .delete-button {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8em;
-  transition: background-color 0.2s;
+.form-section h5{
+  font-size:13px;
+  margin-bottom:6px;
 }
 
-.activity-table .delete-button:hover {
-  background-color: #c82333;
+.form-section-row{
+  display:flex;
+  gap:10px;
 }
 
-.detail-group {
-    margin-bottom: 1px; /* Giảm khoảng cách cho các nhóm chi tiết */
+.form-section-row .form-group{
+  flex:1;
 }
 
-.detail-group strong {
-    display: block;
-    margin-bottom: 1px; /* Giảm khoảng cách giữa strong và p */
+/* ======================================================
+   BUTTON
+====================================================== */
+
+.submit-button{
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  border:none;
+  background:#2f6fb2;
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  border-radius:5px;
+  cursor:pointer;
+  transition:0.2s;
 }
-/* --- Vùng chứa chính cho nhóm vị trí --- */
-.location-group {
-  display: flex; /* Sắp xếp các mục theo hàng ngang */
-  flex-wrap: wrap; /* Cho phép tự động xuống dòng nếu không đủ chỗ */
-  gap: 15px; /* Khoảng cách giữa các mục */
-  
-  background-color: #f8f9fa; /* Màu nền xám rất nhạt */
-  padding: 20px;
-  border-radius: 12px; /* Bo tròn các góc */
-  border: 1px solid #e9ecef; /* Đường viền tinh tế */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ */
-  margin-top: 10px;
+
+.submit-button:hover{
+  background:#245c95;
+}
+
+/* ======================================================
+   LỊCH SỬ THEO DÕI
+====================================================== */
+
+.activity-list-container{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid #dce3ea;
+  border-radius:6px;
+}
+
+/* bảng */
+
+.activity-table{
+  width:100%;
+  min-width:1600px;
+  border-collapse:collapse;
+}
+
+/* header */
+
+.activity-table th{
+  background:#3e87b5;
+  color:#fff;
+  padding:6px;
+  font-size:12px;
+  text-align:center;
+  vertical-align:middle;
+}
+
+/* cell */
+
+.activity-table td{
+  border:1px solid #e1e5ea;
+  padding:6px;
+  font-size:12px;
+  text-align:center;
+}
+
+/* zebra */
+
+.activity-table tbody tr:nth-child(even){
+  background:#f5f7fa;
+}
+
+.activity-table tbody tr:hover{
+  background:#eaf3fb;
+}
+
+/* ======================================================
+   DELETE BUTTON
+====================================================== */
+
+.delete-button{
+  background:#e74c3c;
+  border:none;
+  color:white;
+  padding:4px 8px;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.delete-button:hover{
+  background:#c0392b;
+}
+
+/* ======================================================
+   ACTION BUTTONS
+====================================================== */
+
+.detail-actions{
+  margin-top:20px;
+}
+
+.cancel-button{
+  background:#6c757d;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.cancel-button:hover{
+  background:#5a6268;
+}
+
+/* ======================================================
+   MESSAGE
+====================================================== */
+
+.success-message{
+  background:#d4edda;
+  color:#155724;
+  padding:8px;
+  border-radius:4px;
+  margin-bottom:10px;
+}
+
+.error-message{
+  background:#f8d7da;
+  color:#721c24;
+  padding:8px;
+  border-radius:4px;
+  margin-bottom:10px;
+}
+/* ===== CONTAINER ===== */
+
+.activity-list-container{
+  width:100%;
+  overflow-x:auto;
+  border-radius:10px;
+  background:#ffffff;
+  box-shadow:0 4px 14px rgba(0,0,0,0.08);
+  padding:10px;
+}
+
+/* ===== TABLE ===== */
+
+.activity-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1400px;
+  font-size:14px;
+}
+
+/* ===== HEADER ===== */
+
+.activity-table thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:linear-gradient(135deg,#3f7ea6,#2d6c95);
+  color:white;
+  text-align:center;
+  padding:10px 6px;
+  border:1px solid #d5e3ec;
+  font-weight:600;
+}
+
+/* header cấp 2 */
+
+.activity-table thead tr:nth-child(2) th{
+  background:#4f8fb8;
+}
+
+/* header cấp 3 */
+
+.activity-table thead tr:nth-child(3) th{
+  background:#6aa3c8;
+}
+
+/* ===== BODY ===== */
+
+.activity-table tbody td{
+  text-align:center;
+  padding:8px 6px;
+  border:1px solid #e0e6eb;
+}
+
+/* zebra row */
+
+.activity-table tbody tr:nth-child(even){
+  background:#f7f9fb;
+}
+
+/* hover highlight */
+
+.activity-table tbody tr:hover{
+  background:#e9f4fb;
+  transition:0.2s;
+}
+
+/* ===== TOTAL COLUMN ===== */
+
+.activity-table tbody td:nth-child(3){
+  font-weight:700;
+  color:#1a6fb3;
+}
+
+/* ===== TĂNG ===== */
+
+.activity-table tbody td:nth-child(n+9):nth-child(-n+13){
+  color:#1f8f3c;
+  font-weight:600;
+}
+
+/* ===== GIẢM ===== */
+
+.activity-table tbody td:nth-child(n+14):nth-child(-n+18){
+  color:#c0392b;
+  font-weight:600;
+}
+
+/* ===== DELETE BUTTON ===== */
+
+.delete-button{
+  background:#e74c3c;
+  border:none;
+  color:white;
+  padding:5px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.delete-button:hover{
+  background:#c0392b;
+}
+
+/* ===== SCROLLBAR ===== */
+
+.activity-list-container::-webkit-scrollbar{
+  height:8px;
+}
+
+.activity-list-container::-webkit-scrollbar-thumb{
+  background:#b5c6d1;
+  border-radius:6px;
+}
+
+.activity-list-container::-webkit-scrollbar-track{
+  background:#f1f3f6;
 }
